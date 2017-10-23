@@ -32,9 +32,17 @@ export class App {
     protected configureRoutes(): void {
         const wrap = (fn: any) => (...args: any[]) => fn(...args).catch(args[2]);
         const router = express.Router();
-        router.get("/*", wrap((req: any, res: any, next: any) => {
+        router.get("/", wrap(async (req: any, res: any, next: any) => {
             res.type("text/plain");
             res.send(`Hello world!`);
         }));
+        this.express.use(router);
+        this.express.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+            res.status(err.status || 500);
+            res.json({
+                message: err.message,
+                error: err,
+            });
+        });
     }
 }

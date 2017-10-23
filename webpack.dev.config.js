@@ -1,11 +1,11 @@
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
+const NodemonPlugin = require('nodemon-webpack-plugin');
 const path = require('path');
 
 module.exports = {
     entry: [
-        'webpack-hot-middleware/client?reload=true',
-        './src/index.dev.ts'
+        './src/index.ts'
     ],
     devtool: 'inline-source-map',
     target: "node",
@@ -15,7 +15,7 @@ module.exports = {
         path: path.resolve(__dirname, 'dist')
     },
     plugins: [
-        new webpack.HotModuleReplacementPlugin(),
+        new NodemonPlugin(),
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('development')
         })
