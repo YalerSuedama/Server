@@ -11,6 +11,7 @@ module.exports = {
     target: "node",
     externals: [nodeExternals()],
     output: {
+        devtoolModuleFilenameTemplate: '[absolute-resource-path]',
         filename: 'server.js',
         path: path.resolve(__dirname, 'dist')
     },
