@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 const NodemonPlugin = require('nodemon-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
 
 module.exports = {
@@ -16,10 +17,12 @@ module.exports = {
         path: path.resolve(__dirname, 'dist')
     },
     plugins: [
-        new NodemonPlugin(),
+        new NodemonPlugin({ debug: true }),
         new webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify('development')
-        })
+            'process.env.NODE_ENV': JSON.stringify('development'),
+            'process.env.DEBUG': '*'
+        }),
+        new CopyWebpackPlugin([{ from: './config/default.json', to: './config' }, { from: './src/swagger/swagger.json' }])
     ],
     resolve: {
         extensions: [".ts", ".js"]
@@ -38,11 +41,7 @@ module.exports = {
             {
                 test: /\.ts$/,
                 exclude: /node_modules/,
-                use: [
-                    {
-                        loader: 'ts-loader'
-                    }
-                ]
+                loader: 'ts-loader'
             }
         ]
     }

@@ -4,8 +4,14 @@
     "description": "Amadeus Relay Server",
     "main": "index.ts",
     "scripts": {
-        "start": "node dist/server.js",
-        "build:dev": "webpack --watch --config webpack.dev.config.js",
+        "clean": "rimraf dist",
+        "generate-swagger": "tsoa swagger",
+        "generate-routes": "tsoa routes",
+        "generate-swagger-all": "npm-run-all generate-swagger generate-routes",
+        "prebuild": "npm-run-all clean generate-swagger-all",
+        "build": "webpack --config webpack.dev.config.js",
+        "start": "npm run build && node dist/server.js",
+        "start:dev": "npm run build && DEBUG=* webpack --watch --config webpack.dev.config.js",
         "test": "mocha --reporter spec --compilers ts:ts-node/register '**/*.test.ts'"
     },
     "repository": {
@@ -21,11 +27,14 @@
     "devDependencies": {
         "@types/body-parser": "^1.16.5",
         "@types/chai": "^4.0.4",
+        "@types/config": "0.0.33",
         "@types/express": "^4.0.37",
         "@types/lodash": "^4.14.78",
         "@types/mocha": "^2.2.43",
         "@types/node": "^8.0.46",
         "chai": "^4.1.2",
+        "copy-webpack-plugin": "^4.2.0",
+        "file-loader": "^1.1.5",
         "mocha": "^4.0.1",
         "nodemon-webpack-plugin": "^0.1.5",
         "ts-loader": "^3.0.5",
@@ -37,8 +46,17 @@
         "webpack-node-externals": "^1.6.0"
     },
     "dependencies": {
+        "@types/bignumber.js": "^4.0.3",
+        "@types/debug": "0.0.30",
+        "bignumber.js": "^4.1.0",
         "body-parser": "^1.18.2",
+        "config": "^1.27.0",
+        "debug": "^3.1.0",
         "express": "^4.16.2",
-        "lodash": "^4.17.4"
+        "express-ping": "^1.4.0",
+        "lodash": "^4.17.4",
+        "rimraf": "^2.6.2",
+        "swagger-ui-express": "^2.0.8",
+        "tsoa": "^2.0.1"
     }
 }

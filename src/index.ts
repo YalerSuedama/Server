@@ -1,4 +1,4 @@
-import { App } from "./App/App";
-import port from "./port";
+import "./controllers/orderController";
+import { Server } from "./middleware/server/server";
 
-new App().listen(port);
+new Server().start();

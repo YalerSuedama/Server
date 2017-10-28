@@ -1,0 +1,28 @@
+{
+    "swagger": {
+        "info": {
+            "description": "Amadeus Relay is a relayer built on top of 0xProject to facilitate ERC20 tokens exchange",
+            "version": "1.0.0",
+            "title": "Amadeus Relay"
+        },
+        "tags": [
+            {
+                "name": "orders",
+                "description": "Get existing orders in the relayer"
+            }
+        ],
+        "schemes": [
+            "http",
+            "https"
+        ],
+        "outputDirectory": "./src/swagger",
+        "entryFile": "./src/index.ts",
+        "host": "localhost:3000",
+        "basePath": "/api/v0"
+    },
+    "routes": {
+        "basePath": "/api/v0",
+        "entryFile": "./src/index.ts",
+        "routesDir": "./src/middleware/server"
+    }
+}

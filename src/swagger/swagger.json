@@ -1,0 +1,137 @@
+{
+	"basePath": "/api/v0",
+	"consumes": [
+		"application/json"
+	],
+	"definitions": {
+		"ECSignature": {
+			"properties": {
+				"v": {
+					"type": "number",
+					"format": "double"
+				},
+				"r": {
+					"type": "string"
+				},
+				"s": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"v",
+				"r",
+				"s"
+			],
+			"type": "object"
+		},
+		"SignedOrderResponse": {
+			"properties": {
+				"ecSignature": {
+					"$ref": "#/definitions/ECSignature"
+				},
+				"maker": {
+					"type": "string"
+				},
+				"taker": {
+					"type": "string"
+				},
+				"makerFee": {
+					"type": "string"
+				},
+				"takerFee": {
+					"type": "string"
+				},
+				"makerTokenAmount": {
+					"type": "string"
+				},
+				"takerTokenAmount": {
+					"type": "string"
+				},
+				"makerTokenAddress": {
+					"type": "string"
+				},
+				"takerTokenAddress": {
+					"type": "string"
+				},
+				"salt": {
+					"type": "string"
+				},
+				"exchangeContractAddress": {
+					"type": "string"
+				},
+				"feeRecipient": {
+					"type": "string"
+				},
+				"expirationUnixTimestampSec": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"ecSignature",
+				"maker",
+				"taker",
+				"makerFee",
+				"takerFee",
+				"makerTokenAmount",
+				"takerTokenAmount",
+				"makerTokenAddress",
+				"takerTokenAddress",
+				"salt",
+				"exchangeContractAddress",
+				"feeRecipient",
+				"expirationUnixTimestampSec"
+			],
+			"type": "object"
+		}
+	},
+	"info": {
+		"title": "amadeusrelayserver",
+		"version": "0.1.0",
+		"description": "Amadeus Relay Server",
+		"license": {
+			"name": "ISC"
+		}
+	},
+	"paths": {
+		"/orders": {
+			"get": {
+				"operationId": "GetOrders",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/SignedOrderResponse"
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "tokenA",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"in": "query",
+						"name": "tokenB",
+						"required": false,
+						"type": "string"
+					}
+				]
+			}
+		}
+	},
+	"produces": [
+		"application/json"
+	],
+	"swagger": "2.0",
+	"securityDefinitions": {},
+	"host": "localhost:3000"
+}
