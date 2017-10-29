@@ -8,8 +8,7 @@
         "generate-swagger": "tsoa swagger",
         "generate-routes": "tsoa routes",
         "generate-swagger-all": "npm run generate-swagger && npm run generate-routes",
-        "prebuild": "npm run clean && npm run generate-swagger-all",
-        "build": "webpack --config webpack.dev.config.js",
+        "build": "npm run clean && npm run generate-swagger-all && webpack --config webpack.dev.config.js",
         "start": "npm run build && node dist/server.js",
         "start:dev": "npm run build && DEBUG=* webpack --watch --config webpack.dev.config.js",
         "test": "mocha --reporter spec --compilers ts:ts-node/register '**/*.test.ts'"
