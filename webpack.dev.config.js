@@ -22,7 +22,7 @@ module.exports = {
             'process.env.NODE_ENV': JSON.stringify('development'),
             'process.env.DEBUG': '*'
         }),
-        new CopyWebpackPlugin([{ from: './config/default.json', to: './config' }, { from: './src/swagger/swagger.json' }])
+        new CopyWebpackPlugin([{ from: './config/default.json', to: './config' }, { from: './src/server/swagger/swagger.json' }])
     ],
     resolve: {
         extensions: [".ts", ".js"]

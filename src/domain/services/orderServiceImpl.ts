@@ -1,12 +1,10 @@
-import * as BigNumber from "bignumber.js";
-import { Controller, Get, Query, Route } from "tsoa";
-import { SignedOrderResponse } from "../models/signedOrderResponse";
+import { injectable } from "inversify";
+import { SignedOrder } from "../../app/models";
+import { OrderService } from "../../app/services";
 
-@Route("orders")
-export class OrderController extends Controller {
-
-    @Get()
-    public getOrders( @Query() tokenA?: string, @Query() tokenB?: string): SignedOrderResponse[] {
+@injectable()
+export class OrderServiceImpl implements OrderService {
+    public async listOrders(tokenA?: string, tokenB?: string): Promise<SignedOrder[]> {
         return [
             {
                 maker: "",

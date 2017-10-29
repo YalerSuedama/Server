@@ -54,7 +54,10 @@
         "debug": "^3.1.0",
         "express": "^4.16.2",
         "express-ping": "^1.4.0",
+        "inversify": "^4.3.0",
+        "inversify-binding-decorators": "^3.0.0",
         "lodash": "^4.17.4",
+        "reflect-metadata": "^0.1.10",
         "rimraf": "^2.6.2",
         "swagger-ui-express": "^2.0.8",
         "tsoa": "^2.0.1"

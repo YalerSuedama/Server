@@ -15,7 +15,7 @@
             "http",
             "https"
         ],
-        "outputDirectory": "./src/swagger",
+        "outputDirectory": "./src/server/swagger",
         "entryFile": "./src/index.ts",
         "host": "localhost:3000",
         "basePath": "/api/v0"
@@ -23,6 +23,7 @@
     "routes": {
         "basePath": "/api/v0",
         "entryFile": "./src/index.ts",
-        "routesDir": "./src/middleware/server"
+        "routesDir": "./src/server/middleware/routes",
+        "iocModule": "./src/server/middleware/iocContainer"
     }
 }

@@ -1,4 +1,4 @@
-import "./controllers/orderController";
-import { Server } from "./middleware/server/server";
+import * as Server from "./server";
+import "./server/controllers/orderController";
 
-new Server().start();
+new Server.Server().start();

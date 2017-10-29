@@ -1,5 +1,6 @@
 /* tslint:disable */
 import { Controller, ValidateParam, FieldErrors, ValidateError, TsoaRoute } from 'tsoa';
+import { iocContainer } from './../iocContainer';
 import { OrderController } from './../../controllers/orderController';
 
 const models: TsoaRoute.Models = {
@@ -10,7 +11,7 @@ const models: TsoaRoute.Models = {
             "s": { "dataType": "string", "required": true },
         },
     },
-    "SignedOrderResponse": {
+    "SignedOrder": {
         "properties": {
             "ecSignature": { "ref": "ECSignature", "required": true },
             "maker": { "dataType": "string", "required": true },
@@ -44,10 +45,10 @@ export function RegisterRoutes(app: any) {
                 return next(err);
             }
 
-            const controller = new OrderController();
+            const controller = iocContainer.get<OrderController>(OrderController);
 
 
-            const promise = controller.getOrders.apply(controller, validatedArgs);
+            const promise = controller.listOrders.apply(controller, validatedArgs);
             promiseHandler(controller, promise, response, next);
         });
 

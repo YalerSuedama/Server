@@ -3,9 +3,9 @@ import * as config from "config";
 import * as express from "express";
 import * as health from "express-ping";
 import * as swaggerUI from "swagger-ui-express";
-import * as swaggerJSON from "../../swagger/swagger.json";
-import { Logger } from "../common/logger";
-import { RegisterRoutes } from "./routes";
+import { Logger } from "./middleware/common/logger";
+import { RegisterRoutes } from "./middleware/routes/routes";
+import * as swaggerJSON from "./swagger/swagger.json";
 
 export class Server {
     public express: express.Application;
@@ -39,8 +39,7 @@ export class Server {
     Server started: http://${expressHost.address}:${expressHost.port}
     Health: http://${expressHost.address}:${expressHost.port}/ping
     Swagger Spec: http://${expressHost.address}:${expressHost.port}/api-docs
-    ------------
-  `);
+    ------------`);
         });
     }
 

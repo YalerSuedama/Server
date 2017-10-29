@@ -24,7 +24,7 @@
 			],
 			"type": "object"
 		},
-		"SignedOrderResponse": {
+		"SignedOrder": {
 			"properties": {
 				"ecSignature": {
 					"$ref": "#/definitions/ECSignature"
@@ -95,7 +95,7 @@
 	"paths": {
 		"/orders": {
 			"get": {
-				"operationId": "GetOrders",
+				"operationId": "ListOrders",
 				"produces": [
 					"application/json"
 				],
@@ -105,7 +105,7 @@
 						"schema": {
 							"type": "array",
 							"items": {
-								"$ref": "#/definitions/SignedOrderResponse"
+								"$ref": "#/definitions/SignedOrder"
 							}
 						}
 					}

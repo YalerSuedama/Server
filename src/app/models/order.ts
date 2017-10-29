@@ -1,4 +1,4 @@
-export interface OrderResponse {
+export interface Order {
     maker: string;
     taker: string;
     makerFee: string;
