@@ -3,17 +3,19 @@ import * as config from "config";
 import * as express from "express";
 import * as health from "express-ping";
 import * as swaggerUI from "swagger-ui-express";
-import { Logger } from "./middleware/common/logger";
+import { Logger, TYPES } from "../app";
+import { iocContainer } from "./middleware/iocContainer";
 import { RegisterRoutes } from "./middleware/routes/routes";
 import * as swaggerJSON from "./swagger/swagger.json";
 
 export class Server {
     public express: express.Application;
     private isListening: boolean = false;
-    private logger: Logger = new Logger("server");
+    private logger: Logger;
 
     constructor() {
         this.express = express();
+        this.logger = iocContainer.get<Logger>(TYPES.Logger);
         this.configure();
         RegisterRoutes(this.express);
     }

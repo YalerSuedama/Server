@@ -11,7 +11,8 @@
         "build": "npm run clean && npm run generate-swagger-all && webpack --config webpack.dev.config.js",
         "start": "npm run build && node dist/server.js",
         "start:dev": "npm run build && DEBUG=* webpack --watch --config webpack.dev.config.js",
-        "test": "mocha --reporter spec --compilers ts:ts-node/register '**/*.test.ts'"
+        "test:coverage": "DEBUG=*,-mocha:*,-babel nyc --require ts-node/register --require source-map-support/register mocha \"**/*.test.ts\"",
+        "test": "DEBUG=*,-mocha:* mocha --require ts-node/register \"**/*.test.ts\""
     },
     "repository": {
         "type": "git",
@@ -36,6 +37,7 @@
         "file-loader": "^1.1.5",
         "mocha": "^4.0.1",
         "nodemon-webpack-plugin": "^0.1.5",
+        "source-map-support": "^0.5.0",
         "ts-loader": "^3.0.5",
         "ts-node": "^3.3.0",
         "tslint": "^5.8.0",
@@ -47,6 +49,7 @@
     "dependencies": {
         "@types/bignumber.js": "^4.0.3",
         "@types/debug": "0.0.30",
+        "@types/sinon": "^2.3.7",
         "bignumber.js": "^4.1.0",
         "body-parser": "^1.18.2",
         "config": "^1.27.0",
@@ -56,9 +59,27 @@
         "inversify": "^4.3.0",
         "inversify-binding-decorators": "^3.0.0",
         "lodash": "^4.17.4",
+        "nyc": "^11.2.1",
         "reflect-metadata": "^0.1.10",
         "rimraf": "^2.6.2",
+        "sinon": "^4.0.2",
+        "supports-color": "^5.0.0",
         "swagger-ui-express": "^2.0.8",
         "tsoa": "^2.0.1"
+    },
+    "nyc": {
+        "extension": [
+            ".ts"
+        ],
+        "exclude": [
+            "**/*.d.ts",
+            "**/dist/**",
+            "**/coverage/**",
+            "webpack.*.config.js"
+        ],
+        "reporter": [
+            "text"
+        ],
+        "all": true
     }
 }
