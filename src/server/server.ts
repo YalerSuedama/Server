@@ -16,6 +16,7 @@ export class Server {
     constructor() {
         this.express = express();
         this.logger = iocContainer.get<Logger>(TYPES.Logger);
+        this.logger.setNamespace("Server");
         this.configure();
         RegisterRoutes(this.express);
     }

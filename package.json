@@ -11,8 +11,8 @@
         "build": "npm run clean && npm run generate-swagger-all && webpack --config webpack.dev.config.js",
         "start": "npm run build && node dist/server.js",
         "start:dev": "npm run build && DEBUG=* webpack --watch --config webpack.dev.config.js",
-        "test:coverage": "DEBUG=*,-mocha:*,-babel nyc --require ts-node/register --require source-map-support/register mocha \"**/*.test.ts\"",
-        "test": "DEBUG=*,-mocha:*,-express:* mocha --opts \"./mocha.opts\""
+        "test:coverage": "DEBUG=amadeusrelay:* nyc --require ts-node/register --require source-map-support/register mocha \"**/*.test.ts\"",
+        "test": "DEBUG=amadeusrelay:* mocha --opts \"./mocha.opts\""
     },
     "repository": {
         "type": "git",

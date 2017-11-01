@@ -17,35 +17,29 @@ describe("Routes", () => {
     });
 
     describe("/api/v0/orders", () => {
-        let stub: sinon.SinonSpy;
+        let spy: sinon.SinonSpy;
         let expressApp: express.Express;
-        let server: Server;
 
-        beforeEach(() => {
+        beforeEach((done) => {
             expressApp = express();
-            expressApp.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-                res.status(err.status || 500);
-                res.json({
-                    message: err.message,
-                    error: err,
-                });
-            });
             RegisterRoutes(expressApp);
-            server = expressApp.listen(3000);
-            stub = sinon.spy(iocContainer.get<OrderController>(OrderController), "listOrders");
+            spy = sinon.spy(iocContainer.get<OrderController>(OrderController), "listOrders");
+            done();
         });
         afterEach((done) => {
-            stub.restore();
-            server.close(done);
+            spy.restore();
+            done();
         });
 
-        it("should be registered", () => {
-            supertest(server).get("/api/v0/orders").expect(200);
+        it("should be registered", (done) => {
+            supertest(expressApp).get("/api/v0/orders").expect(200, done);
         });
-        it.skip("should call OrderController.listOrders", () => {
-            supertest(server).get("api/v0/orders");
-            // tslint:disable-next-line:no-unused-expression
-            expect(stub).to.be.calledOnce;
+        it("should call OrderController.listOrders", (done) => {
+            supertest(expressApp).get("/api/v0/orders").end((err, res) => {
+                // tslint:disable-next-line:no-unused-expression
+                expect(spy).to.be.calledOnce;
+                done(err);
+            });
         });
     });
 });
