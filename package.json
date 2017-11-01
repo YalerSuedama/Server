@@ -12,7 +12,7 @@
         "start": "npm run build && node dist/server.js",
         "start:dev": "npm run build && DEBUG=* webpack --watch --config webpack.dev.config.js",
         "test:coverage": "DEBUG=*,-mocha:*,-babel nyc --require ts-node/register --require source-map-support/register mocha \"**/*.test.ts\"",
-        "test": "DEBUG=*,-mocha:* mocha --require ts-node/register \"**/*.test.ts\""
+        "test": "DEBUG=*,-mocha:*,-express:* mocha --opts \"./mocha.opts\""
     },
     "repository": {
         "type": "git",
@@ -50,6 +50,8 @@
         "@types/bignumber.js": "^4.0.3",
         "@types/debug": "0.0.30",
         "@types/sinon": "^2.3.7",
+        "@types/sinon-chai": "^2.7.29",
+        "@types/supertest": "^2.0.3",
         "bignumber.js": "^4.1.0",
         "body-parser": "^1.18.2",
         "config": "^1.27.0",
@@ -63,6 +65,8 @@
         "reflect-metadata": "^0.1.10",
         "rimraf": "^2.6.2",
         "sinon": "^4.0.2",
+        "sinon-chai": "^2.14.0",
+        "supertest": "^3.0.0",
         "supports-color": "^5.0.0",
         "swagger-ui-express": "^2.0.8",
         "tsoa": "^2.0.1"
