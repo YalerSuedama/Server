@@ -1,4 +1,3 @@
-import * as BigNumber from "bignumber.js";
 import { inject, injectable } from "inversify";
 import { Controller, Get, Query, Route } from "tsoa";
 import { OrderService, TYPES } from "../../app";

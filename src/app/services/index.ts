@@ -1,2 +1,9 @@
-export { OrderService } from "./orderService";
+export { CryptographyService } from "./cryptographyService";
+export { ExchangeService } from "./exchangeService";
+export { FeeService } from "./feeService";
+export { LiquidityService } from "./liquidityService";
 export { Logger } from "./logger";
+export { OrderService } from "./orderService";
+export { SaltService } from "./saltService";
+export { TimeService } from "./timeService";
+export { TraderService } from "./traderService";
