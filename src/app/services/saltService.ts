@@ -1,3 +1,3 @@
 export interface SaltService {
-    getSalt(): string;
+    getSalt(): Promise<string>;
 }

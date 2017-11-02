@@ -1,3 +1,4 @@
+export { AmadeusService } from "./amadeusService";
 export { CryptographyService } from "./cryptographyService";
 export { ExchangeService } from "./exchangeService";
 export { FeeService } from "./feeService";

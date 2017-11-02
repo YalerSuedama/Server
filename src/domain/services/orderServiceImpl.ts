@@ -26,15 +26,14 @@ export class OrderServiceImpl implements OrderService {
         @inject(TYPES.TimeService)
         private timeService: TimeService,
     ) {
-        // Constructor
     }
 
     public async listOrders(tokenA?: string, tokenB?: string): Promise<SignedOrder[]> {
         const orders: SignedOrder[] = [];
         const pools: TokenPool[] = await this.liquidityService.getAvailablePools(tokenA, tokenB);
         return Promise.all(pools.map(async (pool) => {
-            const makerTrader: Trader = this.traderService.createMaker(pool);
-            const takerTrader: Trader = this.traderService.createTaker(pool);
+            const makerTrader: Trader = await this.traderService.createMaker(pool);
+            const takerTrader: Trader = await this.traderService.createTaker(pool);
             return await this.cryptographyService.signOrder({
                 maker: makerTrader.traderAddress,
                 makerTokenAmount: makerTrader.tokenAmount.toString(),
@@ -44,7 +43,7 @@ export class OrderServiceImpl implements OrderService {
                 takerTokenAddress: takerTrader.traderTokenAddress,
                 makerFee: (await this.feeService.getMakerFee(tokenA)).toString(),
                 takerFee: (await this.feeService.getTakerFee(tokenA)).toString(),
-                salt: this.saltService.getSalt(),
+                salt: await this.saltService.getSalt(),
                 exchangeContractAddress: await this.exchangeService.getContractAddress(),
                 feeRecipient: await this.feeService.getFeeRecipient(),
                 expirationUnixTimestampSec: this.timeService.getExpirationTimestamp(),
