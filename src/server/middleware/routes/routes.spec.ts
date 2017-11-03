@@ -17,17 +17,17 @@ describe("Routes", () => {
     });
 
     describe("/api/v0/orders", () => {
-        let spy: sinon.SinonSpy;
+        let stub: sinon.SinonStub;
         let expressApp: express.Express;
 
         beforeEach((done) => {
             expressApp = express();
             RegisterRoutes(expressApp);
-            spy = sinon.spy(iocContainer.get<OrderController>(OrderController), "listOrders");
+            stub = sinon.stub(iocContainer.get<OrderController>(OrderController), "listOrders").returns({});
             done();
         });
         afterEach((done) => {
-            spy.restore();
+            stub.restore();
             done();
         });
 
@@ -37,7 +37,7 @@ describe("Routes", () => {
         it("should call OrderController.listOrders", (done) => {
             supertest(expressApp).get("/api/v0/orders").end((err, res) => {
                 // tslint:disable-next-line:no-unused-expression
-                expect(spy).to.be.calledOnce;
+                expect(stub).to.be.calledOnce;
                 done(err);
             });
         });

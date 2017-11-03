@@ -9,13 +9,13 @@ export class AccountPercentageLiquidityService implements LiquidityService {
         return Promise.all(tokens.map(async (token) => {
             return {
                 tokenFrom: {
-                    addres: "0x0000000000000000000000000000000000000",
+                    addres: "0x0000000000000000000000000000000000000000",
                     symbol: token,
                     decimals: 1000000000000000000,
                 },
                 tokenFromPoolAmount: new BigNumber(100000000000000000000),
                 tokenTo: {
-                    addres: "0x0000000000000000000000000000000000000",
+                    addres: "0x0000000000000000000000000000000000000000",
                     symbol: "ETH",
                     decimals: 1000000000000000000,
                 },

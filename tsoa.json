@@ -23,7 +23,11 @@
     "routes": {
         "basePath": "/api/v0",
         "entryFile": "./src/index.ts",
+        "middleware": "express",
         "routesDir": "./src/server/middleware/routes",
         "iocModule": "./src/server/middleware/iocContainer"
-    }
+    },
+    "ignore": [
+        "**/node_modules/0x.js/**/*"
+    ]
 }

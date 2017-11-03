@@ -1,9 +1,10 @@
+import * as config from "config";
 import { injectable } from "inversify";
 import { AmadeusService } from "../../app";
 
 @injectable()
-export class ConstantAmadeusService implements AmadeusService {
-    private readonly address = "0x0000000000000000000000000000000000000000";
+export class FromConfigAmadeusService implements AmadeusService {
+    private readonly address = config.get("amadeus.wallet") as string;
 
     public getFeeAddress(): string {
         return this.address;

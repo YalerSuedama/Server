@@ -2,5 +2,8 @@
     "server": {
         "hostname": "localhost",
         "port": 3000
+    },
+    "amadeus": {
+        "wallet": "0xf14958eca9f5b341f74916aacfb6e3d2fb9a4a15"
     }
 }

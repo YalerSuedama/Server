@@ -29,7 +29,6 @@ export class OrderServiceImpl implements OrderService {
     }
 
     public async listOrders(tokenA?: string, tokenB?: string): Promise<SignedOrder[]> {
-        const orders: SignedOrder[] = [];
         const pools: TokenPool[] = await this.liquidityService.getAvailablePools(tokenA, tokenB);
         return Promise.all(pools.map(async (pool) => {
             const makerTrader: Trader = await this.traderService.createMaker(pool);

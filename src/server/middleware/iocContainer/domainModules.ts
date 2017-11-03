@@ -3,7 +3,7 @@ import { Container, ContainerModule, decorate, injectable, interfaces } from "in
 import "reflect-metadata";
 import { Controller } from "tsoa";
 import { AmadeusService, CryptographyService, ExchangeService, FeeService, LiquidityService, Logger, OrderService, SaltService, TimeService, TraderService, TYPES } from "../../../app";
-import { AccountPercentageLiquidityService, ConstantAmadeusService, ConstantFeeService, OrderServiceImpl, ReserveManagerTraderService, TimeServiceImpl, ZeroExWrapper } from "../../../domain";
+import { AccountPercentageLiquidityService, ConstantFeeService, FromConfigAmadeusService, OrderServiceImpl, ReserveManagerTraderService, TimeServiceImpl, ZeroExWrapper } from "../../../domain";
 import { OrderController } from "../../controllers/orderController";
 import { LoggerDebug } from "../common/loggerDebug";
 
@@ -13,7 +13,7 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
 
     // Services
     const zeroExWrapper = new ZeroExWrapper();
-    bind<AmadeusService>(TYPES.AmadeusService).to(ConstantAmadeusService);
+    bind<AmadeusService>(TYPES.AmadeusService).to(FromConfigAmadeusService);
     bind<CryptographyService>(TYPES.CryptographyService).toConstantValue(zeroExWrapper);
     bind<ExchangeService>(TYPES.ExchangeService).toConstantValue(zeroExWrapper);
     bind<FeeService>(TYPES.FeeService).to(ConstantFeeService);
