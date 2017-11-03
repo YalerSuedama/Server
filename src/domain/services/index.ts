@@ -1,5 +1,5 @@
 export * from "./accountPercentageLiquidityService";
-export * from "./fromConfigAmadeusService";
+export * from "./FromConfigAmadeusService";
 export * from "./constantFeeService";
 export * from "./orderServiceImpl";
 export * from "./reserveManagerTraderService";
