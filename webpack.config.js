@@ -1,6 +1,5 @@
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
-const NodemonPlugin = require('nodemon-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
 
@@ -8,7 +7,6 @@ module.exports = {
     entry: [
         './src/index.ts'
     ],
-    devtool: 'inline-source-map',
     target: "node",
     externals: [nodeExternals()],
     output: {
@@ -17,11 +15,8 @@ module.exports = {
         path: path.resolve(__dirname, 'dist')
     },
     plugins: [
-        new NodemonPlugin({ debug: true }),
         new webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify('development'),
             'process.env.ETHEREUM_NODE': JSON.stringify('localhost'),
-            'process.env.DEBUG': '*'
         }),
         new CopyWebpackPlugin([{ from: './config/default.json', to: './config' }, { from: './src/server/swagger/swagger.json' }])
     ],

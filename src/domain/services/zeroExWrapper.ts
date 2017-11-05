@@ -12,7 +12,7 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     private zeroEx: ZeroEx;
 
     constructor() {
-        this.web3 = new Web3JS(new Web3JS.providers.HttpProvider("http://localhost:8545"));
+        this.web3 = new Web3JS(new Web3JS.providers.HttpProvider("http://" + process.env.ETHEREUM_NODE + ":8545"));
         this.zeroEx = new ZeroEx(this.web3.currentProvider);
     }
 
