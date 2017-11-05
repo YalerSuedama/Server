@@ -1,5 +1,6 @@
 import * as bodyParser from "body-parser";
 import * as config from "config";
+import * as cors from "cors";
 import * as express from "express";
 import * as health from "express-ping";
 import * as swaggerUI from "swagger-ui-express";
@@ -47,6 +48,7 @@ export class Server {
     }
 
     private configure(): void {
+        this.express.use(cors());
         this.express.use(bodyParser.json());
         this.express.use(bodyParser.urlencoded({ extended: false }));
         this.express.use(health.ping());

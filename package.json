@@ -65,9 +65,11 @@
     },
     "dependencies": {
         "0x.js": "^0.22.4",
+        "@types/cors": "^2.8.1",
         "bignumber.js": "^4.1.0",
         "body-parser": "^1.18.2",
         "config": "^1.27.0",
+        "cors": "^2.8.4",
         "debug": "^3.1.0",
         "express": "^4.16.2",
         "express-ping": "^1.4.0",
