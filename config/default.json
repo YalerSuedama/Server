@@ -4,6 +4,27 @@
         "port": 3000
     },
     "amadeus": {
-        "wallet": "0xf14958eca9f5b341f74916aacfb6e3d2fb9a4a15"
+        "liquidityPercentage": "0.05",
+        "ticker": {
+            "ETH-ZRX": {
+                "bid": 0.00058935,
+                "ask": 0.00059881
+            },
+            "ETH-OMG": {
+                "bid": 0.02106432,
+                "ask": 0.02127549
+            },
+            "ZRX-OMG": {
+                "bid": 35.741613642148129,
+                "ask": 35.529617073863162
+            }
+        },
+        "tradableTokens": [
+            "ETH",
+            "ZRX",
+            "OMG"
+        ],
+        // "wallet": "0xf14958eca9f5b341f74916aacfb6e3d2fb9a4a15"
+        "wallet": "0x5409ed021d9299bf6814279a6a1411a7e866a631"
     }
 }

@@ -1,4 +1,4 @@
-import * as BigNumber from "bignumber.js";
+import { BigNumber } from "bignumber.js";
 import { injectable } from "inversify";
 import * as moment from "moment";
 import { TimeService, TYPES } from "../../app";

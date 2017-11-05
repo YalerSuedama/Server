@@ -1,5 +1,7 @@
+import * as BigNumber from "bignumber.js";
+
 export interface Token {
-    addres: string;
+    address: string;
     symbol: string;
     decimals: number;
 }

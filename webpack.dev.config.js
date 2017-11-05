@@ -17,7 +17,7 @@ module.exports = {
         path: path.resolve(__dirname, 'dist')
     },
     plugins: [
-        new NodemonPlugin({ debug: true }),
+        new NodemonPlugin({ nodeArgs: ['--inspect=5858'] }),
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('development'),
             'process.env.DEBUG': '*'

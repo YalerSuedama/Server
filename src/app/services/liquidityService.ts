@@ -1,5 +1,5 @@
-import { TokenPool } from "../models";
+import { Token, TokenPool } from "../models";
 
 export interface LiquidityService {
-    getAvailablePools(...tokens: string[]): Promise<TokenPool[]>;
+    getAvailableAmount(token: Token): Promise<TokenPool>;
 }

@@ -1,3 +1,7 @@
+import { BigNumber } from "bignumber.js";
+import { Token } from "../models";
+
 export interface ExchangeService {
-    getContractAddress(): Promise<string>;
+    get0xContractAddress(): Promise<string>;
+    getBalance(address: string, token?: Token): Promise<BigNumber>;
 }

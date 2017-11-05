@@ -1,12 +1,24 @@
-import * as BigNumber from "bignumber.js";
-import * as _ from "lodash";
+import { BigNumber } from "bignumber.js";
+import * as debug from "debug";
 
-export function toBaseUnit(value: number, decimals?: number) {
-    if (_.isUndefined(decimals)) {
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+export function toBaseUnit(value: BigNumber | number, decimals?: number): BigNumber {
+    if (!decimals) {
         decimals = 18;
     }
 
-    const toUnit = new BigNumber(10).pow(decimals);
-    const baseUnitAmount = new BigNumber(value).times(toUnit);
-    return baseUnitAmount;
+    return new BigNumber(value).times(new BigNumber(10).pow(decimals));
+}
+
+export function flatten<T>(array: T[][], removeNulls?: boolean): T[] {
+    if (!removeNulls) {
+        removeNulls = true;
+    }
+    return !array || array.length === 0 ? [] : array.reduce((result, a) => {
+        if (!result || result.length === 0) {
+            result = [];
+        }
+        return result.concat(a);
+    }).filter((el) => !removeNulls || el);
 }

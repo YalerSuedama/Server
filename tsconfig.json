@@ -9,13 +9,7 @@
         "moduleResolution": "node",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "baseUrl": "./",
-        "paths": {
-            "*": [
-                "node_modules/@types/*",
-                "*"
-            ]
-        }
+        "baseUrl": "./"
     },
     "exclude": [
         "**/*.spec.ts"

@@ -6,5 +6,6 @@ export { LiquidityService } from "./liquidityService";
 export { Logger } from "./logger";
 export { OrderService } from "./orderService";
 export { SaltService } from "./saltService";
+export { TickerService } from "./tickerService";
 export { TimeService } from "./timeService";
-export { TraderService } from "./traderService";
+export { TokenService } from "./tokenService";
