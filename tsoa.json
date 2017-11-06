@@ -17,7 +17,6 @@
         ],
         "outputDirectory": "./src/server/swagger",
         "entryFile": "./src/index.ts",
-        "host": "localhost:3000",
         "basePath": "/api/v0"
     },
     "routes": {
