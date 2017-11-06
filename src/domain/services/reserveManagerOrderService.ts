@@ -41,23 +41,28 @@ export class ReserveManagerOrderService implements OrderService {
             throw new Error(Errors.TokenAAndTokenBMustBeSpecified);
         }
         const tokens = (await this.tokenService.listAllTokens()).filter((token) => token);
-        let tokensFrom = tokens.filter((token) => token.symbol === tokenA || token.symbol === tokenB);
+        let tokensFrom;
+        if (!tokenA && !tokenB) {
+            tokensFrom = tokens;
+        } else {
+            tokensFrom = tokens.filter((token) => token.symbol === tokenA || token.symbol === tokenB);
+        }
         const pools = await Promise.all(tokensFrom.map((token) => this.liquidityService.getAvailableAmount(token)));
         tokensFrom = tokensFrom.filter((token) => !pools.find((pool) => pool.token === token).availableAmount.isZero());
         const tickers: Ticker[] = Utils.flatten(await Promise.all(tokensFrom.map((from) => Promise.all(tokens.filter((token) => token !== from).map((to) => this.tickerService.getTicker(from, to))))));
         return Promise.all(tickers.filter((ticker) => ticker).map(async (ticker) => this.cryptographyService.signOrder({
-            maker: await this.amadeusService.getMainAddress(),
-            makerTokenAmount: pools.find((pool) => pool.token === ticker.from).availableAmount.toString(),
-            makerTokenAddress: ticker.from.address,
-            taker: Utils.ZERO_ADDRESS,
-            takerTokenAmount: pools.find((pool) => pool.token === ticker.from).availableAmount.dividedToIntegerBy(ticker.ask).toString(),
-            takerTokenAddress: ticker.to.address,
-            makerFee: (await this.feeService.getMakerFee(tokenA)).toString(),
-            takerFee: (await this.feeService.getTakerFee(tokenA)).toString(),
-            salt: await this.saltService.getSalt(),
             exchangeContractAddress: await this.exchangeService.get0xContractAddress(),
-            feeRecipient: await this.feeService.getFeeRecipient(),
             expirationUnixTimestampSec: this.timeService.getExpirationTimestamp(),
+            feeRecipient: await this.feeService.getFeeRecipient(),
+            maker: await this.amadeusService.getMainAddress(),
+            makerFee: (await this.feeService.getMakerFee(tokenA)).toString(),
+            makerTokenAddress: ticker.from.address,
+            makerTokenAmount: pools.find((pool) => pool.token === ticker.from).availableAmount.toString(),
+            salt: await this.saltService.getSalt(),
+            taker: Utils.ZERO_ADDRESS,
+            takerFee: (await this.feeService.getTakerFee(tokenA)).toString(),
+            takerTokenAddress: ticker.to.address,
+            takerTokenAmount: pools.find((pool) => pool.token === ticker.from).availableAmount.dividedToIntegerBy(ticker.ask).toString(),
         })));
     }
 }
