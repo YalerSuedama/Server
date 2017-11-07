@@ -8,9 +8,11 @@ Our API adheres to the [Standard Relayer API V0 Draft](https://github.com/0xProj
 Implantando na cloud:
 
 gcloud container clusters get-credentials [cluster-name] -- zone [zone-name]
+
 ex.: gcloud container clusters get-credentials cluster-3 -- zone europe-west1-b	
 
 Baixar repositório
+
 Entrar no diretório raiz do repositório
 docker build -t amadeus_server .
 docker tag amadeus_server eu.gcr.io/nimble-lead-184123/amadeus_server:v2

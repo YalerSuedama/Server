@@ -132,6 +132,5 @@
 		"application/json"
 	],
 	"swagger": "2.0",
-	"securityDefinitions": {},
-	"host": "localhost:3000"
+	"securityDefinitions": {}
 }

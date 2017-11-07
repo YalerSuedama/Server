@@ -1,7 +1,7 @@
 import { BigNumber } from "bignumber.js";
 import { inject, injectable } from "inversify";
 import { AmadeusService, CryptographyService, ExchangeService, FeeService, LiquidityService, OrderService, SaltService, TickerService, TimeService, TokenService, TYPES } from "../../app";
-import { Errors, SignedOrder, Ticker, TokenPool } from "../../app/models";
+import { SignedOrder, Ticker, TokenPool } from "../../app/models";
 import * as Utils from "../util";
 
 @injectable()
@@ -37,9 +37,6 @@ export class ReserveManagerOrderService implements OrderService {
     }
 
     public async listOrders(tokenA?: string, tokenB?: string): Promise<SignedOrder[]> {
-        if (tokenA && !tokenB) {
-            throw new Error(Errors.TokenAAndTokenBMustBeSpecified);
-        }
         const tokens = (await this.tokenService.listAllTokens()).filter((token) => token);
         let tokensFrom;
         if (!tokenA && !tokenB) {
