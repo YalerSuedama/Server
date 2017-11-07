@@ -1,7 +1,8 @@
 import { BigNumber } from "bignumber.js";
+import { Token } from "../models";
 
 export interface FeeService {
-    getMakerFee(token?: string): Promise<BigNumber>;
-    getTakerFee(token?: string): Promise<BigNumber>;
-    getFeeRecipient(token?: string): Promise<string>;
+    getMakerFee(token?: Token): Promise<BigNumber>;
+    getTakerFee(token?: Token): Promise<BigNumber>;
+    getFeeRecipient(token?: Token): Promise<string>;
 }
