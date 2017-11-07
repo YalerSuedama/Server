@@ -6,6 +6,7 @@ import * as _ from "lodash";
 import Web3JS = require("web3");
 import { CryptographyService, ExchangeService, SaltService, TokenService } from "../../app";
 import { Order, SignedOrder, Token as Token } from "../../app/models";
+import * as Utils from "../util";
 
 @injectable()
 export class ZeroExWrapper implements CryptographyService, ExchangeService, SaltService, TokenService {
@@ -14,6 +15,7 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
 
     private web3: Web3JS;
     private zeroEx: ZeroEx;
+    private ethAddress: string;
 
     constructor() {
         this.web3 = new Web3JS(new Web3JS.providers.HttpProvider("http://" + process.env.ETHEREUM_NODE + ":8545"));
@@ -23,6 +25,18 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     /** CryptographyService */
 
     public async signOrder(order: Order): Promise<SignedOrder> {
+        if (order.maker !== Utils.ZERO_ADDRESS) {
+            await this.ensureAllowance(order.makerTokenAmount, order.makerTokenAddress, order.maker);
+            if (await this.isETHAddress(order.makerTokenAddress)) {
+                await this.wrapETH(order.makerTokenAmount, order.maker);
+            }
+        }
+        if (order.taker !== Utils.ZERO_ADDRESS) {
+            await this.ensureAllowance(order.takerTokenAmount, order.takerTokenAddress, order.taker);
+            if (await this.isETHAddress(order.takerTokenAddress)) {
+                await this.wrapETH(order.takerTokenAmount, order.taker);
+            }
+        }
         const hash = ZeroEx.getOrderHashHex({
             maker: order.maker,
             taker: order.taker,
@@ -79,10 +93,28 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
 
     /** Private methods */
 
+    private async ensureAllowance(amount: string, tokenAddress: string, address: string): Promise<void> {
+        const tx = await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(tokenAddress, address);
+        await this.zeroEx.awaitTransactionMinedAsync(tx);
+    }
+
     private getTradableTokens(): string[] {
         if (config.has(ZeroExWrapper.TRADABLE_TOKENS_KEY)) {
             return config.get(ZeroExWrapper.TRADABLE_TOKENS_KEY) as string[];
         }
         return ZeroExWrapper.DEFAULT_TOKENS;
+    }
+
+    private async isETHAddress(address: string): Promise<boolean> {
+        return (await this.zeroEx.etherToken.getContractAddressAsync()) === address;
+    }
+
+    private async wrapETH(amount: string, address: string): Promise<void> {
+        const amountAsBigNumber = new BigNumber(amount);
+        const balance = await this.zeroEx.token.getBalanceAsync(await this.zeroEx.etherToken.getContractAddressAsync(), address);
+        if (balance.lessThan(amountAsBigNumber)) {
+            const tx = await this.zeroEx.etherToken.depositAsync(amountAsBigNumber.minus(balance), address);
+            await this.zeroEx.awaitTransactionMinedAsync(tx);
+        }
     }
 }
