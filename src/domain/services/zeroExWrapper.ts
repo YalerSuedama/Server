@@ -48,8 +48,8 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     }
 
     public async getBalance(address: string, token?: Token): Promise<BigNumber> {
-        if (!token) {
-            token = await this.getToken("ETH");
+        if (!token || token.symbol === "ETH") {
+            return new BigNumber(await this.web3.eth.getBalance(address));
         }
         return this.zeroEx.token.getBalanceAsync(token.address, address);
     }
