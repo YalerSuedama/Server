@@ -9,5 +9,6 @@ export const TYPES = {
     SaltService: Symbol("SaltService"),
     TickerService: Symbol("TickerService"),
     TimeService: Symbol("TimeService"),
+    TokenPairsService: Symbol("TokenPairsService"),
     TokenService: Symbol("TokenService"),
 };

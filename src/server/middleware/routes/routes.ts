@@ -2,6 +2,7 @@
 import { Controller, ValidateParam, FieldErrors, ValidateError, TsoaRoute } from 'tsoa';
 import { iocContainer } from './../iocContainer';
 import { OrderController } from './../../controllers/orderController';
+import { TokenPairsController } from './../../controllers/tokenPairsController';
 
 const models: TsoaRoute.Models = {
     "ECSignature": {
@@ -28,6 +29,20 @@ const models: TsoaRoute.Models = {
             "expirationUnixTimestampSec": { "dataType": "string", "required": true },
         },
     },
+    "TokenTradeInfo": {
+        "properties": {
+            "address": { "dataType": "string", "required": true },
+            "minAmount": { "dataType": "string", "required": true },
+            "maxAmount": { "dataType": "string", "required": true },
+            "precision": { "dataType": "double", "required": true },
+        },
+    },
+    "TokenPairTradeInfo": {
+        "properties": {
+            "tokenA": { "ref": "TokenTradeInfo", "required": true },
+            "tokenB": { "ref": "TokenTradeInfo", "required": true },
+        },
+    },
 };
 
 export function RegisterRoutes(app: any) {
@@ -49,6 +64,26 @@ export function RegisterRoutes(app: any) {
 
 
             const promise = controller.listOrders.apply(controller, validatedArgs);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.get('/api/v0/token_pairs',
+        function(request: any, response: any, next: any) {
+            const args = {
+                tokenA: { "in": "query", "name": "tokenA", "dataType": "string" },
+                tokenB: { "in": "query", "name": "tokenB", "dataType": "string" },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<TokenPairsController>(TokenPairsController);
+
+
+            const promise = controller.listPairs.apply(controller, validatedArgs);
             promiseHandler(controller, promise, response, next);
         });
 

@@ -3,7 +3,7 @@ import "reflect-metadata";
 import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
 import { OrderService, TYPES } from "../../app";
-import { OrderServiceImpl } from "../../domain";
+import { ReserveManagerOrderService } from "../../domain";
 import { iocContainer } from "../middleware/iocContainer";
 import { OrderController } from "./orderController";
 
@@ -16,10 +16,10 @@ describe("OrderController", () => {
         const tokenB = "ETH";
 
         before(() => {
-            iocContainer.rebind(TYPES.OrderService).to(OrderServiceImpl).inSingletonScope();
+            iocContainer.rebind(TYPES.OrderService).to(ReserveManagerOrderService).inSingletonScope();
         });
         after(() => {
-            iocContainer.rebind(TYPES.OrderService).to(OrderServiceImpl);
+            iocContainer.rebind(TYPES.OrderService).to(ReserveManagerOrderService);
         });
 
         beforeEach(() => {

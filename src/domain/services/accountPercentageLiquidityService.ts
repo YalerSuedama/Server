@@ -20,10 +20,13 @@ export class AccountPercentageLiquidityService implements LiquidityService {
         }
 
         const totalAmount = await this.exchangeService.getBalance(this.amadeusService.getMainAddress(), token);
-        const percentage = this.getAvailablePercentage();
+        const availableAmount = totalAmount.times(this.getAvailablePercentage()).dividedToIntegerBy(1);
         return {
             token,
-            availableAmount: totalAmount.times(percentage),
+            availableAmount,
+            maximumAmount: availableAmount,
+            minimumAmount: new BigNumber(0),
+            precision: 6,
         };
     }
 

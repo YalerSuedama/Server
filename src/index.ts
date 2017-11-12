@@ -1,4 +1,4 @@
 import * as Server from "./server";
-import "./server/controllers/orderController";
+import "./server/controllers";
 
 new Server.Server().start();

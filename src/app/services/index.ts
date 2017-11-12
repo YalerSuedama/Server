@@ -8,4 +8,5 @@ export { OrderService } from "./orderService";
 export { SaltService } from "./saltService";
 export { TickerService } from "./tickerService";
 export { TimeService } from "./timeService";
+export { TokenPairsService } from "./tokenPairsService";
 export { TokenService } from "./tokenService";

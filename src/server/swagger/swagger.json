@@ -82,6 +82,45 @@
 				"expirationUnixTimestampSec"
 			],
 			"type": "object"
+		},
+		"TokenTradeInfo": {
+			"properties": {
+				"address": {
+					"type": "string"
+				},
+				"minAmount": {
+					"type": "string"
+				},
+				"maxAmount": {
+					"type": "string"
+				},
+				"precision": {
+					"type": "number",
+					"format": "double"
+				}
+			},
+			"required": [
+				"address",
+				"minAmount",
+				"maxAmount",
+				"precision"
+			],
+			"type": "object"
+		},
+		"TokenPairTradeInfo": {
+			"properties": {
+				"tokenA": {
+					"$ref": "#/definitions/TokenTradeInfo"
+				},
+				"tokenB": {
+					"$ref": "#/definitions/TokenTradeInfo"
+				}
+			},
+			"required": [
+				"tokenA",
+				"tokenB"
+			],
+			"type": "object"
 		}
 	},
 	"info": {
@@ -106,6 +145,40 @@
 							"type": "array",
 							"items": {
 								"$ref": "#/definitions/SignedOrder"
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "tokenA",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"in": "query",
+						"name": "tokenB",
+						"required": false,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/token_pairs": {
+			"get": {
+				"operationId": "ListPairs",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/TokenPairTradeInfo"
 							}
 						}
 					}
