@@ -6,23 +6,23 @@
     "amadeus": {
         "liquidityPercentage": "0.05",
         "ticker": {
+            "ETH-REP": {
+                "bid": 0.05722000,
+                "ask": 0.05793424
+            },
             "ETH-ZRX": {
-                "bid": 0.00058935,
-                "ask": 0.00059881
+                "bid": 0.00060272,
+                "ask": 0.00064500
             },
-            "ETH-OMG": {
-                "bid": 0.02106432,
-                "ask": 0.02127549
-            },
-            "ZRX-OMG": {
-                "bid": 35.741613642148129,
-                "ask": 35.529617073863162
+            "REP-ZRX": {
+                "bid": 0.01053338,
+                "ask": 0.01113331
             }
         },
         "tradableTokens": [
             "ETH",
-            "ZRX",
-            "OMG"
+            "REP",
+            "ZRX"
         ],
         // "wallet": "0xf14958eca9f5b341f74916aacfb6e3d2fb9a4a15"
         "wallet": "0x5409ed021d9299bf6814279a6a1411a7e866a631"
