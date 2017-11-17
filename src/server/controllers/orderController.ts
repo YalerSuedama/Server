@@ -12,7 +12,7 @@ export class OrderController extends Controller {
     }
 
     @Get()
-    public async listOrders( @Query() tokenA?: string, @Query() tokenB?: string): Promise<SignedOrder[]> {
-        return this.orderService.listOrders(tokenA, tokenB);
+    public async listOrders( @Query() tokenA?: string, @Query() tokenB?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string): Promise<SignedOrder[]> {
+        return this.orderService.listOrders(tokenA, tokenB, makerTokenAddress, takerTokenAddress);
     }
 }

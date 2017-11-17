@@ -162,6 +162,18 @@
 						"name": "tokenB",
 						"required": false,
 						"type": "string"
+					},
+					{
+						"in": "query",
+						"name": "makerTokenAddress",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"in": "query",
+						"name": "takerTokenAddress",
+						"required": false,
+						"type": "string"
 					}
 				]
 			}

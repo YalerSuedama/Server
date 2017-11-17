@@ -36,13 +36,11 @@ export class ReserveManagerOrderService implements OrderService {
     ) {
     }
 
-    public async listOrders(tokenA?: string, tokenB?: string): Promise<SignedOrder[]> {
+    public async listOrders(tokenA?: string, tokenB?: string, makerTokenAddress?: string, takerTokenAddress?: string): Promise<SignedOrder[]> {
         const tokens = (await this.tokenService.listAllTokens()).filter((token) => token);
-        let tokensFrom;
-        if (!tokenA && !tokenB) {
-            tokensFrom = tokens;
-        } else {
-            tokensFrom = tokens.filter((token) => token.symbol === tokenA || token.symbol === tokenB);
+        let tokensFrom = tokens;
+        if (tokenA || tokenB || makerTokenAddress || takerTokenAddress) {
+            tokensFrom = tokens.filter((token) => token.symbol === tokenA || token.symbol === tokenB || token.address === makerTokenAddress || token.address === takerTokenAddress);
         }
         const pools = await Promise.all(tokensFrom.map((token) => this.liquidityService.getAvailableAmount(token)));
         tokensFrom = tokensFrom.filter((token) => !pools.find((pool) => pool.token === token).availableAmount.isZero());

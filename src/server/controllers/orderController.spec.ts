@@ -14,6 +14,7 @@ describe("OrderController", () => {
         let stub: sinon.SinonStub;
         const tokenA = "ZRX";
         const tokenB = "ETH";
+        const tokenAddress = "0x0000";
 
         before(() => {
             iocContainer.rebind(TYPES.OrderService).to(ReserveManagerOrderService).inSingletonScope();
@@ -44,6 +45,16 @@ describe("OrderController", () => {
             const controller = iocContainer.get<OrderController>(OrderController);
             const returned = controller.listOrders(tokenA, tokenB);
             expect(stub).to.be.calledWith(tokenA, tokenB);
+        });
+        it("should pass makerTokenAddress as parameter to orderService.listOrders", () => {
+            const controller = iocContainer.get<OrderController>(OrderController);
+            const returned = controller.listOrders(undefined, undefined, tokenAddress);
+            expect(stub.args[0][2]).to.eq(tokenAddress);
+        });
+        it("should pass takerTokenAddress as parameter to orderService.listOrders", () => {
+            const controller = iocContainer.get<OrderController>(OrderController);
+            const returned = controller.listOrders(undefined, undefined, undefined, tokenAddress);
+            expect(stub.args[0][3]).to.eq(tokenAddress);
         });
     });
 });
