@@ -13,8 +13,7 @@ import { Web3Factory } from "../util";
 export class ZeroExWrapper implements CryptographyService, ExchangeService, SaltService, TokenService {
     private static readonly TRADABLE_TOKENS_KEY = "tradableTokens";
     private static readonly DEFAULT_TOKENS = ["ETH", "ZRX", "GNT"];
-    // private static readonly privateKey = "f2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d";
-    private static readonly privateKey = "5d862464fe9303452126c8bc94274b8c5f9874cbd219789b3eb2128075a76f72";
+    private static readonly privateKey = config.get("amadeus.privateKey") as string;
     private web3: Web3JS;
     private zeroEx: ZeroEx;
     private ethAddress: string;
@@ -31,22 +30,6 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     /** CryptographyService */
 
     public async signOrder(order: Order): Promise<SignedOrder> {
-        if (order.maker !== Utils.ZERO_ADDRESS) {
-            try {
-                await this.ensureAllowance(new BigNumber(order.makerTokenAmount), order.makerTokenAddress, order.maker, order.maker);
-            } catch (error) {
-                throw error.message;
-            }
-            if (await this.isETHAddress(order.makerTokenAddress)) {
-                await this.wrapETH(order.makerTokenAmount, order.maker);
-            }
-        }
-        if (order.taker !== Utils.ZERO_ADDRESS) {
-            await this.ensureAllowance(new BigNumber(order.takerTokenAmount), order.takerTokenAddress, order.maker, order.taker);
-            if (await this.isETHAddress(order.takerTokenAddress)) {
-                await this.wrapETH(order.takerTokenAmount, order.taker);
-            }
-        }
         const hash = ZeroEx.getOrderHashHex({
             maker: order.maker,
             taker: order.taker,
@@ -101,15 +84,15 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
         return Promise.all(this.getTradableTokens().map(async (symbol) => this.getToken(symbol)));
     }
 
-    /** Private methods */
-
-    private async ensureAllowance(amount: BigNumber, tokenAddress: string, address: string, spenderAddress: string): Promise<void> {
+    public async ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string): Promise<void> {
         const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, spenderAddress);
         if (alowancedValue.comparedTo(amount) < 0) {
             const tx = await this.zeroEx.token.setProxyAllowanceAsync(tokenAddress, spenderAddress, amount.mul(2));
             await this.zeroEx.awaitTransactionMinedAsync(tx);
         }
     }
+
+    /** Private methods */
 
     private getTradableTokens(): string[] {
         if (config.has(ZeroExWrapper.TRADABLE_TOKENS_KEY)) {
