@@ -46,12 +46,19 @@ export class ReserveManagerOrderService implements OrderService {
         }
         const pools = await Promise.all(tokensFrom.map((token) => this.liquidityService.getAvailableAmount(token)));
         tokensFrom = tokensFrom.filter((token) => !pools.find((pool) => pool.token === token).availableAmount.isZero());
+
+        const makerAddress = await this.amadeusService.getMainAddress();
+
+        tokensFrom.forEach((token) => {
+            this.ensureAllowance(pools.find((pool) => pool.token === token).availableAmount, token.address, makerAddress);
+        });
+
         const tickers: Ticker[] = Utils.flatten(await Promise.all(tokensFrom.map((from) => Promise.all(tokens.filter((token) => token !== from).map((to) => this.tickerService.getTicker(from, to))))));
         return Promise.all(tickers.filter((ticker) => ticker).map(async (ticker) => this.cryptographyService.signOrder({
             exchangeContractAddress: await this.exchangeService.get0xContractAddress(),
             expirationUnixTimestampSec: this.timeService.getExpirationTimestamp(),
             feeRecipient: await this.feeService.getFeeRecipient(),
-            maker: await this.amadeusService.getMainAddress(),
+            maker: makerAddress,
             makerFee: (await this.feeService.getMakerFee(ticker.from)).toString(),
             makerTokenAddress: ticker.from.address,
             makerTokenAmount: pools.find((pool) => pool.token === ticker.from).availableAmount.toString(),
@@ -59,7 +66,11 @@ export class ReserveManagerOrderService implements OrderService {
             taker: Utils.ZERO_ADDRESS,
             takerFee: (await this.feeService.getTakerFee(ticker.to)).toString(),
             takerTokenAddress: ticker.to.address,
-            takerTokenAmount: pools.find((pool) => pool.token === ticker.from).availableAmount.dividedToIntegerBy(ticker.ask).toString(),
+            takerTokenAmount: pools.find((pool) => pool.token === ticker.from).availableAmount.mul(ticker.ask).toString(),
         })));
+    }
+
+    private ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string) {
+        this.exchangeService.ensureAllowance(amount, tokenAddress, spenderAddress);
     }
 }
