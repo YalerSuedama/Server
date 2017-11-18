@@ -59,7 +59,7 @@ export class ReserveManagerOrderService implements OrderService {
             taker: Utils.ZERO_ADDRESS,
             takerFee: (await this.feeService.getTakerFee(ticker.to)).toString(),
             takerTokenAddress: ticker.to.address,
-            takerTokenAmount: pools.find((pool) => pool.token === ticker.from).availableAmount.dividedToIntegerBy(ticker.ask).toString(),
+            takerTokenAmount: pools.find((pool) => pool.token === ticker.from).availableAmount.mul(ticker.ask).toString(),
         })));
     }
 }

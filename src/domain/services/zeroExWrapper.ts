@@ -12,7 +12,7 @@ import { Web3Factory } from "../util";
 @injectable()
 export class ZeroExWrapper implements CryptographyService, ExchangeService, SaltService, TokenService {
     private static readonly TRADABLE_TOKENS_KEY = "tradableTokens";
-    private static readonly DEFAULT_TOKENS = ["ETH", "ZRX", "OMG"];
+    private static readonly DEFAULT_TOKENS = ["ETH", "ZRX", "GNT"];
     // private static readonly privateKey = "f2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d";
     private static readonly privateKey = "5d862464fe9303452126c8bc94274b8c5f9874cbd219789b3eb2128075a76f72";
     private web3: Web3JS;
@@ -104,8 +104,9 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     /** Private methods */
 
     private async ensureAllowance(amount: BigNumber, tokenAddress: string, address: string, spenderAddress: string): Promise<void> {
-        if ((await this.zeroEx.token.getAllowanceAsync(tokenAddress, address, spenderAddress)).comparedTo(amount) < 0) {
-            const tx = await this.zeroEx.token.setAllowanceAsync(tokenAddress, address, spenderAddress, amount);
+        const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, spenderAddress);
+        if (alowancedValue.comparedTo(amount) < 0) {
+            const tx = await this.zeroEx.token.setProxyAllowanceAsync(tokenAddress, spenderAddress, amount.mul(2));
             await this.zeroEx.awaitTransactionMinedAsync(tx);
         }
     }
