@@ -51,6 +51,8 @@ export function RegisterRoutes(app: any) {
             const args = {
                 tokenA: { "in": "query", "name": "tokenA", "dataType": "string" },
                 tokenB: { "in": "query", "name": "tokenB", "dataType": "string" },
+                makerTokenAddress: { "in": "query", "name": "makerTokenAddress", "dataType": "string" },
+                takerTokenAddress: { "in": "query", "name": "takerTokenAddress", "dataType": "string" },
             };
 
             let validatedArgs: any[] = [];

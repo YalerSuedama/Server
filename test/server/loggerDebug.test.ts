@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import "reflect-metadata";
 import * as sinon from "sinon";
-import { LoggerDebug } from "./loggerDebug";
+import { LoggerDebug } from "../../src/server/middleware/common/loggerDebug";
 
 const namespace: string = "TestLogger";
 const message: string = "Message";

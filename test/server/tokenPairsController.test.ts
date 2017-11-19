@@ -2,10 +2,10 @@ import { expect, use } from "chai";
 import "reflect-metadata";
 import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
-import { TokenPairsService, TYPES } from "../../app";
-import { TokensWithLiquidityTokenPairsService } from "../../domain";
-import { iocContainer } from "../middleware/iocContainer";
-import { TokenPairsController } from "./tokenPairsController";
+import { TokenPairsService, TYPES } from "../../src/app";
+import { TokensWithLiquidityTokenPairsService } from "../../src/domain";
+import { TokenPairsController } from "../../src/server/controllers/tokenPairsController";
+import { iocContainer } from "../../src/server/middleware/iocContainer";
 
 use(sinonChai);
 
@@ -13,7 +13,7 @@ describe("TokenPairsController", () => {
     describe(".listPairs", () => {
         let stub: sinon.SinonStub;
         const tokenA = "ZRX";
-        const tokenB = "ETH";
+        const tokenB = "WETH";
 
         before(() => {
             iocContainer.rebind(TYPES.TokenPairsService).to(TokensWithLiquidityTokenPairsService).inSingletonScope();

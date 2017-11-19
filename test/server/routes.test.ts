@@ -5,10 +5,10 @@ import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
 import * as supertest from "supertest";
 import { Controller } from "tsoa";
-import { OrderController } from "../../controllers/orderController";
-import { TokenPairsController } from "../../controllers/tokenPairsController";
-import { iocContainer } from "../../middleware/iocContainer";
-import { RegisterRoutes } from "./routes";
+import { OrderController } from "../../src/server/controllers/orderController";
+import { TokenPairsController } from "../../src/server/controllers/tokenPairsController";
+import { iocContainer } from "../../src/server/middleware/iocContainer";
+import { RegisterRoutes } from "../../src/server/middleware/routes/routes";
 
 enum RouteMethods { GET, POST, PUT, DELETE }
 

@@ -1,7 +1,8 @@
 import { BigNumber } from "bignumber.js";
 import { inject, injectable } from "inversify";
-import { AmadeusService, CryptographyService, ExchangeService, FeeService, LiquidityService, OrderService, SaltService, TickerService, TimeService, TokenService, TYPES } from "../../app";
-import { SignedOrder, Ticker, TokenPool } from "../../app/models";
+import * as _ from "lodash";
+import { AmadeusService, CryptographyService, ExchangeService, FeeService, OrderService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../app";
+import { SignedOrder, Ticker, TokenPairTradeInfo } from "../../app/models";
 import * as Utils from "../util";
 
 @injectable()
@@ -19,9 +20,6 @@ export class ReserveManagerOrderService implements OrderService {
         @inject(TYPES.FeeService)
         private feeService: FeeService,
 
-        @inject(TYPES.LiquidityService)
-        private liquidityService: LiquidityService,
-
         @inject(TYPES.SaltService)
         private saltService: SaltService,
 
@@ -31,43 +29,48 @@ export class ReserveManagerOrderService implements OrderService {
         @inject(TYPES.TimeService)
         private timeService: TimeService,
 
+        @inject(TYPES.TokenPairsService)
+        private tokenPairsService: TokenPairsService,
+
         @inject(TYPES.TokenService)
         private tokenService: TokenService,
     ) {
     }
 
-    public async listOrders(tokenA?: string, tokenB?: string): Promise<SignedOrder[]> {
-        const tokens = (await this.tokenService.listAllTokens()).filter((token) => token);
-        let tokensFrom;
-        if (!tokenA && !tokenB) {
-            tokensFrom = tokens;
-        } else {
-            tokensFrom = tokens.filter((token) => token.symbol === tokenA || token.symbol === tokenB);
+    public async listOrders(tokenA?: string, tokenB?: string, makerTokenAddress?: string, takerTokenAddress?: string): Promise<SignedOrder[]> {
+        let pairs: TokenPairTradeInfo[] = await this.tokenPairsService.listPairs(tokenA, tokenB);
+        if (makerTokenAddress) {
+            pairs = pairs.filter((pair) => pair.tokenA.address === makerTokenAddress);
         }
-        const pools = await Promise.all(tokensFrom.map((token) => this.liquidityService.getAvailableAmount(token)));
-        tokensFrom = tokensFrom.filter((token) => !pools.find((pool) => pool.token === token).availableAmount.isZero());
+        if (takerTokenAddress) {
+            pairs = pairs.filter((pair) => pair.tokenB.address === takerTokenAddress);
+        }
+        return Promise.all(pairs.map((pair) => this.createSignedOrderFromTokenPair(pair)));
+    }
 
+    private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo): Promise<SignedOrder> {
         const makerAddress = await this.amadeusService.getMainAddress();
 
-        tokensFrom.forEach((token) => {
-            this.ensureAllowance(pools.find((pool) => pool.token === token).availableAmount, token.address, makerAddress);
+        pair.forEach((pair) => {
+            this.ensureAllowance(pair.tokenA.maxAmount, pair.tokenA.address, makerAddress);
+            this.ensureAllowance(pair.tokenB.maxAmount, pair.tokenB.address, makerAddress);
         });
 
-        const tickers: Ticker[] = Utils.flatten(await Promise.all(tokensFrom.map((from) => Promise.all(tokens.filter((token) => token !== from).map((to) => this.tickerService.getTicker(from, to))))));
-        return Promise.all(tickers.filter((ticker) => ticker).map(async (ticker) => this.cryptographyService.signOrder({
+        const ticker: Ticker = await this.tickerService.getTicker(await this.tokenService.getTokenByAddress(pair.tokenA.address), await this.tokenService.getTokenByAddress(pair.tokenB.address));
+        return this.cryptographyService.signOrder({
             exchangeContractAddress: await this.exchangeService.get0xContractAddress(),
             expirationUnixTimestampSec: this.timeService.getExpirationTimestamp(),
             feeRecipient: await this.feeService.getFeeRecipient(),
             maker: makerAddress,
             makerFee: (await this.feeService.getMakerFee(ticker.from)).toString(),
             makerTokenAddress: ticker.from.address,
-            makerTokenAmount: pools.find((pool) => pool.token === ticker.from).availableAmount.toString(),
+            makerTokenAmount: pair.tokenA.maxAmount.toString(),
             salt: await this.saltService.getSalt(),
             taker: Utils.ZERO_ADDRESS,
             takerFee: (await this.feeService.getTakerFee(ticker.to)).toString(),
             takerTokenAddress: ticker.to.address,
-            takerTokenAmount: pools.find((pool) => pool.token === ticker.from).availableAmount.mul(ticker.ask).toString(),
-        })));
+            takerTokenAmount: new BigNumber(pair.tokenA.maxAmount).mul(ticker.ask).toString(),
+        });
     }
 
     private ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string) {

@@ -4,13 +4,13 @@
         "port": 3000
     },
     "amadeus": {
-        "liquidityPercentage": "0.1",
+        "liquidityPercentage": 0.1,
         "ticker": {
-            "ETH-GNT": {
+            "WETH-GNT": {
                 "bid": 1,
                 "ask": 1500
             },
-            "ETH-ZRX": {
+            "WETH-ZRX": {
                 "bid": 1,
                 "ask": 1700
             },
@@ -20,7 +20,7 @@
             }
         },
         "tradableTokens": [
-            "ETH",
+            "WETH",
             "REP",
             "ZRX"
         ],
