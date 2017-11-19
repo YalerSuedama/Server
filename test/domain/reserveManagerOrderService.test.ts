@@ -41,6 +41,7 @@ const stubCryptographyService: CryptographyService = {
 const stubExchangeService: ExchangeService = {
     get0xContractAddress: () => Promise.resolve(DEFAULT_ADDRESS + "ZRX"),
     getBalance: (address: string, token?: Token) => Promise.resolve(new BigNumber(1)),
+    ensureAllowance: (amount: BigNumber, tokenAddress: string, spenderAddress: string) => Promise.resolve(),
 };
 
 const stubFeeService: FeeService = {

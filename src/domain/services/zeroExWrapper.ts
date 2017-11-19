@@ -3,11 +3,11 @@ import { BigNumber } from "bignumber.js";
 import * as config from "config";
 import { injectable } from "inversify";
 import * as _ from "lodash";
+import Web3JS = require("web3");
 import { CryptographyService, ExchangeService, SaltService, TokenService } from "../../app";
 import { Order, SignedOrder, Token as Token } from "../../app/models";
 import * as Utils from "../util";
 import { Web3Factory } from "../util";
-const Web3JS = require("web3");
 
 @injectable()
 export class ZeroExWrapper implements CryptographyService, ExchangeService, SaltService, TokenService {

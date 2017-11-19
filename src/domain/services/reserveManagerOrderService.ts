@@ -50,11 +50,8 @@ export class ReserveManagerOrderService implements OrderService {
 
     private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo): Promise<SignedOrder> {
         const makerAddress = await this.amadeusService.getMainAddress();
-
-        pair.forEach((pair) => {
-            this.ensureAllowance(pair.tokenA.maxAmount, pair.tokenA.address, makerAddress);
-            this.ensureAllowance(pair.tokenB.maxAmount, pair.tokenB.address, makerAddress);
-        });
+        this.ensureAllowance(new BigNumber(pair.tokenA.maxAmount), pair.tokenA.address, makerAddress);
+        this.ensureAllowance(new BigNumber(pair.tokenB.maxAmount), pair.tokenB.address, makerAddress);
 
         const ticker: Ticker = await this.tickerService.getTicker(await this.tokenService.getTokenByAddress(pair.tokenA.address), await this.tokenService.getTokenByAddress(pair.tokenB.address));
         return this.cryptographyService.signOrder({

@@ -4,6 +4,7 @@ import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
 import { OrderService, TYPES } from "../../src/app";
 import { ReserveManagerOrderService } from "../../src/domain";
+import "../../src/server/controllers";
 import { OrderController } from "../../src/server/controllers/orderController";
 import { iocContainer } from "../../src/server/middleware/iocContainer";
 
@@ -23,18 +24,21 @@ describe("OrderController", () => {
             iocContainer.rebind(TYPES.OrderService).to(ReserveManagerOrderService);
         });
 
-        beforeEach(() => {
+        beforeEach((done) => {
             stub = sinon.stub(iocContainer.get<OrderService>(TYPES.OrderService), "listOrders").returns(null);
+            done();
         });
-        afterEach(() => {
+        afterEach((done) => {
             stub.restore();
+            done();
         });
 
-        it("should call orderService.listOrders upon calling its listOrders", () => {
+        it.only("should call orderService.listOrders upon calling its listOrders", (done) => {
             const controller = iocContainer.get<OrderController>(OrderController);
             const returned = controller.listOrders();
             // tslint:disable-next-line:no-unused-expression
             expect(stub).to.be.calledOnce;
+            done();
         });
         it("should pass tokenA as first argument to orderService.listOrders", () => {
             const controller = iocContainer.get<OrderController>(OrderController);

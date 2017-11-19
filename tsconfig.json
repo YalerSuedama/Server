@@ -12,6 +12,6 @@
         "baseUrl": "./"
     },
     "exclude": [
-        "**/*.spec.ts"
+        "./test/"
     ]
 }
