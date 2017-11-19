@@ -3,39 +3,32 @@ import { BigNumber } from "bignumber.js";
 import * as config from "config";
 import { injectable } from "inversify";
 import * as _ from "lodash";
-import Web3JS = require("web3");
 import { CryptographyService, ExchangeService, SaltService, TokenService } from "../../app";
 import { Order, SignedOrder, Token as Token } from "../../app/models";
 import * as Utils from "../util";
+import { Web3Factory } from "../util";
+const Web3JS = require("web3");
 
 @injectable()
 export class ZeroExWrapper implements CryptographyService, ExchangeService, SaltService, TokenService {
     private static readonly TRADABLE_TOKENS_KEY = "tradableTokens";
-    private static readonly DEFAULT_TOKENS = ["WETH", "ZRX", "OMG"];
-
+    private static readonly DEFAULT_TOKENS = ["WETH", "ZRX", "GNT"];
+    private static readonly privateKey = config.get("amadeus.privateKey") as string;
     private web3: Web3JS;
     private zeroEx: ZeroEx;
 
     constructor() {
-        this.web3 = new Web3JS(new Web3JS.providers.HttpProvider("http://" + process.env.ETHEREUM_NODE + ":8545"));
+        setTimeout(() => this.init(), 10);
+    }
+
+    public init() {
+        this.web3 = new Web3Factory().createWeb3(ZeroExWrapper.privateKey);
         this.zeroEx = new ZeroEx(this.web3.currentProvider);
     }
 
     /** CryptographyService */
 
     public async signOrder(order: Order): Promise<SignedOrder> {
-        if (order.maker !== Utils.ZERO_ADDRESS) {
-            await this.ensureAllowance(order.makerTokenAmount, order.makerTokenAddress, order.maker);
-            if (await this.isWETHAddress(order.makerTokenAddress)) {
-                await this.wrapETH(order.makerTokenAmount, order.maker);
-            }
-        }
-        if (order.taker !== Utils.ZERO_ADDRESS) {
-            await this.ensureAllowance(order.takerTokenAmount, order.takerTokenAddress, order.taker);
-            if (await this.isWETHAddress(order.takerTokenAddress)) {
-                await this.wrapETH(order.takerTokenAmount, order.taker);
-            }
-        }
         const hash = ZeroEx.getOrderHashHex({
             maker: order.maker,
             taker: order.taker,
@@ -85,12 +78,15 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
         return tokens.filter((token) => token);
     }
 
-    /** Private methods */
-
-    private async ensureAllowance(amount: string, tokenAddress: string, address: string): Promise<void> {
-        const tx = await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(tokenAddress, address);
-        await this.zeroEx.awaitTransactionMinedAsync(tx);
+    public async ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string): Promise<void> {
+        const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, spenderAddress);
+        if (alowancedValue.comparedTo(amount) < 0) {
+            const tx = await this.zeroEx.token.setProxyAllowanceAsync(tokenAddress, spenderAddress, amount.mul(2));
+            await this.zeroEx.awaitTransactionMinedAsync(tx);
+        }
     }
+
+    /** Private methods */
 
     private getTradableTokens(): string[] {
         if (config.has(ZeroExWrapper.TRADABLE_TOKENS_KEY)) {

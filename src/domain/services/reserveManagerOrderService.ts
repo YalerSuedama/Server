@@ -49,12 +49,19 @@ export class ReserveManagerOrderService implements OrderService {
     }
 
     private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo): Promise<SignedOrder> {
+        const makerAddress = await this.amadeusService.getMainAddress();
+
+        pair.forEach((pair) => {
+            this.ensureAllowance(pair.tokenA.maxAmount, pair.tokenA.address, makerAddress);
+            this.ensureAllowance(pair.tokenB.maxAmount, pair.tokenB.address, makerAddress);
+        });
+
         const ticker: Ticker = await this.tickerService.getTicker(await this.tokenService.getTokenByAddress(pair.tokenA.address), await this.tokenService.getTokenByAddress(pair.tokenB.address));
         return this.cryptographyService.signOrder({
             exchangeContractAddress: await this.exchangeService.get0xContractAddress(),
             expirationUnixTimestampSec: this.timeService.getExpirationTimestamp(),
             feeRecipient: await this.feeService.getFeeRecipient(),
-            maker: await this.amadeusService.getMainAddress(),
+            maker: makerAddress,
             makerFee: (await this.feeService.getMakerFee(ticker.from)).toString(),
             makerTokenAddress: ticker.from.address,
             makerTokenAmount: pair.tokenA.maxAmount.toString(),
@@ -62,7 +69,11 @@ export class ReserveManagerOrderService implements OrderService {
             taker: Utils.ZERO_ADDRESS,
             takerFee: (await this.feeService.getTakerFee(ticker.to)).toString(),
             takerTokenAddress: ticker.to.address,
-            takerTokenAmount: new BigNumber(pair.tokenB.maxAmount).dividedToIntegerBy(ticker.ask).toString(),
+            takerTokenAmount: new BigNumber(pair.tokenA.maxAmount).mul(ticker.ask).toString(),
         });
+    }
+
+    private ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string) {
+        this.exchangeService.ensureAllowance(amount, tokenAddress, spenderAddress);
     }
 }
