@@ -55,20 +55,22 @@ const stubTokenPairsService: TokenPairsService = {
         let pairs: TokenPairTradeInfo[] = [];
         for (const token of tokens) {
             for (const tokenTo of tokens) {
-                pairs.push({
-                    tokenA: {
-                        address: token.address,
-                        minAmount: "0",
-                        maxAmount: "1",
-                        precision: 1,
-                    },
-                    tokenB: {
-                        address: tokenTo.address,
-                        minAmount: "0",
-                        maxAmount: "1",
-                        precision: 1,
-                    },
-                });
+                if (tokenTo !== token) {
+                    pairs.push({
+                        tokenA: {
+                            address: token.address,
+                            minAmount: "0",
+                            maxAmount: "1",
+                            precision: 1,
+                        },
+                        tokenB: {
+                            address: tokenTo.address,
+                            minAmount: "0",
+                            maxAmount: "1",
+                            precision: 1,
+                        },
+                    });
+                }
             }
         }
         if (tokenA) {

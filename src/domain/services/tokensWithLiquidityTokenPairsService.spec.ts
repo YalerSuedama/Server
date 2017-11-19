@@ -53,37 +53,49 @@ iocContainer.bind<TickerService>(TYPES.TickerService).toConstantValue(stubTicker
 iocContainer.bind<TokenService>(TYPES.TokenService).toConstantValue(stubTokenService);
 
 describe("TokensWithLiquidityTokenPairsService", () => {
-    it("when tokenA informed, returns pairs with tokenA as left-hand side or right-hand side of pair.", async () => {
-        const symbol = TOKENS[1];
-        const address = DEFAULT_ADDRESS + symbol;
-        const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(symbol);
+    it("should not return the same token as tokenA and tokenB", async () => {
+        const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs();
+        const sameAddress = returned.find((pair) => pair.tokenA.address === pair.tokenB.address);
         // tslint:disable-next-line:no-unused-expression
-        expect(returned.find((pair) => pair.tokenA.address === address)).to.not.be.null;
-        // tslint:disable-next-line:no-unused-expression
-        expect(returned.find((pair) => pair.tokenB.address === address)).to.not.be.null;
+        expect(sameAddress).to.not.exist;
     });
-    it("when tokenB informed, returns pairs with tokenB as left-hand side or right-hand side of pair.", async () => {
-        const symbol = TOKENS[1];
-        const address = DEFAULT_ADDRESS + symbol;
-        const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(null, symbol);
-        // tslint:disable-next-line:no-unused-expression
-        expect(returned.find((pair) => pair.tokenA.address === address)).to.not.be.null;
-        // tslint:disable-next-line:no-unused-expression
-        expect(returned.find((pair) => pair.tokenB.address === address)).to.not.be.null;
+    context("When tokenA is informed", () => {
+        it("returns pairs with tokenA as left-hand side or right-hand side of pair", async () => {
+            const symbol = TOKENS[1];
+            const address = DEFAULT_ADDRESS + symbol;
+            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(symbol);
+            // tslint:disable-next-line:no-unused-expression
+            expect(returned.find((pair) => pair.tokenA.address === address)).to.not.be.null;
+            // tslint:disable-next-line:no-unused-expression
+            expect(returned.find((pair) => pair.tokenB.address === address)).to.not.be.null;
+        });
     });
-    it("when tokenA and tokenB informed, returns pairs with at least one of the tokens and the other token of the pair is tokenC.", async () => {
-        const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(TOKENS[0], TOKENS[1]);
-        // tslint:disable-next-line:no-unused-expression
-        expect(returned.find((pair) => pair.tokenB.address === DEFAULT_ADDRESS + TOKENS[2])).to.not.be.null;
+    context("When tokenB is informed", () => {
+        it("returns pairs with tokenB as left-hand side or right-hand side of pair.", async () => {
+            const symbol = TOKENS[1];
+            const address = DEFAULT_ADDRESS + symbol;
+            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(null, symbol);
+            // tslint:disable-next-line:no-unused-expression
+            expect(returned.find((pair) => pair.tokenA.address === address)).to.not.be.null;
+            // tslint:disable-next-line:no-unused-expression
+            expect(returned.find((pair) => pair.tokenB.address === address)).to.not.be.null;
+        });
     });
-    it("when tokenA and tokenB informed, returns pairs with tokenA and tokenB as one of the pairs (in that order).", async () => {
-        const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(TOKENS[0], TOKENS[1]);
-        // tslint:disable-next-line:no-unused-expression
-        expect(returned.find((pair) => pair.tokenA.address === DEFAULT_ADDRESS + TOKENS[0] && pair.tokenB.address === DEFAULT_ADDRESS + TOKENS[1])).to.not.be.null;
-    });
-    it("when tokenA and tokenB informed, returns pairs with tokenA and tokenB as one of the pairs (in reversed order).", async () => {
-        const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(TOKENS[1], TOKENS[0]);
-        // tslint:disable-next-line:no-unused-expression
-        expect(returned.find((pair) => pair.tokenA.address === DEFAULT_ADDRESS + TOKENS[0] && pair.tokenB.address === DEFAULT_ADDRESS + TOKENS[1])).to.not.be.null;
+    context("When tokenA and tokenB are informed", () => {
+        it("returns pairs with at least one of the tokens and the other token of the pair is tokenC.", async () => {
+            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(TOKENS[0], TOKENS[1]);
+            // tslint:disable-next-line:no-unused-expression
+            expect(returned.find((pair) => pair.tokenB.address === DEFAULT_ADDRESS + TOKENS[2])).to.not.be.null;
+        });
+        it("returns pairs with tokenA and tokenB as one of the pairs (in that order).", async () => {
+            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(TOKENS[0], TOKENS[1]);
+            // tslint:disable-next-line:no-unused-expression
+            expect(returned.find((pair) => pair.tokenA.address === DEFAULT_ADDRESS + TOKENS[0] && pair.tokenB.address === DEFAULT_ADDRESS + TOKENS[1])).to.not.be.null;
+        });
+        it("returns pairs with tokenA and tokenB as one of the pairs (in reversed order).", async () => {
+            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(TOKENS[1], TOKENS[0]);
+            // tslint:disable-next-line:no-unused-expression
+            expect(returned.find((pair) => pair.tokenA.address === DEFAULT_ADDRESS + TOKENS[0] && pair.tokenB.address === DEFAULT_ADDRESS + TOKENS[1])).to.not.be.null;
+        });
     });
 });
