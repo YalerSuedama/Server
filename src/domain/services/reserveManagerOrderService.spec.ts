@@ -2,11 +2,13 @@ import { BigNumber } from "bignumber.js";
 import * as chai from "chai";
 import { Container, interfaces } from "inversify";
 import "reflect-metadata";
-import { AmadeusService, CryptographyService, ExchangeService, FeeService, LiquidityService, OrderService, SaltService, TickerService, TimeService, TokenService, TYPES } from "../../app";
-import { Order, Token } from "../../app/models";
+import { AmadeusService, CryptographyService, ExchangeService, FeeService, OrderService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../app";
+import { Order, Token, TokenPairTradeInfo } from "../../app/models";
 import { ReserveManagerOrderService } from "./reserveManagerOrderService";
 
+const chaiSubsetLoader = () => require("chai-subset");
 const chaiThingsLoader = () => require("chai-things");
+chai.use(chaiSubsetLoader());
 chai.use(chaiThingsLoader());
 const should = chai.should();
 const expect = chai.expect;
@@ -47,14 +49,38 @@ const stubFeeService: FeeService = {
     getFeeRecipient: (token?: Token) => Promise.resolve(DEFAULT_ADDRESS + "FEE"),
 };
 
-const stubLiquidityService: LiquidityService = {
-    getAvailableAmount: (token: Token) => Promise.resolve({
-        token,
-        availableAmount: new BigNumber(10),
-        maximumAmount: new BigNumber(10),
-        minimumAmount: new BigNumber(0),
-        precision: 5,
-    }),
+const stubTokenPairsService: TokenPairsService = {
+    listPairs: (tokenA?: string, tokenB?: string) => {
+        const tokens = TOKENS.map((token) => createToken(token));
+        let pairs: TokenPairTradeInfo[] = [];
+        for (const token of tokens) {
+            for (const tokenTo of tokens) {
+                pairs.push({
+                    tokenA: {
+                        address: token.address,
+                        minAmount: "0",
+                        maxAmount: "1",
+                        precision: 1,
+                    },
+                    tokenB: {
+                        address: tokenTo.address,
+                        minAmount: "0",
+                        maxAmount: "1",
+                        precision: 1,
+                    },
+                });
+            }
+        }
+        if (tokenA) {
+            const token = tokens.find((t) => t.symbol === tokenA);
+            pairs = pairs.filter((pair) => pair.tokenA.address === token.address || pair.tokenB.address === token.address);
+        }
+        if (tokenB) {
+            const token = tokens.find((t) => t.symbol === tokenB);
+            pairs = pairs.filter((pair) => pair.tokenA.address === token.address || pair.tokenB.address === token.address);
+        }
+        return Promise.resolve(pairs);
+    },
 };
 
 const stubSaltService: SaltService = {
@@ -76,6 +102,7 @@ const stubTimeService: TimeService = {
 
 const stubTokenService: TokenService = {
     getToken: (symbol: string) => Promise.resolve(createToken(symbol)),
+    getTokenByAddress: (address: string) => Promise.resolve(TOKENS.map((symbol) => createToken(symbol)).find((token) => token.address === address)),
     listAllTokens: () => Promise.resolve(TOKENS.map((symbol) => createToken(symbol))),
 };
 
@@ -86,7 +113,7 @@ describe("ReserveManagerOrderService", () => {
     iocContainer.bind<CryptographyService>(TYPES.CryptographyService).toConstantValue(stubCryptographyService);
     iocContainer.bind<ExchangeService>(TYPES.ExchangeService).toConstantValue(stubExchangeService);
     iocContainer.bind<FeeService>(TYPES.FeeService).toConstantValue(stubFeeService);
-    iocContainer.bind<LiquidityService>(TYPES.LiquidityService).toConstantValue(stubLiquidityService);
+    iocContainer.bind<TokenPairsService>(TYPES.TokenPairsService).toConstantValue(stubTokenPairsService);
     iocContainer.bind<SaltService>(TYPES.SaltService).toConstantValue(stubSaltService);
     iocContainer.bind<TickerService>(TYPES.TickerService).toConstantValue(stubTickerService);
     iocContainer.bind<TimeService>(TYPES.TimeService).toConstantValue(stubTimeService);
@@ -127,7 +154,7 @@ describe("ReserveManagerOrderService", () => {
             const symbolB = TOKENS[1];
             const addressB = DEFAULT_ADDRESS + symbolB;
             const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(symbolA, symbolB);
-            returned.should.include.one.with.property("makerTokenAddress", addressA).and.property("takerTokenAddress", addressB);
+            returned.should.contain.one.which.containSubset({ makerTokenAddress: addressA, takerTokenAddress: addressB });
         });
         it("should return an order with tokenA and tokenB as takerTokenAddress and makerTokenAddress (in that order)", async () => {
             const symbolA = TOKENS[0];
@@ -135,9 +162,9 @@ describe("ReserveManagerOrderService", () => {
             const symbolB = TOKENS[1];
             const addressB = DEFAULT_ADDRESS + symbolB;
             const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(symbolA, symbolB);
-            returned.should.contain.one.with.property("takerTokenAddress", addressA).and.property("makerTokenAddress", addressB);
+            returned.should.contain.one.which.containSubset({ makerTokenAddress: addressB, takerTokenAddress: addressA });
         });
-        it("should not return an order where makerTokenAddres and takerTokenAddress are not tokenA nor tokenB", async () => {
+        it("should not return an order where makerTokenAddress and takerTokenAddress are not tokenA nor tokenB", async () => {
             const symbolA = TOKENS[0];
             const addressA = DEFAULT_ADDRESS + symbolA;
             const symbolB = TOKENS[1];

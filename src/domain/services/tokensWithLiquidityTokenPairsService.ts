@@ -16,7 +16,7 @@ export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
     public async listPairs(tokenA?: string, tokenB?: string): Promise<TokenPairTradeInfo[]> {
         const tradabletokens: Token[] = await this.tokenService.listAllTokens();
         let pools: TokenPool[] = await Promise.all(tradabletokens.filter((token) => token).map(async (token) => await this.liquidityService.getAvailableAmount(token)));
-        pools = pools.filter((pool) => pool && !pool.availableAmount.isNegative() && !pool.availableAmount.isZero());
+        pools = pools.filter((pool) => pool && !pool.maximumAmount.isNegative() && !pool.maximumAmount.isZero());
         let pairs: TokenPairTradeInfo[] = [];
         if (!tokenA && !tokenB) {
             for (const tokenPool of pools) {
@@ -44,21 +44,19 @@ export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
 
     private async createTokenPairTradeInfo(tokenPoolFrom: TokenPool, tokenPoolTo: TokenPool): Promise<TokenPairTradeInfo> {
         const ticker = await this.tickerService.getTicker(tokenPoolFrom.token, tokenPoolTo.token);
-        const tokenA = ticker.from === tokenPoolFrom.token ? tokenPoolFrom : tokenPoolTo;
-        const tokenB = ticker.to === tokenPoolFrom.token ? tokenPoolFrom : tokenPoolTo;
         if (ticker) {
             return {
                 tokenA: {
-                    address: tokenA.token.address,
-                    minAmount: tokenA.minimumAmount.toString(),
-                    maxAmount: tokenA.maximumAmount.toString(),
-                    precision: tokenA.precision,
+                    address: tokenPoolFrom.token.address,
+                    minAmount: tokenPoolFrom.minimumAmount.toString(),
+                    maxAmount: tokenPoolFrom.maximumAmount.toString(),
+                    precision: tokenPoolFrom.precision,
                 },
                 tokenB: {
-                    address: tokenB.token.address,
-                    minAmount: tokenB.minimumAmount.toString(),
-                    maxAmount: tokenB.maximumAmount.toString(),
-                    precision: tokenB.precision,
+                    address: tokenPoolTo.token.address,
+                    minAmount: tokenPoolTo.minimumAmount.toString(),
+                    maxAmount: tokenPoolTo.maximumAmount.toString(),
+                    precision: tokenPoolTo.precision,
                 },
             };
         }

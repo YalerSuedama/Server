@@ -23,7 +23,6 @@ export class AccountPercentageLiquidityService implements LiquidityService {
         const availableAmount = totalAmount.times(this.getAvailablePercentage()).dividedToIntegerBy(1);
         return {
             token,
-            availableAmount,
             maximumAmount: availableAmount,
             minimumAmount: new BigNumber(0),
             precision: 6,
@@ -32,7 +31,7 @@ export class AccountPercentageLiquidityService implements LiquidityService {
 
     private getAvailablePercentage(): BigNumber {
         if (config.has(AccountPercentageLiquidityService.LIQUIDITY_KEY)) {
-            return new BigNumber(config.get(AccountPercentageLiquidityService.LIQUIDITY_KEY) + "");
+            return new BigNumber(config.get<number>(AccountPercentageLiquidityService.LIQUIDITY_KEY));
         }
 
         return AccountPercentageLiquidityService.DEFAULT_PERCENTAGE;
