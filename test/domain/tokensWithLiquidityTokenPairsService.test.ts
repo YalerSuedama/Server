@@ -2,13 +2,9 @@ import { BigNumber } from "bignumber.js";
 import { expect, use } from "chai";
 import { Container, interfaces } from "inversify";
 import "reflect-metadata";
-import * as sinon from "sinon";
-import * as sinonChai from "sinon-chai";
-import { LiquidityService, TickerService, TokenPairsService, TokenService, TYPES } from "../../app";
-import { Ticker, Token, TokenPool } from "../../app/models";
-import { TokensWithLiquidityTokenPairsService } from "./tokensWithLiquidityTokenPairsService";
-
-use(sinonChai);
+import { LiquidityService, TickerService, TokenPairsService, TokenService, TYPES } from "../../src/app";
+import { Ticker, Token, TokenPool } from "../../src/app/models";
+import { TokensWithLiquidityTokenPairsService } from "../../src/domain/services/tokensWithLiquidityTokenPairsService";
 
 const DEFAULT_ADDRESS = "0x0000000000000000000000000000000000000";
 const TOKENS = ["TK1", "TK2", "TK3"];

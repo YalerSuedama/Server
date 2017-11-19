@@ -2,9 +2,9 @@ import { BigNumber } from "bignumber.js";
 import * as chai from "chai";
 import { Container, interfaces } from "inversify";
 import "reflect-metadata";
-import { AmadeusService, CryptographyService, ExchangeService, FeeService, OrderService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../app";
-import { Order, Token, TokenPairTradeInfo } from "../../app/models";
-import { ReserveManagerOrderService } from "./reserveManagerOrderService";
+import { AmadeusService, CryptographyService, ExchangeService, FeeService, OrderService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../src/app";
+import { Order, Token, TokenPairTradeInfo } from "../../src/app/models";
+import { ReserveManagerOrderService } from "../../src/domain/services/reserveManagerOrderService";
 
 const chaiSubsetLoader = () => require("chai-subset");
 const chaiThingsLoader = () => require("chai-things");

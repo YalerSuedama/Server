@@ -2,10 +2,10 @@ import { expect, use } from "chai";
 import "reflect-metadata";
 import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
-import { OrderService, TYPES } from "../../app";
-import { ReserveManagerOrderService } from "../../domain";
-import { iocContainer } from "../middleware/iocContainer";
-import { OrderController } from "./orderController";
+import { OrderService, TYPES } from "../../src/app";
+import { ReserveManagerOrderService } from "../../src/domain";
+import { OrderController } from "../../src/server/controllers/orderController";
+import { iocContainer } from "../../src/server/middleware/iocContainer";
 
 use(sinonChai);
 
