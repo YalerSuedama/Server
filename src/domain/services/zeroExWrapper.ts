@@ -11,11 +11,10 @@ import * as Utils from "../util";
 @injectable()
 export class ZeroExWrapper implements CryptographyService, ExchangeService, SaltService, TokenService {
     private static readonly TRADABLE_TOKENS_KEY = "tradableTokens";
-    private static readonly DEFAULT_TOKENS = ["ETH", "ZRX", "OMG"];
+    private static readonly DEFAULT_TOKENS = ["WETH", "ZRX", "OMG"];
 
     private web3: Web3JS;
     private zeroEx: ZeroEx;
-    private ethAddress: string;
 
     constructor() {
         this.web3 = new Web3JS(new Web3JS.providers.HttpProvider("http://" + process.env.ETHEREUM_NODE + ":8545"));
@@ -27,13 +26,13 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     public async signOrder(order: Order): Promise<SignedOrder> {
         if (order.maker !== Utils.ZERO_ADDRESS) {
             await this.ensureAllowance(order.makerTokenAmount, order.makerTokenAddress, order.maker);
-            if (await this.isETHAddress(order.makerTokenAddress)) {
+            if (await this.isWETHAddress(order.makerTokenAddress)) {
                 await this.wrapETH(order.makerTokenAmount, order.maker);
             }
         }
         if (order.taker !== Utils.ZERO_ADDRESS) {
             await this.ensureAllowance(order.takerTokenAmount, order.takerTokenAddress, order.taker);
-            if (await this.isETHAddress(order.takerTokenAddress)) {
+            if (await this.isWETHAddress(order.takerTokenAddress)) {
                 await this.wrapETH(order.takerTokenAmount, order.taker);
             }
         }
@@ -62,9 +61,6 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     }
 
     public async getBalance(address: string, token?: Token): Promise<BigNumber> {
-        if (!token || token.symbol === "ETH") {
-            return new BigNumber(await this.web3.eth.getBalance(address));
-        }
         return this.zeroEx.token.getBalanceAsync(token.address, address);
     }
 
@@ -77,13 +73,6 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     /** TokenService */
 
     public async getToken(symbol: string): Promise<Token> {
-        if (symbol === "ETH") {
-            const token = await this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync("WETH");
-            if (token) {
-                token.symbol = symbol;
-            }
-            return token;
-        }
         return this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(symbol);
     }
 
@@ -92,7 +81,8 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     }
 
     public async listAllTokens(): Promise<Token[]> {
-        return Promise.all(this.getTradableTokens().map(async (symbol) => this.getToken(symbol)));
+        const tokens = await Promise.all(this.getTradableTokens().map(async (symbol) => this.getToken(symbol)));
+        return tokens.filter((token) => token);
     }
 
     /** Private methods */
@@ -109,7 +99,7 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
         return ZeroExWrapper.DEFAULT_TOKENS;
     }
 
-    private async isETHAddress(address: string): Promise<boolean> {
+    private async isWETHAddress(address: string): Promise<boolean> {
         return (await this.zeroEx.etherToken.getContractAddressAsync()) === address;
     }
 

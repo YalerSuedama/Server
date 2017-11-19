@@ -13,7 +13,7 @@ describe("OrderController", () => {
     describe(".listOrders", () => {
         let stub: sinon.SinonStub;
         const tokenA = "ZRX";
-        const tokenB = "ETH";
+        const tokenB = "WETH";
         const tokenAddress = "0x0000";
 
         before(() => {

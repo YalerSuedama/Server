@@ -6,11 +6,11 @@
     "amadeus": {
         "liquidityPercentage": 0.05,
         "ticker": {
-            "ETH-REP": {
+            "WETH-REP": {
                 "bid": 0.05722000,
                 "ask": 0.05793424
             },
-            "ETH-ZRX": {
+            "WETH-ZRX": {
                 "bid": 0.00060272,
                 "ask": 0.00064500
             },
@@ -20,7 +20,7 @@
             }
         },
         "tradableTokens": [
-            "ETH",
+            "WETH",
             "REP",
             "ZRX"
         ],

@@ -13,7 +13,7 @@ describe("TokenPairsController", () => {
     describe(".listPairs", () => {
         let stub: sinon.SinonStub;
         const tokenA = "ZRX";
-        const tokenB = "ETH";
+        const tokenB = "WETH";
 
         before(() => {
             iocContainer.rebind(TYPES.TokenPairsService).to(TokensWithLiquidityTokenPairsService).inSingletonScope();

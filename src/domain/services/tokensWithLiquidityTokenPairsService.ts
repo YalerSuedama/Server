@@ -15,7 +15,7 @@ export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
 
     public async listPairs(tokenA?: string, tokenB?: string): Promise<TokenPairTradeInfo[]> {
         const tradabletokens: Token[] = await this.tokenService.listAllTokens();
-        let pools: TokenPool[] = await Promise.all(tradabletokens.filter((token) => token).map(async (token) => await this.liquidityService.getAvailableAmount(token)));
+        let pools: TokenPool[] = await Promise.all(tradabletokens.map(async (token) => await this.liquidityService.getAvailableAmount(token)));
         pools = pools.filter((pool) => pool && !pool.maximumAmount.isNegative() && !pool.maximumAmount.isZero());
         let pairs: TokenPairTradeInfo[] = [];
         if (!tokenA && !tokenB) {
