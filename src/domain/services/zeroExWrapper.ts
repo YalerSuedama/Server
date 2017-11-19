@@ -3,18 +3,18 @@ import { BigNumber } from "bignumber.js";
 import * as config from "config";
 import { injectable } from "inversify";
 import * as _ from "lodash";
-import Web3JS = require("web3");
 import { CryptographyService, ExchangeService, SaltService, TokenService } from "../../app";
 import { Order, SignedOrder, Token as Token } from "../../app/models";
 import * as Utils from "../util";
 import { Web3Factory } from "../util";
+const Web3JS = require("web3");
 
 @injectable()
 export class ZeroExWrapper implements CryptographyService, ExchangeService, SaltService, TokenService {
     private static readonly TRADABLE_TOKENS_KEY = "tradableTokens";
     private static readonly DEFAULT_TOKENS = ["ETH", "ZRX", "GNT"];
     private static readonly privateKey = config.get("amadeus.privateKey") as string;
-    private web3: Web3JS;
+    private web3: any;
     private zeroEx: ZeroEx;
     private ethAddress: string;
 
