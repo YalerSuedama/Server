@@ -92,7 +92,17 @@ kubectl run amadeus-relay-server --image=eu.gcr.io/amadeusrelay/amadeus-relay-se
 
 - Expose to Internet
 ```
-kubectl expose deployment amadeus-relay-server --type=LoadBalancer --port 443 --target-port 3000
+kubectl expose deployment amadeus-relay-server --type=LoadBalancer --port 80 --target-port 3000
+```
 
-kubectl set image deployment/amadeus-srv amadeus-srv=eu.gcr.io/nimble-lead-184123/amadeus_server:v2
+- Scale up your application
+```
+kubectl scale deployment amadeus-relay-server --replicas=2
+```
+
+It's ready !!!
+
+If you want update, you must build a new version and push to repository. Remenber updating the version. Finnaly, set the new version.
+```
+kubectl set image deployment/amadeus-relay-server amadeus-relay-server=eu.gcr.io/amadeusrelay/amadeus-relay-server:v2
 ```
