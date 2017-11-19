@@ -1,4 +1,3 @@
-import Web3 = require("web3");
 import {GasPriceSubProvider} from "./gasPriceSubProvider";
 import {SignerSubProvider} from "./signerSubProvider";
 
@@ -10,11 +9,12 @@ const ethereumjsWallet = require("ethereumjs-wallet");
 const RpcSubprovider = require("web3-provider-engine/subproviders/rpc");
 const FixtureProvider = require("web3-provider-engine/subproviders/fixture.js");
 const NonceTrackerSubprovider = require("web3-provider-engine/subproviders/nonce-tracker.js");
+const Web3 = require("web3");
 
 export class Web3Factory {
     private static readonly  providerUrl = "https://kovan.infura.io/LhA6Si4etPyPRaC2QVFF";
 
-    public createWeb3(privateKey: string): Web3 {
+    public createWeb3(privateKey: string): any {
         Web3.providers.HttpProvider.prototype.sendAsync = Web3.providers.HttpProvider.prototype.send;
 
         const engine = new ProviderEngine();
