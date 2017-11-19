@@ -22,12 +22,12 @@ function createToken(symbol: string): Token {
 }
 
 const stubTokenService: TokenService = {
-    getToken: (symbol) => Promise.resolve(createToken(symbol)),
+    getToken: (symbol: string) => Promise.resolve(createToken(symbol)),
     listAllTokens: () => Promise.resolve(TOKENS.map((symbol) => createToken(symbol))),
 };
 
 const stubLiquidityService: LiquidityService = {
-    getAvailableAmount: (token) => Promise.resolve({
+    getAvailableAmount: (token: Token) => Promise.resolve({
         token,
         availableAmount: new BigNumber(10),
         maximumAmount: new BigNumber(10),
@@ -35,8 +35,9 @@ const stubLiquidityService: LiquidityService = {
         precision: 5,
     }),
 };
+
 const stubTickerService: TickerService = {
-    getTicker: (tokenFrom, tokenTo) => Promise.resolve({
+    getTicker: (tokenFrom: Token, tokenTo: Token) => Promise.resolve({
         from: tokenFrom,
         to: tokenTo,
         bid: new BigNumber(1),
