@@ -23,6 +23,7 @@ function createToken(symbol: string): Token {
 
 const stubTokenService: TokenService = {
     getToken: (symbol: string) => Promise.resolve(createToken(symbol)),
+    getTokenByAddress: (address: string) => Promise.resolve(TOKENS.map((symbol) => createToken(symbol)).find((token) => token.address === address)),
     listAllTokens: () => Promise.resolve(TOKENS.map((symbol) => createToken(symbol))),
 };
 

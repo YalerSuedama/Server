@@ -87,6 +87,10 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
         return this.zeroEx.tokenRegistry.getTokenBySymbolIfExistsAsync(symbol);
     }
 
+    public async getTokenByAddress(address: string): Promise<Token> {
+        return (await this.listAllTokens()).find((token) => token.address === address);
+    }
+
     public async listAllTokens(): Promise<Token[]> {
         return Promise.all(this.getTradableTokens().map(async (symbol) => this.getToken(symbol)));
     }
