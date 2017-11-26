@@ -5,7 +5,7 @@ export class GasPriceSubProvider {
     public handleRequest(payload: any, next: any, end: any) {
         if (payload.method === "eth_sendTransaction") {
             if (! payload.params[0].gas) {
-                payload.params[0].gas = "0x78c0";
+                payload.params[0].gas = "0xBC85";
                 payload.params[0].gasPrice = "0x4a817c800";
             }
         }
