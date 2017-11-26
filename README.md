@@ -7,7 +7,7 @@ Our API adheres to the [Standard Relayer API V0 Draft](https://github.com/0xProj
 
 To start contributing to Amadeus Relay API, clone the git repo and type:
 ```
-npm install
+npm install  
 ```
 
 To build locally:
