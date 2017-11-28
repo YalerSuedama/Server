@@ -1,5 +1,6 @@
 import { inject, injectable } from "inversify";
-import { Controller, Get, Query, Route } from "tsoa";
+import * as moment from "moment";
+import { Controller, Example, Get, Query, Route } from "tsoa";
 import { OrderService, TYPES } from "../../app";
 import { SignedOrder } from "../../app/models/signedOrder";
 
@@ -11,6 +12,34 @@ export class OrderController extends Controller {
         super();
     }
 
+    /**
+     * Calling this method will return signed orders that can be filled through 0x project's fillOrder to exchange user's takerToken for this relayer's makerToken.
+     * This method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).
+     * @summary List all orders available through our relayer, given the searched parameters.
+     * @param {string} tokenA Symbol of a token that should be included on orders either as maker or taker. If tokenB is also informed, then this method will return orders with only both tokens, either as maker or taker.
+     * @param {string} tokenB Symbol of a token that should be included on orders either as maker or taker. If tokenA is also informed, then this method will return orders with only both tokens, either as maker or taker.
+     * @param {string} makerTokenAddress Will return all orders where makerTokenAddress is the same address of this parameter.
+     * @param {string} takerTokenAddress Will return all orders where takerTokenAddress is the same address of this parameter.
+     */
+    @Example<SignedOrder>({
+        ecSignature: {
+            r: "string",
+            s: "string",
+            v: 0,
+        },
+        exchangeContractAddress: "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+        expirationUnixTimestampSec: "1511833100",
+        feeRecipient: "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+        maker: "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+        makerFee: "000000000000000001",
+        makerTokenAddress: "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+        makerTokenAmount: "1000000000000000000",
+        salt: "72190258645710948815942036721950834632004444658131970136856055217425783080581",
+        taker: "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+        takerFee: "000000000000000001",
+        takerTokenAddress: "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+        takerTokenAmount: "1000000000000000000",
+    })
     @Get()
     public async listOrders( @Query() tokenA?: string, @Query() tokenB?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string): Promise<SignedOrder[]> {
         return this.orderService.listOrders(tokenA, tokenB, makerTokenAddress, takerTokenAddress);
