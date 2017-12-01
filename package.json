@@ -1,6 +1,6 @@
 {
     "name": "amadeusrelayserver",
-    "version": "0.1.0",
+    "version": "0.1.0-alpha",
     "description": "Amadeus Relay Server",
     "main": "index.ts",
     "scripts": {
@@ -19,14 +19,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/AmadeusRelay/AmadeusRelayServer.git"
+        "url": "git+https://github.com/YalerSuedama/Server.git"
     },
     "author": "AmadeusRelay",
-    "license": "ISC",
+    "license": "",
     "bugs": {
         "url": "https://github.com/AmadeusRelay/AmadeusRelayServer/issues"
     },
-    "homepage": "https://github.com/AmadeusRelay/AmadeusRelayServer#readme",
+    "homepage": "http://amadeusrelay.org",
     "devDependencies": {
         "@types/bignumber.js": "^4.0.3",
         "@types/body-parser": "^1.16.5",

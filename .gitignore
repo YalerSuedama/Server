@@ -62,3 +62,4 @@ dist/**/*
 
 # Ethereum running testrpc database
 testrpc/database
+.DS_Store
