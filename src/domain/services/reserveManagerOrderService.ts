@@ -66,7 +66,7 @@ export class ReserveManagerOrderService implements OrderService {
             taker: Utils.ZERO_ADDRESS,
             takerFee: (await this.feeService.getTakerFee(ticker.to)).toString(),
             takerTokenAddress: ticker.to.address,
-            takerTokenAmount: new BigNumber(pair.tokenA.maxAmount).mul(ticker.ask).toString(),
+            takerTokenAmount: new BigNumber(pair.tokenA.maxAmount).mul(ticker.ask).floor().toString(),
         });
     }
 
