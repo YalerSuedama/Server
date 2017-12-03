@@ -22,6 +22,10 @@ export class OrderController extends Controller {
      * @param {string} takerTokenAddress Will return all orders where takerTokenAddress is the same address of this parameter.
      * @param {string} tokenA Symbol of a token that should be included on orders either as maker or taker. If tokenB is also informed, then this method will return orders with only both tokens, either as maker or taker.
      * @param {string} tokenB Symbol of a token that should be included on orders either as maker or taker. If tokenA is also informed, then this method will return orders with only both tokens, either as maker or taker.
+     * @param {string} maker Will return all orders where makerAddress is the same address of this parameter.
+     * @param {string} taker Will return all orders where takerAddress is the same address of this parameter.
+     * @param {string} trader Will return all orders where makerAddress or takerAddress is the same address of this parameter.
+     * @param {string} feeRecipient Will return all orders where feeRecipient is the same address of this parameter.
      */
     @Example<SignedOrder>({
         ecSignature: {
@@ -43,7 +47,7 @@ export class OrderController extends Controller {
         takerTokenAmount: "1000000000000000000",
     })
     @Get()
-    public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() tokenA?: string, @Query() tokenB?: string): Promise<SignedOrder[]> {
-        return this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, tokenA, tokenB);
+    public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() tokenA?: string, @Query() tokenB?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string): Promise<SignedOrder[]> {
+        return this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, tokenA, tokenB, maker, taker, trader, feeRecipient);
     }
 }

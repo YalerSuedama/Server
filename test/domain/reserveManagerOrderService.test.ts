@@ -225,4 +225,93 @@ describe("ReserveManagerOrderService", () => {
             expect(returned.find((order) => (order.makerTokenAddress !== addressA && order.makerTokenAddress !== addressB) && (order.takerTokenAddress !== addressA && order.takerTokenAddress !== addressB))).to.be.undefined;
         });
     });
+    context("when maker is informed", () => {
+        context("as the Amadeus address", async () => {
+            it("should return all orders", async () => {
+                const makerAddress = stubAmadeusService.getMainAddress();
+                const expectedLength = (await stubTokenPairsService.listPairs()).length;
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, makerAddress);
+                returned.should.all.have.property("maker", makerAddress);
+                expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
+            });
+        });
+        context("as NOT the Amadeus address", () => {
+            it("should not return any order", async () => {
+                const makerAddress = DEFAULT_ADDRESS + TOKENS[0];
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, makerAddress);
+                // tslint:disable-next-line:no-unused-expression
+                expect(returned).to.be.an("array").that.is.empty;
+            });
+        });
+    });
+    context("when taker is informed", () => {
+        context("as the null address", () => {
+            it("should return all orders", async () => {
+                const nullAddressSymbol = "000";
+                const takerAddress = DEFAULT_ADDRESS + nullAddressSymbol;
+                const expectedLength = (await stubTokenPairsService.listPairs()).length;
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, takerAddress);
+                returned.should.all.have.property("taker", takerAddress);
+                expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
+            });
+        });
+        context("as NOT the null address", () => {
+            it("should not return any order", async () => {
+                const takerSymbol = TOKENS[0];
+                const takerAddress = DEFAULT_ADDRESS + takerSymbol;
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, takerAddress);
+                // tslint:disable-next-line:no-unused-expression
+                expect(returned).to.be.an("array").that.is.empty;
+            });
+        });
+    });
+    context("when trader is informed", () => {
+        context("as the Amadeus address", async () => {
+            it("should return all orders", async () => {
+                const traderAddress = stubAmadeusService.getMainAddress();
+                const expectedLength = (await stubTokenPairsService.listPairs()).length;
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, traderAddress);
+                returned.should.all.have.property("maker", traderAddress);
+                expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
+            });
+        });
+        context("as the null address", () => {
+            it("should return all orders", async () => {
+                const nullAddressSymbol = "000";
+                const traderAddress = DEFAULT_ADDRESS + nullAddressSymbol;
+                const expectedLength = (await stubTokenPairsService.listPairs()).length;
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, traderAddress);
+                returned.should.all.have.property("taker", traderAddress);
+                expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
+            });
+        });
+        context("as NOT the Amadeus address NOR the null address", () => {
+            it("should not return any order", async () => {
+                const traderSymbol = TOKENS[0];
+                const traderAddress = DEFAULT_ADDRESS + traderSymbol;
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, traderAddress);
+                // tslint:disable-next-line:no-unused-expression
+                expect(returned).to.be.an("array").that.is.empty;
+            });
+        });
+    });
+    context("When feeRecipient is informed", () => {
+        context("As the Amadeus fee address", () => {
+            it("should return all orders", async () => {
+                const feeAddress = stubAmadeusService.getFeeAddress();
+                const expectedLength = (await stubTokenPairsService.listPairs()).length;
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, feeAddress);
+                returned.should.all.have.property("feeRecipient", feeAddress);
+                expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
+            });
+        });
+        context("As NOT the Amadeus fee address", () => {
+            it("should not return any order", async () => {
+                const feeAddress = DEFAULT_ADDRESS + TOKENS[0];
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, feeAddress);
+                // tslint:disable-next-line:no-unused-expression
+                expect(returned).to.be.an("array").that.is.empty;
+            });
+        });
+    });
 });

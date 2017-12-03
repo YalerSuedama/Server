@@ -7,5 +7,9 @@ export interface OrderService {
         makerTokenAddress?: string,
         takerTokenAddress?: string,
         tokenA?: string,
-        tokenB?: string): Promise<SignedOrder[]>;
+        tokenB?: string,
+        maker?: string,
+        taker?: string,
+        trader?: string,
+        feeRecipient?: string): Promise<SignedOrder[]>;
 }

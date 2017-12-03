@@ -67,5 +67,17 @@ describe("OrderController", () => {
         it("should pass tokenB as sixth argument to orderService.listOrders", (done) => {
             callController(parameter, 5, done);
         });
+        it("should pass maker as seventh argument to orderService.listOrders", (done) => {
+            callController(parameter, 6, done);
+        });
+        it("should pass taker as eight argument to orderService.listOrders", (done) => {
+            callController(parameter, 7, done);
+        });
+        it("should pass trader as nineth argument to orderService.listOrders", (done) => {
+            callController(parameter, 8, done);
+        });
+        it("should pass feeRecipient as tenth argument to orderService.listOrders", (done) => {
+            callController(parameter, 9, done);
+        });
     });
 });

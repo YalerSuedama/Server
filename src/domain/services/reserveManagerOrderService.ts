@@ -41,10 +41,28 @@ export class ReserveManagerOrderService implements OrderService {
         this.logger.setNamespace("reservemanagerorderservice");
     }
 
-    public async listOrders(exchangeContractAddress?: string, tokenAddress?: string, makerTokenAddress?: string, takerTokenAddress?: string, tokenA?: string, tokenB?: string): Promise<SignedOrder[]> {
+    public async listOrders(exchangeContractAddress?: string, tokenAddress?: string, makerTokenAddress?: string, takerTokenAddress?: string, tokenA?: string, tokenB?: string, maker?: string, taker?: string, trader?: string, feeRecipient?: string): Promise<SignedOrder[]> {
         const currentContractAddress = await this.exchangeService.get0xContractAddress();
+        const feeRecipientAddress = this.amadeusService.getFeeAddress();
+        const makerAddress = this.amadeusService.getMainAddress();
         if (exchangeContractAddress && exchangeContractAddress !== currentContractAddress) {
             this.logger.log("Asked for exchange contract address %s but currently we support %s.", exchangeContractAddress, currentContractAddress);
+            return [];
+        }
+        if (maker && maker !== makerAddress) {
+            this.logger.log("Asked for maker address %s but currently we support %s.", maker, makerAddress);
+            return [];
+        }
+        if (taker && taker !== Utils.ZERO_ADDRESS) {
+            this.logger.log("Asked for taker address %s but currently we support %s.", taker, Utils.ZERO_ADDRESS);
+            return [];
+        }
+        if (trader && trader !== makerAddress && trader !== Utils.ZERO_ADDRESS) {
+            this.logger.log("Asked for trader address %s but currently we support %s as maker and %s as trader.", trader, makerAddress, Utils.ZERO_ADDRESS);
+            return [];
+        }
+        if (feeRecipient && feeRecipient !== feeRecipientAddress) {
+            this.logger.log("Asked for fee recipient address %s but currently we support %s.", feeRecipient, feeRecipientAddress);
             return [];
         }
 
@@ -61,20 +79,19 @@ export class ReserveManagerOrderService implements OrderService {
             pairs = pairs.filter((pair) => pair.tokenB.address === takerTokenAddress);
             this.logger.log("Filtered pairs for takerTokenAddress %s: %o.", takerTokenAddress, pairs);
         }
-        return Promise.all(pairs.map((pair) => this.createSignedOrderFromTokenPair(pair)));
+        return Promise.all(pairs.map((pair) => this.createSignedOrderFromTokenPair(pair, currentContractAddress, makerAddress, feeRecipientAddress)));
     }
 
-    private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo): Promise<SignedOrder> {
-        const makerAddress = await this.amadeusService.getMainAddress();
-        this.ensureAllowance(new BigNumber(pair.tokenA.maxAmount), pair.tokenA.address, makerAddress);
-        this.ensureAllowance(new BigNumber(pair.tokenB.maxAmount), pair.tokenB.address, makerAddress);
+    private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo, exchangeContractAddress: string, maker: string, feeRecipient: string): Promise<SignedOrder> {
+        this.ensureAllowance(new BigNumber(pair.tokenA.maxAmount), pair.tokenA.address, maker);
+        this.ensureAllowance(new BigNumber(pair.tokenB.maxAmount), pair.tokenB.address, maker);
 
         const ticker: Ticker = await this.tickerService.getTicker(await this.tokenService.getTokenByAddress(pair.tokenA.address), await this.tokenService.getTokenByAddress(pair.tokenB.address));
         return this.cryptographyService.signOrder({
-            exchangeContractAddress: await this.exchangeService.get0xContractAddress(),
+            exchangeContractAddress,
             expirationUnixTimestampSec: this.timeService.getExpirationTimestamp(),
-            feeRecipient: await this.feeService.getFeeRecipient(),
-            maker: makerAddress,
+            feeRecipient,
+            maker,
             makerFee: (await this.feeService.getMakerFee(ticker.from)).toString(),
             makerTokenAddress: ticker.from.address,
             makerTokenAmount: pair.tokenA.maxAmount.toString(),
