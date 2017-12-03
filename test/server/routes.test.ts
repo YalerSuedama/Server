@@ -5,6 +5,7 @@ import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
 import * as supertest from "supertest";
 import { Controller } from "tsoa";
+import { SignedOrder, TokenPairTradeInfo } from "../../src/app/models";
 import { OrderController } from "../../src/server/controllers/orderController";
 import { TokenPairsController } from "../../src/server/controllers/tokenPairsController";
 import { iocContainer } from "../../src/server/middleware/iocContainer";
@@ -13,18 +14,14 @@ import { RegisterRoutes } from "../../src/server/middleware/routes/routes";
 enum RouteMethods { GET, POST, PUT, DELETE }
 
 class RouteTest<T extends Controller> {
-    constructor(public route: string, public routeMethod: RouteMethods, private controllerType: new (...args: any[]) => T, private controllerMethodName: keyof T) { }
+    constructor(public route: string, public routeMethod: RouteMethods, private controllerType: new (...args: any[]) => T, private controllerStub: T, private controllerMethodName: keyof T) { }
 
     public before(): void {
-        iocContainer.rebind(this.controllerType).to(this.controllerType).inSingletonScope();
+        iocContainer.rebind(this.controllerType).toConstantValue(this.controllerStub);
     }
 
-    public after(): void {
-        iocContainer.rebind(this.controllerType).to(this.controllerType);
-    }
-
-    public stubFactory(): sinon.SinonStub {
-        return sinon.stub(iocContainer.get<T>(this.controllerType) as T, this.controllerMethodName).returns({});
+    public spyFactory(): sinon.SinonSpy {
+        return sinon.spy(iocContainer.get<T>(this.controllerType) as T, this.controllerMethodName);
     }
 
     public callApp(test: supertest.SuperTest<supertest.Test>, ...args: any[]): supertest.Test {
@@ -43,22 +40,36 @@ class RouteTest<T extends Controller> {
     }
 }
 
+// tslint:disable-next-line:max-classes-per-file
+class OrderControllerStub extends OrderController {
+    public async listOrders(tokenA?: string, tokenB?: string, makerTokenAddress?: string, takerTokenAddress?: string): Promise<SignedOrder[]> {
+        return [];
+    }
+}
+const orderControllerStub: OrderController = new OrderControllerStub(null);
+
+// tslint:disable-next-line:max-classes-per-file
+class TokenPairsControllerStub extends TokenPairsController {
+    public async listPairs(tokenA?: string, tokenB?: string): Promise<TokenPairTradeInfo[]> {
+        return [];
+    }
+}
+const tokenPairsControllerStub: TokenPairsController = new TokenPairsControllerStub(null);
+
 const tests = [
-    new RouteTest<OrderController>("/api/v0/orders", RouteMethods.GET, OrderController, "listOrders"),
-    new RouteTest<TokenPairsController>("/api/v0/token_pairs", RouteMethods.GET, TokenPairsController, "listPairs"),
+    new RouteTest<OrderController>("/api/v0/orders", RouteMethods.GET, OrderController, orderControllerStub as OrderController, "listOrders"),
+    new RouteTest<TokenPairsController>("/api/v0/token_pairs", RouteMethods.GET, TokenPairsController, tokenPairsControllerStub as TokenPairsController, "listPairs"),
 ];
 
 describe("Routes", () => {
     let expressApp: express.Express;
     let server: Server;
 
-    before(() => {
+    before((done) => {
         tests.forEach((test) => test.before && test.before());
         expressApp = express();
         RegisterRoutes(expressApp);
-    });
-    after(() => {
-        tests.forEach((test) => test.after && test.after());
+        done();
     });
 
     beforeEach((done) => {
@@ -70,14 +81,14 @@ describe("Routes", () => {
 
     tests.forEach((test) => {
         describe(test.route, () => {
-            let stub: sinon.SinonStub;
+            let spy: sinon.SinonSpy;
 
             beforeEach((done) => {
-                stub = test.stubFactory();
+                spy = test.spyFactory();
                 done();
             });
             afterEach((done) => {
-                stub.restore();
+                spy.restore();
                 done();
             });
 
@@ -87,7 +98,7 @@ describe("Routes", () => {
             it(` ${RouteMethods[test.routeMethod]} should call controller`, (done) => {
                 test.callApp(supertest(expressApp), test.route).end((err, res) => {
                     // tslint:disable-next-line:no-unused-expression
-                    expect(stub).to.be.calledOnce;
+                    expect(spy).to.be.calledOnce;
                     done(err);
                 });
             });
