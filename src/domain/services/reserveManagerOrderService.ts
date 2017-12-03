@@ -79,7 +79,17 @@ export class ReserveManagerOrderService implements OrderService {
             pairs = pairs.filter((pair) => pair.tokenB.address === takerTokenAddress);
             this.logger.log("Filtered pairs for takerTokenAddress %s: %o.", takerTokenAddress, pairs);
         }
-        return Promise.all(pairs.map((pair) => this.createSignedOrderFromTokenPair(pair, currentContractAddress, makerAddress, feeRecipientAddress)));
+        const ordersPromise = Promise.all(pairs.map((pair) => this.createSignedOrderFromTokenPair(pair, currentContractAddress, makerAddress, feeRecipientAddress)));
+        if (makerTokenAddress && takerTokenAddress) {
+            const orders = await ordersPromise;
+            return orders.sort((first, second) => {
+                const firstPrice = new BigNumber(first.takerTokenAmount).dividedBy(first.makerTokenAmount);
+                const secondPrice = new BigNumber(second.takerTokenAmount).dividedBy(second.makerTokenAmount);
+                return firstPrice.minus(secondPrice).toNumber();
+            });
+        } else {
+            return ordersPromise;
+        }
     }
 
     private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo, exchangeContractAddress: string, maker: string, feeRecipient: string): Promise<SignedOrder> {

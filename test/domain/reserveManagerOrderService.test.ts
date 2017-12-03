@@ -95,8 +95,8 @@ const stubTickerService: TickerService = {
     getTicker: (tokenFrom: Token, tokenTo: Token) => Promise.resolve({
         from: tokenFrom,
         to: tokenTo,
-        bid: new BigNumber(1),
-        ask: new BigNumber(1),
+        bid: new BigNumber(TOKENS.findIndex((token) => token === tokenFrom.symbol)),
+        ask: new BigNumber(TOKENS.findIndex((token) => token === tokenFrom.symbol)),
     }),
 };
 
@@ -311,6 +311,24 @@ describe("ReserveManagerOrderService", () => {
                 const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, feeAddress);
                 // tslint:disable-next-line:no-unused-expression
                 expect(returned).to.be.an("array").that.is.empty;
+            });
+        });
+    });
+    context("When makerTokenAddress and takerTokenAddress are informed", () => {
+        it("should return orders sorted by price", async () => {
+            const makerTokenSymbol = TOKENS[0];
+            const makerTokenAddress = DEFAULT_ADDRESS + makerTokenSymbol;
+            const takerTokenSymbol = TOKENS[1];
+            const takerTokenAddress = DEFAULT_ADDRESS + takerTokenSymbol;
+            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, makerTokenAddress, takerTokenAddress);
+            returned.forEach((order, index) => {
+                if (index === 0) {
+                    return;
+                }
+                const orderBefore = returned[index - 1];
+                const orderBeforePrice = new BigNumber(orderBefore.takerTokenAmount).dividedBy(new BigNumber(orderBefore.makerTokenAmount));
+                const orderPrice = new BigNumber(order.takerTokenAmount).dividedBy(new BigNumber(order.makerTokenAmount));
+                expect(orderPrice.toNumber()).to.be.greaterThan(orderBeforePrice.toNumber());
             });
         });
     });
