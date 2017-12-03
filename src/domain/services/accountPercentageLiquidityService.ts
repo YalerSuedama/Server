@@ -7,7 +7,7 @@ import { Token, TokenPool } from "../../app/models";
 @injectable()
 export class AccountPercentageLiquidityService implements LiquidityService {
     private static readonly LIQUIDITY_KEY = "amadeus.liquidityPercentage";
-    private static readonly DEFAULT_PERCENTAGE = new BigNumber("0.1");
+    private static readonly DEFAULT_PERCENTAGE = new BigNumber("0.02");
 
     constructor(
         @inject(TYPES.ExchangeService) private exchangeService: ExchangeService,
@@ -23,10 +23,18 @@ export class AccountPercentageLiquidityService implements LiquidityService {
         const availableAmount = totalAmount.times(this.getAvailablePercentage()).dividedToIntegerBy(1);
         return {
             token,
-            maximumAmount: availableAmount,
+            maximumAmount: this.getRoundAmount(availableAmount),
             minimumAmount: new BigNumber(0),
             precision: 6,
         };
+    }
+
+    private getRoundAmount(amount: BigNumber): BigNumber {
+        if (amount.lessThanOrEqualTo(10)) {
+            return amount;
+        }
+        const base = new BigNumber(10).pow(amount.e);
+        return amount.dividedToIntegerBy(base).mul(base);
     }
 
     private getAvailablePercentage(): BigNumber {
