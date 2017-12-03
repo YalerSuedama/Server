@@ -2,8 +2,9 @@ import { BigNumber } from "bignumber.js";
 import * as chai from "chai";
 import { Container, interfaces } from "inversify";
 import "reflect-metadata";
-import { AmadeusService, CryptographyService, ExchangeService, FeeService, OrderService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../src/app";
+import { AmadeusService, CryptographyService, ExchangeService, FeeService, LoggerService, OrderService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../src/app";
 import { Order, Token, TokenPairTradeInfo } from "../../src/app/models";
+import { LoggerDebug } from "../../src/domain/services/loggerDebug";
 import { ReserveManagerOrderService } from "../../src/domain/services/reserveManagerOrderService";
 
 const chaiSubsetLoader = () => require("chai-subset");
@@ -121,60 +122,36 @@ describe("ReserveManagerOrderService", () => {
     iocContainer.bind<TickerService>(TYPES.TickerService).toConstantValue(stubTickerService);
     iocContainer.bind<TimeService>(TYPES.TimeService).toConstantValue(stubTimeService);
     iocContainer.bind<TokenService>(TYPES.TokenService).toConstantValue(stubTokenService);
+    iocContainer.bind<LoggerService>(TYPES.LoggerService).to(LoggerDebug);
 
-    context("when tokenA is informed", () => {
-        it("should return orders where makerTokenAddress is tokenA", async () => {
-            const symbol = TOKENS[0];
-            const address = DEFAULT_ADDRESS + symbol;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(symbol);
-            returned.should.include.one.with.property("makerTokenAddress", address);
-        });
-        it("should return orders where takerTokenAddress is tokenA", async () => {
-            const symbol = TOKENS[0];
-            const address = DEFAULT_ADDRESS + symbol;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(symbol);
-            returned.should.include.one.with.property("takerTokenAddress", address);
-        });
-    });
-    context("when tokenB is informed", () => {
-        it("should return orders where makerTokenAddress is tokenB", async () => {
-            const symbol = TOKENS[0];
-            const address = DEFAULT_ADDRESS + symbol;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, symbol);
-            returned.should.include.one.with.property("makerTokenAddress", address);
-        });
-        it("should return orders where takerTokenAddress is tokenB", async () => {
-            const symbol = TOKENS[0];
-            const address = DEFAULT_ADDRESS + symbol;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, symbol);
-            returned.should.include.one.with.property("takerTokenAddress", address);
-        });
-    });
-    context("when tokenA and tokenB are informed", () => {
-        it("should return an order with tokenA and tokenB as makerTokenAddress and takerTokenAddress (in that order)", async () => {
-            const symbolA = TOKENS[0];
-            const addressA = DEFAULT_ADDRESS + symbolA;
-            const symbolB = TOKENS[1];
-            const addressB = DEFAULT_ADDRESS + symbolB;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(symbolA, symbolB);
-            returned.should.contain.one.which.containSubset({ makerTokenAddress: addressA, takerTokenAddress: addressB });
-        });
-        it("should return an order with tokenA and tokenB as takerTokenAddress and makerTokenAddress (in that order)", async () => {
-            const symbolA = TOKENS[0];
-            const addressA = DEFAULT_ADDRESS + symbolA;
-            const symbolB = TOKENS[1];
-            const addressB = DEFAULT_ADDRESS + symbolB;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(symbolA, symbolB);
-            returned.should.contain.one.which.containSubset({ makerTokenAddress: addressB, takerTokenAddress: addressA });
-        });
-        it("should not return an order where makerTokenAddress and takerTokenAddress are not tokenA nor tokenB", async () => {
-            const symbolA = TOKENS[0];
-            const addressA = DEFAULT_ADDRESS + symbolA;
-            const symbolB = TOKENS[1];
-            const addressB = DEFAULT_ADDRESS + symbolB;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(symbolA, symbolB);
+    context("when exchangeContractAddress is informed", () => {
+        it("should not return orders when it differs from current 0x contract address", async () => {
+            const exchangeContractAddress = DEFAULT_ADDRESS + "ECA";
+            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(exchangeContractAddress);
             // tslint:disable-next-line:no-unused-expression
-            expect(returned.find((order) => (order.makerTokenAddress !== addressA && order.makerTokenAddress !== addressB) && (order.takerTokenAddress !== addressA && order.takerTokenAddress !== addressB))).to.be.undefined;
+            expect(returned).to.be.an("array").that.is.empty;
+        });
+    });
+    context("When tokenAddress is informed", () => {
+        it("should return orders where makerTokenAddress is tokenAddress", async () => {
+            const tokenSymbol = TOKENS[0];
+            const tokenAddress = DEFAULT_ADDRESS + tokenSymbol;
+            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, tokenAddress);
+            returned.should.contain.one.with.property("makerTokenAddress", tokenAddress);
+        });
+        it("should return orders where takerTokenAddress is tokenAddress", async () => {
+            const tokenSymbol = TOKENS[0];
+            const tokenAddress = DEFAULT_ADDRESS + tokenSymbol;
+            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, tokenAddress);
+            returned.should.contain.one.with.property("takerTokenAddress", tokenAddress);
+        });
+        it("should not return orders where neither makerTokenAddress nor takerTokenAddress are tokenAddress", async () => {
+            const tokenSymbol = TOKENS[0];
+            const tokenAddress = DEFAULT_ADDRESS + tokenSymbol;
+            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, tokenAddress);
+            const ordersWithoutTokenAddress = returned.filter((order) => order.makerTokenAddress !== tokenAddress && order.takerTokenAddress !== tokenAddress);
+            // tslint:disable-next-line:no-unused-expression
+            expect(ordersWithoutTokenAddress).to.be.an("array").that.is.empty;
         });
     });
     context("when makerTokenAddress is informed", () => {
@@ -191,6 +168,61 @@ describe("ReserveManagerOrderService", () => {
             const takerTokenAddress = DEFAULT_ADDRESS + takerTokenSymbol;
             const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, takerTokenAddress);
             returned.should.all.have.property("takerTokenAddress", takerTokenAddress);
+        });
+    });
+    context("when tokenA is informed", () => {
+        it("should return orders where makerTokenAddress is tokenA", async () => {
+            const symbol = TOKENS[0];
+            const address = DEFAULT_ADDRESS + symbol;
+            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, symbol);
+            returned.should.include.one.with.deep.property("makerTokenAddress", address);
+        });
+        it("should return orders where takerTokenAddress is tokenA", async () => {
+            const symbol = TOKENS[0];
+            const address = DEFAULT_ADDRESS + symbol;
+            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, symbol);
+            returned.should.include.one.with.property("takerTokenAddress", address);
+        });
+    });
+    context("when tokenB is informed", () => {
+        it("should return orders where makerTokenAddress is tokenB", async () => {
+            const symbol = TOKENS[0];
+            const address = DEFAULT_ADDRESS + symbol;
+            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, symbol);
+            returned.should.include.one.with.property("makerTokenAddress", address);
+        });
+        it("should return orders where takerTokenAddress is tokenB", async () => {
+            const symbol = TOKENS[0];
+            const address = DEFAULT_ADDRESS + symbol;
+            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, symbol);
+            returned.should.include.one.with.property("takerTokenAddress", address);
+        });
+    });
+    context("when tokenA and tokenB are informed", () => {
+        it("should return an order with tokenA and tokenB as makerTokenAddress and takerTokenAddress (in that order)", async () => {
+            const symbolA = TOKENS[0];
+            const addressA = DEFAULT_ADDRESS + symbolA;
+            const symbolB = TOKENS[1];
+            const addressB = DEFAULT_ADDRESS + symbolB;
+            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, symbolA, symbolB);
+            returned.should.contain.one.which.containSubset({ makerTokenAddress: addressA, takerTokenAddress: addressB });
+        });
+        it("should return an order with tokenA and tokenB as takerTokenAddress and makerTokenAddress (in that order)", async () => {
+            const symbolA = TOKENS[0];
+            const addressA = DEFAULT_ADDRESS + symbolA;
+            const symbolB = TOKENS[1];
+            const addressB = DEFAULT_ADDRESS + symbolB;
+            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, symbolA, symbolB);
+            returned.should.contain.one.which.containSubset({ makerTokenAddress: addressB, takerTokenAddress: addressA });
+        });
+        it("should not return an order where makerTokenAddress and takerTokenAddress are not tokenA nor tokenB", async () => {
+            const symbolA = TOKENS[0];
+            const addressA = DEFAULT_ADDRESS + symbolA;
+            const symbolB = TOKENS[1];
+            const addressB = DEFAULT_ADDRESS + symbolB;
+            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, symbolA, symbolB);
+            // tslint:disable-next-line:no-unused-expression
+            expect(returned.find((order) => (order.makerTokenAddress !== addressA && order.makerTokenAddress !== addressB) && (order.takerTokenAddress !== addressA && order.takerTokenAddress !== addressB))).to.be.undefined;
         });
     });
 });

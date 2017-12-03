@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import * as moment from "moment";
 import { Controller, Example, Get, Query, Route } from "tsoa";
 import { OrderService, TYPES } from "../../app";
-import { SignedOrder } from "../../app/models/signedOrder";
+import { SignedOrder } from "../../app/models";
 
 @Route("orders")
 @injectable()
@@ -16,10 +16,12 @@ export class OrderController extends Controller {
      * Calling this method will return signed orders that can be filled through 0x project's fillOrder to exchange user's takerToken for this relayer's makerToken.
      * This method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).
      * @summary List all orders available through our relayer, given the searched parameters.
-     * @param {string} tokenA Symbol of a token that should be included on orders either as maker or taker. If tokenB is also informed, then this method will return orders with only both tokens, either as maker or taker.
-     * @param {string} tokenB Symbol of a token that should be included on orders either as maker or taker. If tokenA is also informed, then this method will return orders with only both tokens, either as maker or taker.
+     * @param {string} exchangeContractAddress Will return all orders created to this contract address.
+     * @param {string} tokenAddress Will return all orders where makerTokenAddress or takerTokenAddress is token address.
      * @param {string} makerTokenAddress Will return all orders where makerTokenAddress is the same address of this parameter.
      * @param {string} takerTokenAddress Will return all orders where takerTokenAddress is the same address of this parameter.
+     * @param {string} tokenA Symbol of a token that should be included on orders either as maker or taker. If tokenB is also informed, then this method will return orders with only both tokens, either as maker or taker.
+     * @param {string} tokenB Symbol of a token that should be included on orders either as maker or taker. If tokenA is also informed, then this method will return orders with only both tokens, either as maker or taker.
      */
     @Example<SignedOrder>({
         ecSignature: {
@@ -41,7 +43,7 @@ export class OrderController extends Controller {
         takerTokenAmount: "1000000000000000000",
     })
     @Get()
-    public async listOrders( @Query() tokenA?: string, @Query() tokenB?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string): Promise<SignedOrder[]> {
-        return this.orderService.listOrders(tokenA, tokenB, makerTokenAddress, takerTokenAddress);
+    public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() tokenA?: string, @Query() tokenB?: string): Promise<SignedOrder[]> {
+        return this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, tokenA, tokenB);
     }
 }

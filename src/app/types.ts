@@ -4,7 +4,7 @@ export const TYPES = {
     ExchangeService: Symbol("ExchangeService"),
     FeeService: Symbol("FeeService"),
     LiquidityService: Symbol("LiquidityService"),
-    Logger: Symbol("Logger"),
+    LoggerService: Symbol("LoggerService"),
     OrderService: Symbol("OrderService"),
     SaltService: Symbol("SaltService"),
     TickerService: Symbol("TickerService"),

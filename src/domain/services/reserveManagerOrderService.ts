@@ -1,7 +1,7 @@
 import { BigNumber } from "bignumber.js";
 import { inject, injectable } from "inversify";
 import * as _ from "lodash";
-import { AmadeusService, CryptographyService, ExchangeService, FeeService, OrderService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../app";
+import { AmadeusService, CryptographyService, ExchangeService, FeeService, LoggerService, OrderService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../app";
 import { SignedOrder, Ticker, TokenPairTradeInfo } from "../../app/models";
 import * as Utils from "../util";
 
@@ -34,16 +34,32 @@ export class ReserveManagerOrderService implements OrderService {
 
         @inject(TYPES.TokenService)
         private tokenService: TokenService,
+
+        @inject(TYPES.LoggerService)
+        private logger: LoggerService,
     ) {
+        this.logger.setNamespace("reservemanagerorderservice");
     }
 
-    public async listOrders(tokenA?: string, tokenB?: string, makerTokenAddress?: string, takerTokenAddress?: string): Promise<SignedOrder[]> {
+    public async listOrders(exchangeContractAddress?: string, tokenAddress?: string, makerTokenAddress?: string, takerTokenAddress?: string, tokenA?: string, tokenB?: string): Promise<SignedOrder[]> {
+        const currentContractAddress = await this.exchangeService.get0xContractAddress();
+        if (exchangeContractAddress && exchangeContractAddress !== currentContractAddress) {
+            this.logger.log("Asked for exchange contract address %s but currently we support %s.", exchangeContractAddress, currentContractAddress);
+            return [];
+        }
+
         let pairs: TokenPairTradeInfo[] = await this.tokenPairsService.listPairs(tokenA, tokenB);
+        if (tokenAddress) {
+            pairs = pairs.filter((pair) => pair.tokenA.address === tokenAddress || pair.tokenB.address === tokenAddress);
+            this.logger.log("Filtered pairs for tokenAddress %s: %o.", tokenAddress, pairs);
+        }
         if (makerTokenAddress) {
             pairs = pairs.filter((pair) => pair.tokenA.address === makerTokenAddress);
+            this.logger.log("Filtered pairs for makerTokenAddress %s : %o .", makerTokenAddress, pairs);
         }
         if (takerTokenAddress) {
             pairs = pairs.filter((pair) => pair.tokenB.address === takerTokenAddress);
+            this.logger.log("Filtered pairs for takerTokenAddress %s: %o.", takerTokenAddress, pairs);
         }
         return Promise.all(pairs.map((pair) => this.createSignedOrderFromTokenPair(pair)));
     }

@@ -2,11 +2,10 @@ import * as debug from "debug";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
 import "reflect-metadata";
 import { Controller } from "tsoa";
-import { AmadeusService, CryptographyService, ExchangeService, FeeService, LiquidityService, Logger, OrderService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../../app";
-import { AccountPercentageLiquidityService, ConstantFeeService, FromConfigAmadeusService, FromConfigTickerService, ReserveManagerOrderService, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExWrapper } from "../../../domain";
+import { AmadeusService, CryptographyService, ExchangeService, FeeService, LiquidityService, LoggerService, OrderService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../../app";
+import { AccountPercentageLiquidityService, ConstantFeeService, FromConfigAmadeusService, FromConfigTickerService, LoggerDebug, ReserveManagerOrderService, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExWrapper } from "../../../domain";
 import { OrderController } from "../../controllers/orderController";
 import { TokenPairsController } from "../../controllers/tokenPairsController";
-import { LoggerDebug } from "../common/loggerDebug";
 
 export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     // Controllers
@@ -20,7 +19,7 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<ExchangeService>(TYPES.ExchangeService).toConstantValue(zeroExWrapper);
     bind<FeeService>(TYPES.FeeService).to(ConstantFeeService);
     bind<LiquidityService>(TYPES.LiquidityService).to(AccountPercentageLiquidityService);
-    bind<Logger>(TYPES.Logger).to(LoggerDebug);
+    bind<LoggerService>(TYPES.LoggerService).to(LoggerDebug);
     bind<OrderService>(TYPES.OrderService).to(ReserveManagerOrderService);
     bind<SaltService>(TYPES.SaltService).toConstantValue(zeroExWrapper);
     bind<TickerService>(TYPES.TickerService).to(FromConfigTickerService);

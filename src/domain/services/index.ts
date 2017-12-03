@@ -2,6 +2,7 @@ export * from "./accountPercentageLiquidityService";
 export * from "./constantFeeService";
 export * from "./fromConfigAmadeusService";
 export * from "./fromConfigTickerService";
+export * from "./loggerDebug";
 export * from "./tokensWithLiquidityTokenPairsService";
 export * from "./reserveManagerOrderService";
 export * from "./timeServiceImpl";

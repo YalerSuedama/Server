@@ -3,7 +3,7 @@ export { CryptographyService } from "./cryptographyService";
 export { ExchangeService } from "./exchangeService";
 export { FeeService } from "./feeService";
 export { LiquidityService } from "./liquidityService";
-export { Logger } from "./logger";
+export { LoggerService } from "./loggerService";
 export { OrderService } from "./orderService";
 export { SaltService } from "./saltService";
 export { TickerService } from "./tickerService";

@@ -4,7 +4,7 @@ import * as cors from "cors";
 import * as express from "express";
 import * as health from "express-ping";
 import * as swaggerUI from "swagger-ui-express";
-import { Logger, TYPES } from "../app";
+import { LoggerService, TYPES } from "../app";
 import { iocContainer } from "./middleware/iocContainer";
 import { RegisterRoutes } from "./middleware/routes/routes";
 import * as swaggerJSON from "./swagger/swagger.json";
@@ -12,11 +12,11 @@ import * as swaggerJSON from "./swagger/swagger.json";
 export class Server {
     public express: express.Application;
     private isListening: boolean = false;
-    private logger: Logger;
+    private logger: LoggerService;
 
     constructor() {
         this.express = express();
-        this.logger = iocContainer.get<Logger>(TYPES.Logger);
+        this.logger = iocContainer.get<LoggerService>(TYPES.LoggerService);
         this.logger.setNamespace("Server");
         this.configure();
         RegisterRoutes(this.express);
