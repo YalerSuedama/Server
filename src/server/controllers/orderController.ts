@@ -26,6 +26,8 @@ export class OrderController extends Controller {
      * @param {string} taker Will return all orders where takerAddress is the same address of this parameter.
      * @param {string} trader Will return all orders where makerAddress or takerAddress is the same address of this parameter.
      * @param {string} feeRecipient Will return all orders where feeRecipient is the same address of this parameter.
+     * @param {number} page Which page should be returned. If this parameter is not informed, then it will take the default value of 1. Page numbers start at 1.
+     * @param {number} per_page Number of orders that should be returned on each page. If this parameter is not informed, then it will take the default value of the total number of orders found.
      */
     @Example<SignedOrder>({
         ecSignature: {
@@ -47,7 +49,7 @@ export class OrderController extends Controller {
         takerTokenAmount: "1000000000000000000",
     })
     @Get()
-    public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() tokenA?: string, @Query() tokenB?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string): Promise<SignedOrder[]> {
-        return this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, tokenA, tokenB, maker, taker, trader, feeRecipient);
+    public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() tokenA?: string, @Query() tokenB?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<SignedOrder[]> {
+        return this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, tokenA, tokenB, maker, taker, trader, feeRecipient, page, perPage);
     }
 }

@@ -1,7 +1,7 @@
 import { BigNumber } from "bignumber.js";
 import { inject, injectable } from "inversify";
 import * as _ from "lodash";
-import { AmadeusService, CryptographyService, ExchangeService, FeeService, LoggerService, OrderService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../app";
+import { AmadeusService, CryptographyService, ExchangeService, FeeService, LoggerService, OrderService, PaginationService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../app";
 import { SignedOrder, Ticker, TokenPairTradeInfo } from "../../app/models";
 import * as Utils from "../util";
 
@@ -37,11 +37,13 @@ export class ReserveManagerOrderService implements OrderService {
 
         @inject(TYPES.LoggerService)
         private logger: LoggerService,
+
+        private paginationService: PaginationService,
     ) {
         this.logger.setNamespace("reservemanagerorderservice");
     }
 
-    public async listOrders(exchangeContractAddress?: string, tokenAddress?: string, makerTokenAddress?: string, takerTokenAddress?: string, tokenA?: string, tokenB?: string, maker?: string, taker?: string, trader?: string, feeRecipient?: string): Promise<SignedOrder[]> {
+    public async listOrders(exchangeContractAddress?: string, tokenAddress?: string, makerTokenAddress?: string, takerTokenAddress?: string, tokenA?: string, tokenB?: string, maker?: string, taker?: string, trader?: string, feeRecipient?: string, page?: number, perPage?: number): Promise<SignedOrder[]> {
         const currentContractAddress = await this.exchangeService.get0xContractAddress();
         const feeRecipientAddress = this.amadeusService.getFeeAddress();
         const makerAddress = this.amadeusService.getMainAddress();
@@ -79,17 +81,21 @@ export class ReserveManagerOrderService implements OrderService {
             pairs = pairs.filter((pair) => pair.tokenB.address === takerTokenAddress);
             this.logger.log("Filtered pairs for takerTokenAddress %s: %o.", takerTokenAddress, pairs);
         }
-        const ordersPromise = Promise.all(pairs.map((pair) => this.createSignedOrderFromTokenPair(pair, currentContractAddress, makerAddress, feeRecipientAddress)));
+
+        let orders = await Promise.all(pairs.map((pair) => this.createSignedOrderFromTokenPair(pair, currentContractAddress, makerAddress, feeRecipientAddress)));
+        this.logger.log("Found orders: %o.", orders);
         if (makerTokenAddress && takerTokenAddress) {
-            const orders = await ordersPromise;
-            return orders.sort((first, second) => {
+            orders = orders.sort((first, second) => {
                 const firstPrice = new BigNumber(first.takerTokenAmount).dividedBy(first.makerTokenAmount);
                 const secondPrice = new BigNumber(second.takerTokenAmount).dividedBy(second.makerTokenAmount);
                 return firstPrice.minus(secondPrice).toNumber();
             });
-        } else {
-            return ordersPromise;
+            this.logger.log("Orders are sorted: %o.", orders);
         }
+
+        orders = await this.paginationService.paginate(orders, page, perPage);
+        this.logger.log("Orders are paginated: %o.", orders);
+        return orders;
     }
 
     private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo, exchangeContractAddress: string, maker: string, feeRecipient: string): Promise<SignedOrder> {

@@ -11,5 +11,7 @@ export interface OrderService {
         maker?: string,
         taker?: string,
         trader?: string,
-        feeRecipient?: string): Promise<SignedOrder[]>;
+        feeRecipient?: string,
+        page?: number,
+        perPage?: number): Promise<SignedOrder[]>;
 }

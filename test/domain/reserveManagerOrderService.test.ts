@@ -2,7 +2,7 @@ import { BigNumber } from "bignumber.js";
 import * as chai from "chai";
 import { Container, interfaces } from "inversify";
 import "reflect-metadata";
-import { AmadeusService, CryptographyService, ExchangeService, FeeService, LoggerService, OrderService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../src/app";
+import { AmadeusService, CryptographyService, ExchangeService, FeeService, LoggerService, OrderService, PaginationService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../src/app";
 import { Order, Token, TokenPairTradeInfo } from "../../src/app/models";
 import { LoggerDebug } from "../../src/domain/services/loggerDebug";
 import { ReserveManagerOrderService } from "../../src/domain/services/reserveManagerOrderService";
@@ -123,6 +123,7 @@ describe("ReserveManagerOrderService", () => {
     iocContainer.bind<TimeService>(TYPES.TimeService).toConstantValue(stubTimeService);
     iocContainer.bind<TokenService>(TYPES.TokenService).toConstantValue(stubTokenService);
     iocContainer.bind<LoggerService>(TYPES.LoggerService).to(LoggerDebug);
+    iocContainer.bind(PaginationService).toSelf();
 
     context("when exchangeContractAddress is informed", () => {
         it("should not return orders when it differs from current 0x contract address", async () => {
@@ -329,6 +330,87 @@ describe("ReserveManagerOrderService", () => {
                 const orderBeforePrice = new BigNumber(orderBefore.takerTokenAmount).dividedBy(new BigNumber(orderBefore.makerTokenAmount));
                 const orderPrice = new BigNumber(order.takerTokenAmount).dividedBy(new BigNumber(order.makerTokenAmount));
                 expect(orderPrice.toNumber()).to.be.greaterThan(orderBeforePrice.toNumber());
+            });
+        });
+    });
+    context("When page is informed", () => {
+        context("as a number smaller than 1", () => {
+            it("should return error", async () => {
+                let returned;
+                try {
+                    returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, -1);
+                } catch (error) {
+                    expect(error).to.be.instanceOf(RangeError).and.that.has.property("message", "Page should start at 1.");
+                    return;
+                }
+                chai.assert.fail(returned, null, "Expected to have thrown error, but returned.");
+            });
+        });
+        context("as a number greater than zero", () => {
+            context("and it is greater than the number of pages", () => {
+                it("should not return any orders", async () => {
+                    const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 20);
+                    // tslint:disable-next-line:no-unused-expression
+                    expect(returned).to.be.an("array").that.is.empty;
+                });
+            });
+            context("and it is the first page", () => {
+                it("should return only items from that page", async () => {
+                    const tokenAddress1 = DEFAULT_ADDRESS + TOKENS[0];
+                    const tokenAddress2 = DEFAULT_ADDRESS + TOKENS[1];
+                    const tokenAddress3 = DEFAULT_ADDRESS + TOKENS[2];
+                    const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 1, 2);
+                    expect(returned).to.be.an("array").that.has.lengthOf(2);
+                    expect(returned.findIndex((order) => order.makerTokenAddress === tokenAddress1 && order.takerTokenAddress === tokenAddress2)).to.be.equal(0);
+                    expect(returned.findIndex((order) => order.makerTokenAddress === tokenAddress1 && order.takerTokenAddress === tokenAddress3)).to.be.equal(1);
+                });
+            });
+            context("and it is the second page", () => {
+                it("should return only items from that page", async () => {
+                    const tokenAddress1 = DEFAULT_ADDRESS + TOKENS[0];
+                    const tokenAddress2 = DEFAULT_ADDRESS + TOKENS[1];
+                    const tokenAddress3 = DEFAULT_ADDRESS + TOKENS[2];
+                    const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 2, 2);
+                    expect(returned).to.be.an("array").that.has.lengthOf(2);
+                    expect(returned.findIndex((order) => order.makerTokenAddress === tokenAddress2 && order.takerTokenAddress === tokenAddress1)).to.be.equal(0);
+                    expect(returned.findIndex((order) => order.makerTokenAddress === tokenAddress2 && order.takerTokenAddress === tokenAddress3)).to.be.equal(1);
+                });
+            });
+        });
+    });
+    context("When perPage is informed", () => {
+        context("as a number smaller than 1", () => {
+            it("should return error", async () => {
+                let returned;
+                try {
+                    returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, -1);
+                } catch (error) {
+                    expect(error).to.be.instanceOf(RangeError).and.that.has.property("message", "The number of itens per page must be greater than or equal to 1.");
+                    return;
+                }
+                chai.assert.fail(returned, null, "Expected to have thrown error, but returned.");
+            });
+        });
+        context("as a number greater than zero", () => {
+            context("and there is more than one page", () => {
+                context("and the page is 1", () => {
+                    it("should return the exact number of orders of perPage parameter", async () => {
+                        const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 1, 4);
+                        expect(returned).to.be.an("array").that.has.lengthOf(4);
+                    });
+                });
+                context("and the page parameter is the last page", () => {
+                    it("should return only the remaining orders", async () => {
+                        const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 2, 4);
+                        expect(returned).to.be.an("array").that.has.lengthOf(2);
+                    });
+                });
+            });
+            context("and there is only one page", () => {
+                it("should return only the remaining orders", async () => {
+                    const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 1, 20);
+                    expect(returned).to.be.an("array").that.has.lengthOf(6);
+                });
             });
         });
     });

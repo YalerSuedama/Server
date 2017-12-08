@@ -50,5 +50,19 @@ describe("TokenPairsController", () => {
             expect(spy).to.be.calledWith(tokenA, tokenB);
             done();
         });
+        it("should pass page as third argument to tokenPairsService.listPairs", (done) => {
+            const parameterValue = 1;
+            const controller = iocContainer.get<TokenPairsController>(TokenPairsController);
+            const returned = controller.listPairs(tokenA, tokenB, parameterValue);
+            expect(spy.args[0][2]).to.eq(parameterValue);
+            done();
+        });
+        it("should pass perPage as fourth argument to tokenPairsService.listPairs", (done) => {
+            const parameterValue = 10;
+            const controller = iocContainer.get<TokenPairsController>(TokenPairsController);
+            const returned = controller.listPairs(tokenA, tokenB, undefined, parameterValue);
+            expect(spy.args[0][3]).to.eq(parameterValue);
+            done();
+        });
     });
 });

@@ -79,5 +79,11 @@ describe("OrderController", () => {
         it("should pass feeRecipient as tenth argument to orderService.listOrders", (done) => {
             callController(parameter, 9, done);
         });
+        it("should pass page as eleventh argument to orderService.listOrders", (done) => {
+            callController(parameter, 10, done);
+        });
+        it("should pass per_page as twelveth argument to orderService.listOrders", (done) => {
+            callController(parameter, 11, done);
+        });
     });
 });
