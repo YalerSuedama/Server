@@ -49,10 +49,18 @@ export function RegisterRoutes(app: any) {
     app.get('/api/v0/orders',
         function(request: any, response: any, next: any) {
             const args = {
-                tokenA: { "in": "query", "name": "tokenA", "dataType": "string" },
-                tokenB: { "in": "query", "name": "tokenB", "dataType": "string" },
+                exchangeContractAddress: { "in": "query", "name": "exchangeContractAddress", "dataType": "string" },
+                tokenAddress: { "in": "query", "name": "tokenAddress", "dataType": "string" },
                 makerTokenAddress: { "in": "query", "name": "makerTokenAddress", "dataType": "string" },
                 takerTokenAddress: { "in": "query", "name": "takerTokenAddress", "dataType": "string" },
+                tokenA: { "in": "query", "name": "tokenA", "dataType": "string" },
+                tokenB: { "in": "query", "name": "tokenB", "dataType": "string" },
+                maker: { "in": "query", "name": "maker", "dataType": "string" },
+                taker: { "in": "query", "name": "taker", "dataType": "string" },
+                trader: { "in": "query", "name": "trader", "dataType": "string" },
+                feeRecipient: { "in": "query", "name": "feeRecipient", "dataType": "string" },
+                page: { "in": "query", "name": "page", "dataType": "double" },
+                perPage: { "in": "query", "name": "per_page", "dataType": "double" },
             };
 
             let validatedArgs: any[] = [];
@@ -73,6 +81,8 @@ export function RegisterRoutes(app: any) {
             const args = {
                 tokenA: { "in": "query", "name": "tokenA", "dataType": "string" },
                 tokenB: { "in": "query", "name": "tokenB", "dataType": "string" },
+                page: { "in": "query", "name": "page", "dataType": "double" },
+                perPage: { "in": "query", "name": "per_page", "dataType": "double" },
             };
 
             let validatedArgs: any[] = [];
