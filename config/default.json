@@ -1,7 +1,14 @@
 {
     "server": {
         "hostname": "0.0.0.0",
-        "port": 3000
+        "port": 3000,
+        "requestLimit": {
+            "maximumAllowedCallsPerWindow": 3600,
+            "timeWindow": {
+                "amount": 1,
+                "unit": "h"
+            }
+        }
     },
     "amadeus": {
         "liquidityPercentage": 0.1,

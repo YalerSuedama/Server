@@ -20,4 +20,8 @@ export class LoggerDebug implements LoggerService {
         args.unshift(message);
         this.debugger.apply(this, args);
     }
+
+    public clone(): LoggerService {
+        return new LoggerDebug();
+    }
 }

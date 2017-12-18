@@ -1,6 +1,7 @@
 export { ECSignature } from "./ecSignature";
 export { Errors } from "./errors";
 export { Order } from "./order";
+export { RequestLimit } from "./requestLimit";
 export { SignedOrder } from "./signedOrder";
 export { Ticker } from "./ticker";
 export { Token } from "./token";

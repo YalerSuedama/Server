@@ -1,19 +1,16 @@
 const ethUtil = require("ethereumjs-util");
-import { LoggerService, TYPES } from "../../app";
-import { iocContainer } from "../../server/middleware/iocContainer";
+import { LoggerService } from "../../app";
 
 export class SignerSubProvider {
 
     private engine: any;
 
-    public constructor(private privateKey: string) {
-
+    public constructor(private privateKey: string, private logger: LoggerService) {
+        this.logger.setNamespace("provider");
     }
 
     public handleRequest(payload: any, next: any, end: any) {
-        const logger = iocContainer.get<LoggerService>(TYPES.LoggerService);
-        logger.setNamespace("provider");
-        logger.log("payload: %o", payload);
+        this.logger.log("payload: %o", payload);
         if (payload.method === "eth_sign") {
             const address = payload.params[0];
             const message = payload.params[1];
