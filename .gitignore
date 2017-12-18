@@ -57,3 +57,9 @@ typings/
 # dotenv environment variables file
 .env
 
+# Application distribution files
+dist/**/*
+
+# Ethereum running testrpc database
+testrpc/database
+.DS_Store

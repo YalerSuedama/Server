@@ -1,0 +1,265 @@
+{
+	"basePath": "/api/v0",
+	"consumes": [
+		"application/json"
+	],
+	"definitions": {
+		"ECSignature": {
+			"properties": {
+				"v": {
+					"type": "number",
+					"format": "double"
+				},
+				"r": {
+					"type": "string"
+				},
+				"s": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"v",
+				"r",
+				"s"
+			],
+			"type": "object"
+		},
+		"SignedOrder": {
+			"properties": {
+				"ecSignature": {
+					"$ref": "#/definitions/ECSignature"
+				},
+				"maker": {
+					"type": "string"
+				},
+				"taker": {
+					"type": "string"
+				},
+				"makerFee": {
+					"type": "string"
+				},
+				"takerFee": {
+					"type": "string"
+				},
+				"makerTokenAmount": {
+					"type": "string"
+				},
+				"takerTokenAmount": {
+					"type": "string"
+				},
+				"makerTokenAddress": {
+					"type": "string"
+				},
+				"takerTokenAddress": {
+					"type": "string"
+				},
+				"salt": {
+					"type": "string"
+				},
+				"exchangeContractAddress": {
+					"type": "string"
+				},
+				"feeRecipient": {
+					"type": "string"
+				},
+				"expirationUnixTimestampSec": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"ecSignature",
+				"maker",
+				"taker",
+				"makerFee",
+				"takerFee",
+				"makerTokenAmount",
+				"takerTokenAmount",
+				"makerTokenAddress",
+				"takerTokenAddress",
+				"salt",
+				"exchangeContractAddress",
+				"feeRecipient",
+				"expirationUnixTimestampSec"
+			],
+			"type": "object"
+		},
+		"TokenTradeInfo": {
+			"properties": {
+				"address": {
+					"type": "string"
+				},
+				"minAmount": {
+					"type": "string"
+				},
+				"maxAmount": {
+					"type": "string"
+				},
+				"precision": {
+					"type": "number",
+					"format": "double"
+				}
+			},
+			"required": [
+				"address",
+				"minAmount",
+				"maxAmount",
+				"precision"
+			],
+			"type": "object"
+		},
+		"TokenPairTradeInfo": {
+			"properties": {
+				"tokenA": {
+					"$ref": "#/definitions/TokenTradeInfo"
+				},
+				"tokenB": {
+					"$ref": "#/definitions/TokenTradeInfo"
+				}
+			},
+			"required": [
+				"tokenA",
+				"tokenB"
+			],
+			"type": "object"
+		}
+	},
+	"info": {
+		"title": "Amadeus Relay",
+		"version": "0.1.0-alpha",
+		"description": "The Amadeus Relay is a relayer working on top of 0x Project (https://0xproject.com). It expects to offer dApps a simple, fast and trustworthy source to use 0x to seamlessly exchange ERC20 tokens. It focus mostly on: provide the most accurate and liquidable market values of assets to dApps willing to use it; and to adhere to the Standard Relayer API so that dApps have a common and knowable interface to work with."
+	},
+	"paths": {
+		"/orders": {
+			"get": {
+				"operationId": "ListOrders",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/SignedOrder"
+							}
+						},
+						"examples": {
+							"application/json": {
+								"ecSignature": {
+									"r": "string",
+									"s": "string",
+									"v": 0
+								},
+								"exchangeContractAddress": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"expirationUnixTimestampSec": "1511833100",
+								"feeRecipient": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"maker": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"makerFee": "000000000000000001",
+								"makerTokenAddress": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"makerTokenAmount": "1000000000000000000",
+								"salt": "72190258645710948815942036721950834632004444658131970136856055217425783080581",
+								"taker": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"takerFee": "000000000000000001",
+								"takerTokenAddress": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"takerTokenAmount": "1000000000000000000"
+							}
+						}
+					}
+				},
+				"description": "Calling this method will return signed orders that can be filled through 0x project's fillOrder to exchange user's takerToken for this relayer's makerToken.\r\nThis method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).",
+				"summary": "List all orders available through our relayer, given the searched parameters.",
+				"security": [],
+				"parameters": [
+					{
+						"description": "Symbol of a token that should be included on orders either as maker or taker. If tokenB is also informed, then this method will return orders with only both tokens, either as maker or taker.",
+						"in": "query",
+						"name": "tokenA",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"description": "Symbol of a token that should be included on orders either as maker or taker. If tokenA is also informed, then this method will return orders with only both tokens, either as maker or taker.",
+						"in": "query",
+						"name": "tokenB",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"description": "Will return all orders where makerTokenAddress is the same address of this parameter.",
+						"in": "query",
+						"name": "makerTokenAddress",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"description": "Will return all orders where takerTokenAddress is the same address of this parameter.",
+						"in": "query",
+						"name": "takerTokenAddress",
+						"required": false,
+						"type": "string"
+					}
+				]
+			}
+		},
+		"/token_pairs": {
+			"get": {
+				"operationId": "ListPairs",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/TokenPairTradeInfo"
+							}
+						},
+						"examples": {
+							"application/json": {
+								"tokenA": {
+									"address": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+									"maxAmount": "1000000000000000000",
+									"minAmount": "000000000000000001",
+									"precision": 6
+								},
+								"tokenB": {
+									"address": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+									"maxAmount": "1000000000000000000",
+									"minAmount": "000000000000000001",
+									"precision": 6
+								}
+							}
+						}
+					}
+				},
+				"description": "This method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).",
+				"summary": "Lists all available trading pairs that this relayer current supports.",
+				"security": [],
+				"parameters": [
+					{
+						"description": "Symbol of a token that could be on either side of the trade: either as a maker, or as a taker.",
+						"in": "query",
+						"name": "tokenA",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"description": "Symbol of a token that could be on either side of the trade: either as a maker, or as a taker.",
+						"in": "query",
+						"name": "tokenB",
+						"required": false,
+						"type": "string"
+					}
+				]
+			}
+		}
+	},
+	"produces": [
+		"application/json"
+	],
+	"swagger": "2.0",
+	"securityDefinitions": {}
+}

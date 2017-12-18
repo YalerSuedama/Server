@@ -1,0 +1,34 @@
+{
+    "swagger": {
+        "name": "Amadeus Relay",
+        "version": "0.1.0-alpha",
+        "description": "The Amadeus Relay is a relayer working on top of 0x Project (https://0xproject.com). It expects to offer dApps a simple, fast and trustworthy source to use 0x to seamlessly exchange ERC20 tokens. It focus mostly on: provide the most accurate and liquidable market values of assets to dApps willing to use it; and to adhere to the Standard Relayer API (https://github.com/0xProject/standard-relayer-api) so that dApps have a common and knowable interface to work with.",
+        "tags": [
+            {
+                "name": "orders",
+                "description": "Get existing orders in the relayer"
+            },
+            {
+                "name": "pairs",
+                "description": "List available pairs"
+            }
+        ],
+        "schemes": [
+            "http",
+            "https"
+        ],
+        "outputDirectory": "./src/server/swagger",
+        "entryFile": "./src/index.ts",
+        "basePath": "/api/v0"
+    },
+    "routes": {
+        "basePath": "/api/v0",
+        "entryFile": "./src/index.ts",
+        "middleware": "express",
+        "routesDir": "./src/server/middleware/routes",
+        "iocModule": "./src/server/middleware/iocContainer"
+    },
+    "ignore": [
+        "**/node_modules/0x.js/**/*"
+    ]
+}
