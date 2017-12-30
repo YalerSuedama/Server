@@ -20,7 +20,7 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<LoggerService>(TYPES.LoggerService).to(LoggerDebug);
     bind<OrderService>(TYPES.OrderService).to(ReserveManagerOrderService);
     bind(PaginationService).toSelf();
-    bind<RequestLimitService>(TYPES.RequestLimitService).to(CachedRequestLimitService);
+    bind<RequestLimitService>(TYPES.RequestLimitService).to(CachedRequestLimitService).inSingletonScope();
     bind<SaltService>(TYPES.SaltService).to(ZeroExWrapper).inSingletonScope();
     bind<TickerService>(TYPES.TickerService).to(FromConfigTickerService);
     bind<TimeService>(TYPES.TimeService).to(TimeServiceImpl);
