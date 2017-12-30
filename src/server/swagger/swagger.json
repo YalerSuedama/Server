@@ -250,6 +250,7 @@
 						"type": "number"
 					},
 					{
+						"description": "Number of orders that should be returned on each page. If this parameter is not informed, then it will take the default value of the total number of orders found.",
 						"in": "query",
 						"name": "per_page",
 						"required": false,
