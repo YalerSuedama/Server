@@ -14,13 +14,21 @@ async function delay(milliseconds: number) {
     });
 }
 
+class WithConstructorParamsCachedRequestLimitService extends CachedRequestLimitService {
+    constructor(maximumLimitForTest: number, expirationTimeWindowForTest: moment.Duration) {
+        super();
+        this.maximumAllowedCalls = maximumLimitForTest;
+        this.expirationTimeWindow = expirationTimeWindowForTest;
+    }
+}
+
 describe("CachedRequestLimitService", () => {
     const ip = "ip";
     const maximumLimit = 3;
     const testDuration = moment.duration(1, "s");
     let requestLimitService: RequestLimitService;
     beforeEach((done) => {
-        requestLimitService = new CachedRequestLimitService(maximumLimit, testDuration);
+        requestLimitService = new WithConstructorParamsCachedRequestLimitService(maximumLimit, testDuration);
         done();
     });
     context("When no requests have been made", () => {

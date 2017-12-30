@@ -16,30 +16,22 @@ export class CachedRequestLimitService implements RequestLimitService {
     private static DEFAULT_MAXIMUM_ALLOWED_CALLS = 720;
     private static DEFAULT_EXPIRATION_TIME = moment.duration(1, "h");
 
+    protected maximumAllowedCalls = CachedRequestLimitService.DEFAULT_MAXIMUM_ALLOWED_CALLS;
+    protected expirationTimeWindow = CachedRequestLimitService.DEFAULT_EXPIRATION_TIME;
+
     private requestCache = new ExpirationStrategy(new MemoryStorage());
 
-    constructor(
-        private maximumAllowedCalls?: number,
-        private expirationTimeWindow?: moment.Duration,
-    ) {
-        if (_.isUndefined(maximumAllowedCalls)) {
-            if (config.has("server.requestLimit.maximumAllowedCallsPerWindow")) {
-                this.maximumAllowedCalls = config.get("server.requestLimit.maximumAllowedCallsPerWindow");
-            } else {
-                this.maximumAllowedCalls = CachedRequestLimitService.DEFAULT_MAXIMUM_ALLOWED_CALLS;
-            }
+    constructor() {
+        if (config.has("server.requestLimit.maximumAllowedCallsPerWindow")) {
+            this.maximumAllowedCalls = config.get("server.requestLimit.maximumAllowedCallsPerWindow");
         } else {
-            this.maximumAllowedCalls = maximumAllowedCalls;
+            this.maximumAllowedCalls = CachedRequestLimitService.DEFAULT_MAXIMUM_ALLOWED_CALLS;
         }
 
-        if (_.isUndefined(expirationTimeWindow)) {
-            if (config.has("server.requestLimit.timeWindow.amount") && config.has("server.requestLimit.timeWindow.unit")) {
-                this.expirationTimeWindow = moment.duration(config.get<number>("server.requestLimit.timeWindow.amount"), config.get<moment.unitOfTime.DurationConstructor>("server.requestLimit.timeWindow.unit"));
-            } else {
-                this.expirationTimeWindow = CachedRequestLimitService.DEFAULT_EXPIRATION_TIME;
-            }
+        if (config.has("server.requestLimit.timeWindow.amount") && config.has("server.requestLimit.timeWindow.unit")) {
+            this.expirationTimeWindow = moment.duration(config.get<number>("server.requestLimit.timeWindow.amount"), config.get<moment.unitOfTime.DurationConstructor>("server.requestLimit.timeWindow.unit"));
         } else {
-            this.expirationTimeWindow = expirationTimeWindow;
+            this.expirationTimeWindow = CachedRequestLimitService.DEFAULT_EXPIRATION_TIME;
         }
     }
 
