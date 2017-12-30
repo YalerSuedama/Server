@@ -1,5 +1,6 @@
 import { inject, injectable } from "inversify";
 import * as _ from "lodash";
+import "reflect-metadata";
 import { LoggerService, TYPES } from "../index";
 
 @injectable()

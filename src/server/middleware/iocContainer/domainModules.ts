@@ -1,6 +1,5 @@
 import * as debug from "debug";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
-import "reflect-metadata";
 import { Controller } from "tsoa";
 import { AmadeusService, CryptographyService, ExchangeService, FeeService, LiquidityService, LoggerService, OrderService, PaginationService, RequestLimitService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../../app";
 import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantFeeService, FromConfigAmadeusService, FromConfigTickerService, LoggerDebug, ReserveManagerOrderService, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExWrapper } from "../../../domain";
