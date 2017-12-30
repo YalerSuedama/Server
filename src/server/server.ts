@@ -24,7 +24,7 @@ export class Server {
     }
 
     public start(): void {
-        const port = parseInt(config.get("server.port"), 10);
+        const port: number = config.get("server.port");
         let hostname: string = null;
         if (config.has("server.hostname")) {
             hostname = config.get("server.hostname") as string;
