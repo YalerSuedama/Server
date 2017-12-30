@@ -50,6 +50,6 @@ export class OrderController extends Controller {
     })
     @Get()
     public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() tokenA?: string, @Query() tokenB?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<SignedOrder[]> {
-        return this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, tokenA, tokenB, maker, taker, trader, feeRecipient, page, perPage);
+        return await this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, tokenA, tokenB, maker, taker, trader, feeRecipient, page, perPage);
     }
 }

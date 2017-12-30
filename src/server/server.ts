@@ -21,6 +21,13 @@ export class Server {
         this.logger.setNamespace("Server");
         this.configure();
         RegisterRoutes(this.express);
+        this.express.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+            this.logger.log("error with status %d and message '%s': %o", err.status, err.message, err);
+            res.status(err.status || 500);
+            res.json({
+                message: err.message,
+            });
+        });
     }
 
     public start(): void {
@@ -56,12 +63,5 @@ export class Server {
         this.express.use(requestLimit);
         this.express.use("/swagger.json", express.static(__dirname + "/swagger.json"));
         this.express.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJSON));
-        this.express.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-            res.status(err.status || 500);
-            res.json({
-                message: err.message,
-                error: err,
-            });
-        });
     }
 }

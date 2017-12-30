@@ -35,6 +35,6 @@ export class TokenPairsController extends Controller {
     })
     @Get()
     public async listPairs( @Query() tokenA?: string, @Query() tokenB?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<TokenPairTradeInfo[]> {
-        return this.tokenPairsService.listPairs(tokenA, tokenB, page, perPage);
+        return await this.tokenPairsService.listPairs(tokenA, tokenB, page, perPage);
     }
 }

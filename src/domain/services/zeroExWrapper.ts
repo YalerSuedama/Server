@@ -19,7 +19,6 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
 
     constructor( @inject(TYPES.LoggerService) private loggerService: LoggerService) {
         this.loggerService.setNamespace("zeroexwrapper");
-        // setTimeout(() => this.init(), 10);
         this.init();
     }
 
