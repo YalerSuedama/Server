@@ -29,6 +29,11 @@ const models: TsoaRoute.Models = {
             "expirationUnixTimestampSec": { "dataType": "string", "required": true },
         },
     },
+    "ErrorModel": {
+        "properties": {
+            "message": { "dataType": "string", "required": true },
+        },
+    },
     "TokenTradeInfo": {
         "properties": {
             "address": { "dataType": "string", "required": true },

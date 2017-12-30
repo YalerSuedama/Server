@@ -1,7 +1,8 @@
 import { inject, injectable } from "inversify";
-import { Controller, Example, Get, Query, Route } from "tsoa";
+import { Controller, Example, FieldErrors, Get, Query, Response, Route, SuccessResponse, ValidateError } from "tsoa";
 import { TokenPairsService, TYPES } from "../../app";
 import { TokenPairTradeInfo } from "../../app/models";
+import { ErrorModel } from "../middleware/errorHandler";
 
 @Route("token_pairs")
 @injectable()
@@ -32,6 +33,12 @@ export class TokenPairsController extends Controller {
             minAmount: "000000000000000001",
             precision: 6,
         },
+    })
+    @Response<ErrorModel>("400", "A parameter is not informed correctly.", {
+        message: "some string",
+    })
+    @Response<ErrorModel>("500", "An unknown error occurred.", {
+        message: "some string",
     })
     @Get()
     public async listPairs( @Query() tokenA?: string, @Query() tokenB?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<TokenPairTradeInfo[]> {

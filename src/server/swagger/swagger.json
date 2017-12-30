@@ -83,6 +83,17 @@
 			],
 			"type": "object"
 		},
+		"ErrorModel": {
+			"properties": {
+				"message": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"message"
+			],
+			"type": "object"
+		},
 		"TokenTradeInfo": {
 			"properties": {
 				"address": {
@@ -164,6 +175,18 @@
 								"takerTokenAddress": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
 								"takerTokenAmount": "1000000000000000000"
 							}
+						}
+					},
+					"400": {
+						"description": "A parameter is not informed correctly.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
+					},
+					"500": {
+						"description": "An unknown error occurred.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
 						}
 					}
 				},
@@ -290,6 +313,18 @@
 									"precision": 6
 								}
 							}
+						}
+					},
+					"400": {
+						"description": "A parameter is not informed correctly.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
+					},
+					"500": {
+						"description": "An unknown error occurred.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
 						}
 					}
 				},

@@ -1,8 +1,9 @@
 import { inject, injectable } from "inversify";
 import * as moment from "moment";
-import { Controller, Example, Get, Query, Route } from "tsoa";
+import { Controller, Example, Get, Query, Response, Route } from "tsoa";
 import { OrderService, TYPES } from "../../app";
 import { SignedOrder } from "../../app/models";
+import { ErrorModel } from "../middleware/errorHandler";
 
 @Route("orders")
 @injectable()
@@ -47,6 +48,12 @@ export class OrderController extends Controller {
         takerFee: "000000000000000001",
         takerTokenAddress: "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
         takerTokenAmount: "1000000000000000000",
+    })
+    @Response<ErrorModel>("400", "A parameter is not informed correctly.", {
+        message: "some string",
+    })
+    @Response<ErrorModel>("500", "An unknown error occurred.", {
+        message: "some string",
     })
     @Get()
     public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() tokenA?: string, @Query() tokenB?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<SignedOrder[]> {

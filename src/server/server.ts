@@ -4,7 +4,9 @@ import * as cors from "cors";
 import * as express from "express";
 import * as health from "express-ping";
 import * as swaggerUI from "swagger-ui-express";
+import { ValidateError } from "tsoa";
 import { LoggerService, TYPES } from "../app";
+import { errorHandler } from "./middleware/errorHandler";
 import { iocContainer } from "./middleware/iocContainer";
 import requestLimit from "./middleware/requestLimit/requestLimit";
 import { RegisterRoutes } from "./middleware/routes/routes";
@@ -23,11 +25,9 @@ export class Server {
         RegisterRoutes(this.express);
         this.express.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
             this.logger.log("error with status %d and message '%s': %o", err.status, err.message, err);
-            res.status(err.status || 500);
-            res.json({
-                message: err.message,
-            });
+            next(err);
         });
+        this.express.use(errorHandler);
     }
 
     public start(): void {
