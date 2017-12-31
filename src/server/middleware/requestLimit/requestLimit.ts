@@ -9,15 +9,17 @@ const asyncMiddleware = (fn: (req: Request, res: Response, next: any) => any) =>
 };
 
 export default asyncMiddleware(async (req: Request, res: Response, next: () => any) => {
-    const requestLimit = await iocContainer.get<RequestLimitService>(TYPES.RequestLimitService).getLimit(req.ip);
-    if (requestLimit.isLimitReached) {
-        res.sendStatus(429).end();
-    } else {
-        res.set({
-            "X-RateLimit-Limit": requestLimit.limitPerHour,
-            "X-RateLimit-Remaining": requestLimit.remainingLimit,
-            "X-RateLimit-Reset": requestLimit.currentLimitExpiration,
-        });
+    if (req.url.indexOf("/api/v") >= 0) {
+        const requestLimit = await iocContainer.get<RequestLimitService>(TYPES.RequestLimitService).getLimit(req.ip);
+        if (requestLimit.isLimitReached) {
+            res.sendStatus(429).end();
+        } else {
+            res.set({
+                "X-RateLimit-Limit": requestLimit.limitPerHour,
+                "X-RateLimit-Remaining": requestLimit.remainingLimit,
+                "X-RateLimit-Reset": requestLimit.currentLimitExpiration,
+            });
+        }
     }
     next();
 });
