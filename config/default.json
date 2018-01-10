@@ -1,4 +1,12 @@
 {
+    "analytics": {
+        "hostname": "www.google-analytics.com",
+        "port": 80,
+        "method": "POST",
+        "url": "/collect",
+        // "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=b79c7265-0aaa-43c6-9309-840a02967c00&dh=kovan.amadeusrelay.org&dp="
+        "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=994911df-4e73-4fc1-9480-266a2624fa8b&dh=localhost&dp="
+    },
     "server": {
         "hostname": "0.0.0.0",
         "port": 3000
