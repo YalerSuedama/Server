@@ -6,6 +6,7 @@ import * as health from "express-ping";
 import * as swaggerUI from "swagger-ui-express";
 import { ValidateError } from "tsoa";
 import { LoggerService, TYPES } from "../app";
+import { analytics } from "./middleware/analytics/analytics";
 import { errorHandler } from "./middleware/errorHandler";
 import { iocContainer } from "./middleware/iocContainer";
 import requestLimit from "./middleware/requestLimit/requestLimit";
@@ -60,6 +61,7 @@ export class Server {
         this.express.use(bodyParser.json());
         this.express.use(bodyParser.urlencoded({ extended: false }));
         this.express.use(health.ping());
+        this.express.use(analytics);
         this.express.use(requestLimit);
         this.express.use("/swagger.json", express.static(__dirname + "/swagger.json"));
         this.express.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJSON));

@@ -11,7 +11,7 @@ import { Web3Factory } from "../util";
 
 @injectable()
 export class ZeroExWrapper implements CryptographyService, ExchangeService, SaltService, TokenService {
-    private static readonly TRADABLE_TOKENS_KEY = "tradableTokens";
+    private static readonly TRADABLE_TOKENS_KEY = "amadeus.tradableTokens";
     private static readonly DEFAULT_TOKENS = ["WETH", "ZRX", "GNT"];
     private static readonly privateKey = config.get("amadeus.privateKey") as string;
     private web3: Web3JS;

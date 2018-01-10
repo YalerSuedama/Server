@@ -1,4 +1,12 @@
 {
+    "analytics": {
+        "hostname": "www.google-analytics.com",
+        "port": 80,
+        "method": "POST",
+        "url": "/collect",
+        // "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=b79c7265-0aaa-43c6-9309-840a02967c00&dh=kovan.amadeusrelay.org&dp="
+        "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=994911df-4e73-4fc1-9480-266a2624fa8b&dh=localhost&dp="
+    },
     "server": {
         "hostname": "0.0.0.0",
         "port": 3000,
@@ -11,11 +19,15 @@
         }
     },
     "amadeus": {
-        "liquidityPercentage": 0.1,
+        "liquidityPercentage": 0.02,
         "ticker": {
             "WETH-GNT": {
                 "bid": 1,
                 "ask": 1500
+            },
+            "WETH-REP": {
+                "bid": 1,
+                "ask": 12.93
             },
             "WETH-ZRX": {
                 "bid": 1,
@@ -24,12 +36,21 @@
             "GNT-ZRX": {
                 "bid": 1,
                 "ask": 1.13175
+            },
+            "GNT-REP": {
+                "bid": 1,
+                "ask": 0.00877
+            },
+            "REP-ZRX": {
+                "bid": 1,
+                "ask": 158
             }
         },
         "tradableTokens": [
             "WETH",
             "REP",
-            "ZRX"
+            "ZRX",
+            "GNT"
         ],
         // "wallet": "0xf14958eca9f5b341f74916aacfb6e3d2fb9a4a15",
         // "wallet": "0x5409ed021d9299bf6814279a6a1411a7e866a631"

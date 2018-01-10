@@ -27,7 +27,7 @@ export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
         if (!tokenA && !tokenB) {
             for (const tokenPool of pools) {
                 const foundPairs = await this.getTokenPairsOfToken(tokenPool.token.symbol, pools);
-                pairs = pairs.concat(foundPairs);
+                pairs = pairs.concat(foundPairs.filter((pair) => pair != null));
             }
             this.loggerService.log("Pairs found when tokenA and tokenB not informed: %o", pairs);
         }
