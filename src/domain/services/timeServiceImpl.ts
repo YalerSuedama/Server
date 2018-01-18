@@ -5,7 +5,7 @@ import { TimeService, TYPES } from "../../app";
 
 @injectable()
 export class TimeServiceImpl implements TimeService {
-    private readonly expirationMilliseconds = 60000;
+    private readonly expirationMilliseconds = 300000;
 
     public getExpirationTimestamp(): string {
         return new BigNumber(moment().add(this.expirationMilliseconds, "ms").unix()).toString();

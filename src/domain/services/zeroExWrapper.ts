@@ -81,7 +81,7 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     public async ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string): Promise<void> {
         const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, spenderAddress);
         if (alowancedValue.comparedTo(amount) < 0) {
-            const tx = await this.zeroEx.token.setProxyAllowanceAsync(tokenAddress, spenderAddress, amount.mul(2));
+            const tx = await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(tokenAddress, spenderAddress);
             await this.zeroEx.awaitTransactionMinedAsync(tx);
         }
     }
