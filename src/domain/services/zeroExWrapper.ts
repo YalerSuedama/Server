@@ -23,7 +23,11 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
 
     public init() {
         this.web3 = new Web3Factory().createWeb3(ZeroExWrapper.privateKey);
-        this.zeroEx = new ZeroEx(this.web3.currentProvider);
+        if (config.has("amadeus.0x")) {
+            this.zeroEx = new ZeroEx(this.web3.currentProvider, config.get("amadeus.0x"));
+        } else {
+            this.zeroEx = new ZeroEx(this.web3.currentProvider);
+        }
     }
 
     /** CryptographyService */
