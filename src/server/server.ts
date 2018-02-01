@@ -4,27 +4,35 @@ import * as cors from "cors";
 import * as express from "express";
 import * as health from "express-ping";
 import * as swaggerUI from "swagger-ui-express";
-import { Logger, TYPES } from "../app";
+import { ValidateError } from "tsoa";
+import { LoggerService, TYPES } from "../app";
 import { analytics } from "./middleware/analytics/analytics";
+import { errorHandler } from "./middleware/errorHandler";
 import { iocContainer } from "./middleware/iocContainer";
+import requestLimit from "./middleware/requestLimit/requestLimit";
 import { RegisterRoutes } from "./middleware/routes/routes";
 import * as swaggerJSON from "./swagger/swagger.json";
 
 export class Server {
     public express: express.Application;
     private isListening: boolean = false;
-    private logger: Logger;
+    private logger: LoggerService;
 
     constructor() {
         this.express = express();
-        this.logger = iocContainer.get<Logger>(TYPES.Logger);
+        this.logger = iocContainer.get<LoggerService>(TYPES.LoggerService);
         this.logger.setNamespace("Server");
         this.configure();
         RegisterRoutes(this.express);
+        this.express.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+            this.logger.log("error with status %d and message '%s': %o", err.status, err.message, err);
+            next(err);
+        });
+        this.express.use(errorHandler);
     }
 
     public start(): void {
-        const port = parseInt(config.get("server.port"), 10);
+        const port: number = config.get("server.port");
         let hostname: string = null;
         if (config.has("server.hostname")) {
             hostname = config.get("server.hostname") as string;
@@ -54,14 +62,8 @@ export class Server {
         this.express.use(bodyParser.urlencoded({ extended: false }));
         this.express.use(health.ping());
         this.express.use(analytics);
+        this.express.use(requestLimit);
         this.express.use("/swagger.json", express.static(__dirname + "/swagger.json"));
         this.express.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJSON));
-        this.express.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-            res.status(err.status || 500);
-            res.json({
-                message: err.message,
-                error: err,
-            });
-        });
     }
 }

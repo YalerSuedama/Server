@@ -1,64 +1,104 @@
 import { expect, use } from "chai";
+import { Container } from "inversify";
 import "reflect-metadata";
 import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
-import { OrderService, TYPES } from "../../src/app";
-import { ReserveManagerOrderService } from "../../src/domain";
-import "../../src/server/controllers";
+import { ValidateError } from "tsoa";
+import { OrderService, TYPES, ValidationService } from "../../src/app";
 import { OrderController } from "../../src/server/controllers/orderController";
-import { iocContainer } from "../../src/server/middleware/iocContainer";
 
 use(sinonChai);
 
+const orderServiceStub: OrderService = {
+    listOrders: (tokenA?: string, tokenB?: string, makerTokenAddress?: string, takerTokenAddress?: string) => Promise.resolve(null),
+};
+
+let shouldValidateFalse = false;
+
+const validationServiceStub: ValidationService = {
+    isAddress: (address: string) => !shouldValidateFalse,
+};
+
+const iocContainer = new Container();
+iocContainer.bind<OrderController>(OrderController).toSelf();
+iocContainer.bind<OrderService>(TYPES.OrderService).toConstantValue(orderServiceStub);
+iocContainer.bind<ValidationService>(TYPES.ValidationService).toConstantValue(validationServiceStub);
+
 describe("OrderController", () => {
     describe(".listOrders", () => {
-        let stub: sinon.SinonStub;
-        const tokenA = "ZRX";
-        const tokenB = "WETH";
-        const tokenAddress = "0x0000";
-
-        before(() => {
-            iocContainer.rebind(TYPES.OrderService).to(ReserveManagerOrderService).inSingletonScope();
-        });
-        after(() => {
-            iocContainer.rebind(TYPES.OrderService).to(ReserveManagerOrderService);
-        });
+        let spy: sinon.SinonSpy;
+        const parameter = "VALUE";
 
         beforeEach((done) => {
-            stub = sinon.stub(iocContainer.get<OrderService>(TYPES.OrderService), "listOrders").returns(null);
+            shouldValidateFalse = false;
+            spy = sinon.spy(iocContainer.get<OrderService>(TYPES.OrderService), "listOrders");
             done();
         });
         afterEach((done) => {
-            stub.restore();
+            shouldValidateFalse = false;
+            spy.restore();
             done();
         });
 
-        it.only("should call orderService.listOrders upon calling its listOrders", (done) => {
+        function callController(parameterValue: string, parameterPosition: number, done: MochaDone): void {
+            const controller = iocContainer.get<OrderController>(OrderController);
+            const args: any = [];
+            for (let index = 0; index < parameterPosition; index++) {
+                args.push(undefined);
+            }
+            args.push(parameterValue);
+            const returned = controller.listOrders.apply(controller, args);
+            expect(spy.args[0][parameterPosition]).to.eq(parameterValue);
+            done();
+        }
+
+        it("should call orderService.listOrders upon calling its listOrders", (done) => {
             const controller = iocContainer.get<OrderController>(OrderController);
             const returned = controller.listOrders();
             // tslint:disable-next-line:no-unused-expression
-            expect(stub).to.be.calledOnce;
+            expect(spy).to.be.calledOnce;
             done();
         });
-        it("should pass tokenA as first argument to orderService.listOrders", () => {
-            const controller = iocContainer.get<OrderController>(OrderController);
-            const returned = controller.listOrders(tokenA);
-            expect(stub).to.be.calledWith(tokenA);
+        it("should throw on invalid addresses", async () => {
+            shouldValidateFalse = true;
+            let returned;
+            try {
+                returned = await iocContainer.get<OrderController>(OrderController).listOrders("fsjklasdlkjf");
+            } catch (error) {
+                expect(error).to.be.instanceOf(ValidateError);
+                return;
+            }
+            chai.assert.fail(returned, null, "Expected to have thrown error, but returned.");
         });
-        it("should pass tokenA as first argument and tokenB as second argument to orderService.listOrders", () => {
-            const controller = iocContainer.get<OrderController>(OrderController);
-            const returned = controller.listOrders(tokenA, tokenB);
-            expect(stub).to.be.calledWith(tokenA, tokenB);
+        it("should pass exchangeContractAddress as first parameter to orderService.listOrders", (done) => {
+            callController(parameter, 0, done);
         });
-        it("should pass makerTokenAddress as parameter to orderService.listOrders", () => {
-            const controller = iocContainer.get<OrderController>(OrderController);
-            const returned = controller.listOrders(undefined, undefined, tokenAddress);
-            expect(stub.args[0][2]).to.eq(tokenAddress);
+        it("should pass tokenAddress as second parameter to orderService.listOrders", (done) => {
+            callController(parameter, 1, done);
         });
-        it("should pass takerTokenAddress as parameter to orderService.listOrders", () => {
-            const controller = iocContainer.get<OrderController>(OrderController);
-            const returned = controller.listOrders(undefined, undefined, undefined, tokenAddress);
-            expect(stub.args[0][3]).to.eq(tokenAddress);
+        it("should pass makerTokenAddress as third parameter to orderService.listOrders", (done) => {
+            callController(parameter, 2, done);
+        });
+        it("should pass takerTokenAddress as fourth parameter to orderService.listOrders", (done) => {
+            callController(parameter, 3, done);
+        });
+        it("should pass maker as fifth argument to orderService.listOrders", (done) => {
+            callController(parameter, 4, done);
+        });
+        it("should pass taker as sixth argument to orderService.listOrders", (done) => {
+            callController(parameter, 5, done);
+        });
+        it("should pass trader as seventh argument to orderService.listOrders", (done) => {
+            callController(parameter, 6, done);
+        });
+        it("should pass feeRecipient as eight argument to orderService.listOrders", (done) => {
+            callController(parameter, 7, done);
+        });
+        it("should pass page as nineth argument to orderService.listOrders", (done) => {
+            callController(parameter, 8, done);
+        });
+        it("should pass per_page as tenth argument to orderService.listOrders", (done) => {
+            callController(parameter, 9, done);
         });
     });
 });

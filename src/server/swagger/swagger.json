@@ -83,6 +83,17 @@
 			],
 			"type": "object"
 		},
+		"ErrorModel": {
+			"properties": {
+				"message": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"message"
+			],
+			"type": "object"
+		},
 		"TokenTradeInfo": {
 			"properties": {
 				"address": {
@@ -165,6 +176,18 @@
 								"takerTokenAmount": "1000000000000000000"
 							}
 						}
+					},
+					"400": {
+						"description": "A parameter is not informed correctly.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
+					},
+					"500": {
+						"description": "An unknown error occurred.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
 					}
 				},
 				"description": "Calling this method will return signed orders that can be filled through 0x project's fillOrder to exchange user's takerToken for this relayer's makerToken.\r\nThis method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).",
@@ -172,16 +195,16 @@
 				"security": [],
 				"parameters": [
 					{
-						"description": "Symbol of a token that should be included on orders either as maker or taker. If tokenB is also informed, then this method will return orders with only both tokens, either as maker or taker.",
+						"description": "Will return all orders created to this contract address.",
 						"in": "query",
-						"name": "tokenA",
+						"name": "exchangeContractAddress",
 						"required": false,
 						"type": "string"
 					},
 					{
-						"description": "Symbol of a token that should be included on orders either as maker or taker. If tokenA is also informed, then this method will return orders with only both tokens, either as maker or taker.",
+						"description": "Will return all orders where makerTokenAddress or takerTokenAddress is token address.",
 						"in": "query",
-						"name": "tokenB",
+						"name": "tokenAddress",
 						"required": false,
 						"type": "string"
 					},
@@ -198,6 +221,50 @@
 						"name": "takerTokenAddress",
 						"required": false,
 						"type": "string"
+					},
+					{
+						"description": "Will return all orders where makerAddress is the same address of this parameter.",
+						"in": "query",
+						"name": "maker",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"description": "Will return all orders where takerAddress is the same address of this parameter.",
+						"in": "query",
+						"name": "taker",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"description": "Will return all orders where makerAddress or takerAddress is the same address of this parameter.",
+						"in": "query",
+						"name": "trader",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"description": "Will return all orders where feeRecipient is the same address of this parameter.",
+						"in": "query",
+						"name": "feeRecipient",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"description": "Which page should be returned. If this parameter is not informed, then it will take the default value of 1. Page numbers start at 1.",
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"format": "double",
+						"type": "number"
+					},
+					{
+						"description": "Number of orders that should be returned on each page. If this parameter is not informed, then it will take the default value of the total number of orders found.",
+						"in": "query",
+						"name": "per_page",
+						"required": false,
+						"format": "double",
+						"type": "number"
 					}
 				]
 			}
@@ -233,6 +300,18 @@
 								}
 							}
 						}
+					},
+					"400": {
+						"description": "A parameter is not informed correctly.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
+					},
+					"500": {
+						"description": "An unknown error occurred.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
 					}
 				},
 				"description": "This method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).",
@@ -252,6 +331,22 @@
 						"name": "tokenB",
 						"required": false,
 						"type": "string"
+					},
+					{
+						"description": "Which page should be returned. If this parameter is not informed, then it will take the default value of 1. Page numbers start at 1.",
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"format": "double",
+						"type": "number"
+					},
+					{
+						"description": "Number of token pairs that should be returned on each page. If this parameter is not informed, then it will take the default value of the total number of token pairs found.",
+						"in": "query",
+						"name": "per_page",
+						"required": false,
+						"format": "double",
+						"type": "number"
 					}
 				]
 			}

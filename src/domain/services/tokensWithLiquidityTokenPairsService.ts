@@ -1,6 +1,6 @@
 import * as config from "config";
 import { inject, injectable } from "inversify";
-import { LiquidityService, TickerService, TokenPairsService, TokenService, TYPES } from "../../app";
+import { LiquidityService, LoggerService, PaginationService, TickerService, TokenPairsService, TokenService, TYPES } from "../../app";
 import { Ticker, Token, TokenPairTradeInfo, TokenPool } from "../../app/models";
 import * as Utils from "../util";
 
@@ -11,35 +11,52 @@ export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
         @inject(TYPES.LiquidityService) private liquidityService: LiquidityService,
         @inject(TYPES.TickerService) private tickerService: TickerService,
         @inject(TYPES.TokenService) private tokenService: TokenService,
-    ) { }
+        @inject(TYPES.LoggerService) private loggerService: LoggerService,
+        private paginationService: PaginationService,
+    ) {
+        this.loggerService.setNamespace("tokenswithliquiditytokenpairsservice");
+    }
 
-    public async listPairs(tokenA?: string, tokenB?: string): Promise<TokenPairTradeInfo[]> {
+    public async listPairs(tokenA?: string, tokenB?: string, page?: number, perPage?: number): Promise<TokenPairTradeInfo[]> {
         const tradabletokens: Token[] = await this.tokenService.listAllTokens();
+        this.loggerService.log("Tradable tokens: %o", tradabletokens);
         let pools: TokenPool[] = await Promise.all(tradabletokens.map(async (token) => await this.liquidityService.getAvailableAmount(token)));
         pools = pools.filter((pool) => pool && !pool.maximumAmount.isNegative() && !pool.maximumAmount.isZero());
+        this.loggerService.log("Pools with amount: %o", pools);
         let pairs: TokenPairTradeInfo[] = [];
         if (!tokenA && !tokenB) {
             for (const tokenPool of pools) {
                 const foundPairs = await this.getTokenPairsOfToken(tokenPool.token.symbol, pools);
                 pairs = pairs.concat(foundPairs.filter((pair) => pair != null));
             }
+            this.loggerService.log("Pairs found when tokenA and tokenB not informed: %o", pairs);
         }
         if (tokenA) {
-            pairs = pairs.concat(await this.getTokenPairsOfToken(tokenA, pools));
+            const tokenAPairs = await this.getTokenPairsOfToken(tokenA, pools);
+            this.loggerService.log("Pairs found for tokenA %s: %o", tokenA, tokenAPairs);
+            pairs = pairs.concat(tokenAPairs);
         }
         if (tokenB) {
-            pairs = pairs.concat(await this.getTokenPairsOfToken(tokenB, pools));
+            const tokenBPairs = await this.getTokenPairsOfToken(tokenB, pools);
+            this.loggerService.log("Pairs found for tokenB %s: %o", tokenB, tokenBPairs);
+            pairs = pairs.concat(tokenBPairs);
         }
+        pairs = await this.paginationService.paginate(pairs, page, perPage);
+        this.loggerService.log("Pairs are paginated: %o", pairs);
         return pairs;
     }
 
     private async getTokenPairsOfToken(tokenSymbol: string, pools: TokenPool[]): Promise<TokenPairTradeInfo[]> {
         const tokenPool = pools.find((pool) => pool.token.symbol === tokenSymbol);
+        let pairs: TokenPairTradeInfo[] = [];
         if (tokenPool) {
             const testingPools = pools.filter((pool) => pool.token !== tokenPool.token);
-            return Promise.all(testingPools.map(async (pool) => await this.createTokenPairTradeInfo(tokenPool, pool)));
+            pairs = pairs.concat(await Promise.all(testingPools.map(async (pool) => await this.createTokenPairTradeInfo(tokenPool, pool))));
+            for (const pool of testingPools) {
+                pairs.push(await this.createTokenPairTradeInfo(pool, tokenPool));
+            }
         }
-        return null;
+        return pairs;
     }
 
     private async createTokenPairTradeInfo(tokenPoolFrom: TokenPool, tokenPoolTo: TokenPool): Promise<TokenPairTradeInfo> {

@@ -1,10 +1,10 @@
 import { ZeroEx } from "0x.js";
 import { BigNumber } from "bignumber.js";
 import * as config from "config";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import * as _ from "lodash";
 import Web3JS = require("web3");
-import { CryptographyService, ExchangeService, SaltService, TokenService } from "../../app";
+import { CryptographyService, ExchangeService, LoggerService, SaltService, TokenService, TYPES } from "../../app";
 import { Order, SignedOrder, Token as Token } from "../../app/models";
 import * as Utils from "../util";
 import { Web3Factory } from "../util";
@@ -17,12 +17,13 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     private web3: Web3JS;
     private zeroEx: ZeroEx;
 
-    constructor() {
-        setTimeout(() => this.init(), 10);
+    constructor( @inject(TYPES.LoggerService) private loggerService: LoggerService) {
+        this.loggerService.setNamespace("zeroexwrapper");
+        this.init();
     }
 
     public init() {
-        this.web3 = new Web3Factory().createWeb3(ZeroExWrapper.privateKey);
+        this.web3 = new Web3Factory().createWeb3(ZeroExWrapper.privateKey, this.loggerService.clone());
         if (config.has("amadeus.0x")) {
             this.zeroEx = new ZeroEx(this.web3.currentProvider, config.get("amadeus.0x"));
         } else {

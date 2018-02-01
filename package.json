@@ -14,8 +14,8 @@
         "start": "npm run build && node dist/server.js",
         "start:cloud": "npm run build:cloud && node dist/server.js",
         "start:dev": "npm run build:dev && cross-env DEBUG=* webpack --watch --config webpack.dev.config.js",
-        "test": "cross-env DEBUG=amadeusrelay:* mocha --opts \"./mocha.opts\"",
-        "test:coverage": "cross-env DEBUG=amadeusrelay:* nyc --require ts-node/register --require source-map-support/register mocha \"**/*.test.ts\""
+        "test": "cross-env DEBUG=amadeusrelay:TestLogger mocha --opts \"./mocha.opts\"",
+        "test:coverage": "cross-env DEBUG=amadeusrelay:TestLogger nyc --require ts-node/register --require source-map-support/register mocha \"**/*.test.ts\""
     },
     "repository": {
         "type": "git",
@@ -64,13 +64,13 @@
         "tslint-loader": "^3.5.3",
         "typescript": "^2.5.3",
         "uglifyjs-webpack-plugin": "^1.0.1",
-        "web3-typescript-typings": "^0.7.1",
         "webpack": "^3.8.1",
         "webpack-merge": "^4.1.1",
         "webpack-node-externals": "^1.6.0"
     },
     "dependencies": {
         "0x.js": "^0.22.4",
+        "@0xproject/json-schemas": "^0.7.6",
         "bignumber.js": "^4.1.0",
         "body-parser": "^1.18.2",
         "config": "^1.27.0",
@@ -84,6 +84,7 @@
         "inversify-binding-decorators": "^3.0.0",
         "lodash": "^4.17.4",
         "moment": "^2.19.1",
+        "node-ts-cache": "^0.3.0",
         "reflect-metadata": "^0.1.10",
         "supports-color": "^5.0.0",
         "swagger-ui-express": "^2.0.8",

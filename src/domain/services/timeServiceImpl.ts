@@ -8,6 +8,6 @@ export class TimeServiceImpl implements TimeService {
     private readonly expirationMilliseconds = 300000;
 
     public getExpirationTimestamp(): string {
-        return new BigNumber(moment().add(this.expirationMilliseconds, "ms").unix()).toString();
+        return new BigNumber(moment().utc().add(this.expirationMilliseconds, "ms").unix()).toString();
     }
 }
