@@ -3,7 +3,8 @@ import { Container } from "inversify";
 import "reflect-metadata";
 import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
-import { OrderService, TYPES } from "../../src/app";
+import { ValidateError } from "tsoa";
+import { OrderService, TYPES, ValidationService } from "../../src/app";
 import { OrderController } from "../../src/server/controllers/orderController";
 
 use(sinonChai);
@@ -12,9 +13,16 @@ const orderServiceStub: OrderService = {
     listOrders: (tokenA?: string, tokenB?: string, makerTokenAddress?: string, takerTokenAddress?: string) => Promise.resolve(null),
 };
 
+let shouldValidateFalse = false;
+
+const validationServiceStub: ValidationService = {
+    isAddress: (address: string) => !shouldValidateFalse,
+};
+
 const iocContainer = new Container();
 iocContainer.bind<OrderController>(OrderController).toSelf();
 iocContainer.bind<OrderService>(TYPES.OrderService).toConstantValue(orderServiceStub);
+iocContainer.bind<ValidationService>(TYPES.ValidationService).toConstantValue(validationServiceStub);
 
 describe("OrderController", () => {
     describe(".listOrders", () => {
@@ -22,10 +30,12 @@ describe("OrderController", () => {
         const parameter = "VALUE";
 
         beforeEach((done) => {
+            shouldValidateFalse = false;
             spy = sinon.spy(iocContainer.get<OrderService>(TYPES.OrderService), "listOrders");
             done();
         });
         afterEach((done) => {
+            shouldValidateFalse = false;
             spy.restore();
             done();
         });
@@ -48,6 +58,17 @@ describe("OrderController", () => {
             // tslint:disable-next-line:no-unused-expression
             expect(spy).to.be.calledOnce;
             done();
+        });
+        it("should throw on invalid addresses", async () => {
+            shouldValidateFalse = true;
+            let returned;
+            try {
+                returned = await iocContainer.get<OrderController>(OrderController).listOrders("fsjklasdlkjf");
+            } catch (error) {
+                expect(error).to.be.instanceOf(ValidateError);
+                return;
+            }
+            chai.assert.fail(returned, null, "Expected to have thrown error, but returned.");
         });
         it("should pass exchangeContractAddress as first parameter to orderService.listOrders", (done) => {
             callController(parameter, 0, done);

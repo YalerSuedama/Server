@@ -12,4 +12,5 @@ export const TYPES = {
     TimeService: Symbol("TimeService"),
     TokenPairsService: Symbol("TokenPairsService"),
     TokenService: Symbol("TokenService"),
+    ValidationService: Symbol("ValidationService")
 };

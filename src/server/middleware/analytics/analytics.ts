@@ -1,7 +1,7 @@
 import * as config from "config";
 import * as express from "express";
 import * as http from "http";
-import { Logger, TYPES } from "../../../app";
+import { LoggerService, TYPES } from "../../../app";
 import { iocContainer } from "../iocContainer/index";
 
 export function analytics(request: express.Request, response: express.Response, next: express.NextFunction): void {
@@ -15,7 +15,7 @@ export function analytics(request: express.Request, response: express.Response, 
         });
         req.end();
     } catch (error) {
-        const logger = iocContainer.get<Logger>(TYPES.Logger);
+        const logger = iocContainer.get<LoggerService>(TYPES.LoggerService);
         logger.setNamespace("analytics");
         logger.log("error on analytics: " + error.message + ". Error: " + JSON.stringify(error));
     }

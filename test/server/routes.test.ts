@@ -46,7 +46,7 @@ class OrderControllerStub extends OrderController {
         return [];
     }
 }
-const orderControllerStub: OrderController = new OrderControllerStub(null);
+const orderControllerStub: OrderController = new OrderControllerStub(null, null);
 
 // tslint:disable-next-line:max-classes-per-file
 class TokenPairsControllerStub extends TokenPairsController {

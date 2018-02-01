@@ -7,4 +7,5 @@ export * from "./loggerDebug";
 export * from "./reserveManagerOrderService";
 export * from "./timeServiceImpl";
 export * from "./tokensWithLiquidityTokenPairsService";
+export * from "./zeroExSchemaBasedValidationService";
 export * from "./zeroExWrapper";
