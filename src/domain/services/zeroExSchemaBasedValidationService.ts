@@ -1,4 +1,4 @@
-import {SchemaValidator, ValidatorResult, schemas} from "@0xproject/json-schemas";
+import { schemas, SchemaValidator, ValidatorResult } from "@0xproject/json-schemas";
 import { injectable } from "inversify";
 import { ValidationService } from "../../app";
 

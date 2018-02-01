@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import * as moment from "moment";
-import { Controller, Example, Get, FieldErrors, Query, Response, Route, ValidateError } from "tsoa";
+import { Controller, Example, FieldErrors, Get, Query, Response, Route, ValidateError } from "tsoa";
 import { OrderService, TYPES, ValidationService } from "../../app";
 import { SignedOrder } from "../../app/models";
 import { ErrorModel } from "../middleware/errorHandler";
@@ -72,9 +72,9 @@ export class OrderController extends Controller {
     }
 
     private validateAddressParameters(...addressParams: any[]): void {
-        let fieldErrors: FieldErrors = {};
-        for(const param of addressParams) {
-            if (param.value != undefined && param.value != null && !this.validationService.isAddress(param.value)) {
+        const fieldErrors: FieldErrors = {};
+        for (const param of addressParams) {
+            if (param.value !== undefined && param.value !== null && !this.validationService.isAddress(param.value)) {
                 fieldErrors[param.name] = {
                     message: `The parameter ${param.name} is not a valid address`,
                     value: param.value,
@@ -82,7 +82,7 @@ export class OrderController extends Controller {
             }
         }
         if (Object.keys(fieldErrors).length > 0) {
-            throw new ValidateError(fieldErrors, '');
+            throw new ValidateError(fieldErrors, "");
         }
-    } 
+    }
 }
