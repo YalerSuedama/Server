@@ -100,7 +100,6 @@ export class ReserveManagerOrderService implements OrderService {
 
     private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo, exchangeContractAddress: string, maker: string, feeRecipient: string): Promise<SignedOrder> {
         this.ensureAllowance(new BigNumber(pair.tokenA.maxAmount), pair.tokenA.address, maker);
-        this.ensureAllowance(new BigNumber(pair.tokenB.maxAmount), pair.tokenB.address, maker);
 
         const ticker: Ticker = await this.tickerService.getTicker(await this.tokenService.getTokenByAddress(pair.tokenA.address), await this.tokenService.getTokenByAddress(pair.tokenB.address));
         return this.cryptographyService.signOrder({
