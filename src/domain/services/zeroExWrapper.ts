@@ -24,7 +24,11 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
 
     public init() {
         this.web3 = new Web3Factory().createWeb3(ZeroExWrapper.privateKey, this.loggerService.clone());
-        this.zeroEx = new ZeroEx(this.web3.currentProvider);
+        if (config.has("amadeus.0x")) {
+            this.zeroEx = new ZeroEx(this.web3.currentProvider, config.get("amadeus.0x"));
+        } else {
+            this.zeroEx = new ZeroEx(this.web3.currentProvider);
+        }
     }
 
     /** CryptographyService */
@@ -82,7 +86,7 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     public async ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string): Promise<void> {
         const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, spenderAddress);
         if (alowancedValue.comparedTo(amount) < 0) {
-            const tx = await this.zeroEx.token.setProxyAllowanceAsync(tokenAddress, spenderAddress, amount.mul(2));
+            const tx = await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(tokenAddress, spenderAddress);
             await this.zeroEx.awaitTransactionMinedAsync(tx);
         }
     }
