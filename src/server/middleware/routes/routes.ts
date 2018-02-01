@@ -58,8 +58,6 @@ export function RegisterRoutes(app: any) {
                 tokenAddress: { "in": "query", "name": "tokenAddress", "dataType": "string" },
                 makerTokenAddress: { "in": "query", "name": "makerTokenAddress", "dataType": "string" },
                 takerTokenAddress: { "in": "query", "name": "takerTokenAddress", "dataType": "string" },
-                tokenA: { "in": "query", "name": "tokenA", "dataType": "string" },
-                tokenB: { "in": "query", "name": "tokenB", "dataType": "string" },
                 maker: { "in": "query", "name": "maker", "dataType": "string" },
                 taker: { "in": "query", "name": "taker", "dataType": "string" },
                 trader: { "in": "query", "name": "trader", "dataType": "string" },

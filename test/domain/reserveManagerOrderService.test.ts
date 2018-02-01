@@ -171,67 +171,12 @@ describe("ReserveManagerOrderService", () => {
             returned.should.all.have.property("takerTokenAddress", takerTokenAddress);
         });
     });
-    context("when tokenA is informed", () => {
-        it("should return orders where makerTokenAddress is tokenA", async () => {
-            const symbol = TOKENS[0];
-            const address = DEFAULT_ADDRESS + symbol;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, symbol);
-            returned.should.include.one.with.deep.property("makerTokenAddress", address);
-        });
-        it("should return orders where takerTokenAddress is tokenA", async () => {
-            const symbol = TOKENS[0];
-            const address = DEFAULT_ADDRESS + symbol;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, symbol);
-            returned.should.include.one.with.property("takerTokenAddress", address);
-        });
-    });
-    context("when tokenB is informed", () => {
-        it("should return orders where makerTokenAddress is tokenB", async () => {
-            const symbol = TOKENS[0];
-            const address = DEFAULT_ADDRESS + symbol;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, symbol);
-            returned.should.include.one.with.property("makerTokenAddress", address);
-        });
-        it("should return orders where takerTokenAddress is tokenB", async () => {
-            const symbol = TOKENS[0];
-            const address = DEFAULT_ADDRESS + symbol;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, symbol);
-            returned.should.include.one.with.property("takerTokenAddress", address);
-        });
-    });
-    context("when tokenA and tokenB are informed", () => {
-        it("should return an order with tokenA and tokenB as makerTokenAddress and takerTokenAddress (in that order)", async () => {
-            const symbolA = TOKENS[0];
-            const addressA = DEFAULT_ADDRESS + symbolA;
-            const symbolB = TOKENS[1];
-            const addressB = DEFAULT_ADDRESS + symbolB;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, symbolA, symbolB);
-            returned.should.contain.one.which.containSubset({ makerTokenAddress: addressA, takerTokenAddress: addressB });
-        });
-        it("should return an order with tokenA and tokenB as takerTokenAddress and makerTokenAddress (in that order)", async () => {
-            const symbolA = TOKENS[0];
-            const addressA = DEFAULT_ADDRESS + symbolA;
-            const symbolB = TOKENS[1];
-            const addressB = DEFAULT_ADDRESS + symbolB;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, symbolA, symbolB);
-            returned.should.contain.one.which.containSubset({ makerTokenAddress: addressB, takerTokenAddress: addressA });
-        });
-        it("should not return an order where makerTokenAddress and takerTokenAddress are not tokenA nor tokenB", async () => {
-            const symbolA = TOKENS[0];
-            const addressA = DEFAULT_ADDRESS + symbolA;
-            const symbolB = TOKENS[1];
-            const addressB = DEFAULT_ADDRESS + symbolB;
-            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, symbolA, symbolB);
-            // tslint:disable-next-line:no-unused-expression
-            expect(returned.find((order) => (order.makerTokenAddress !== addressA && order.makerTokenAddress !== addressB) && (order.takerTokenAddress !== addressA && order.takerTokenAddress !== addressB))).to.be.undefined;
-        });
-    });
     context("when maker is informed", () => {
         context("as the Amadeus address", async () => {
             it("should return all orders", async () => {
                 const makerAddress = stubAmadeusService.getMainAddress();
                 const expectedLength = (await stubTokenPairsService.listPairs()).length;
-                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, makerAddress);
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, makerAddress);
                 returned.should.all.have.property("maker", makerAddress);
                 expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
             });
@@ -239,7 +184,7 @@ describe("ReserveManagerOrderService", () => {
         context("as NOT the Amadeus address", () => {
             it("should not return any order", async () => {
                 const makerAddress = DEFAULT_ADDRESS + TOKENS[0];
-                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, makerAddress);
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, makerAddress);
                 // tslint:disable-next-line:no-unused-expression
                 expect(returned).to.be.an("array").that.is.empty;
             });
@@ -251,7 +196,7 @@ describe("ReserveManagerOrderService", () => {
                 const nullAddressSymbol = "000";
                 const takerAddress = DEFAULT_ADDRESS + nullAddressSymbol;
                 const expectedLength = (await stubTokenPairsService.listPairs()).length;
-                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, takerAddress);
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, takerAddress);
                 returned.should.all.have.property("taker", takerAddress);
                 expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
             });
@@ -260,7 +205,7 @@ describe("ReserveManagerOrderService", () => {
             it("should not return any order", async () => {
                 const takerSymbol = TOKENS[0];
                 const takerAddress = DEFAULT_ADDRESS + takerSymbol;
-                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, takerAddress);
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, takerAddress);
                 // tslint:disable-next-line:no-unused-expression
                 expect(returned).to.be.an("array").that.is.empty;
             });
@@ -271,7 +216,7 @@ describe("ReserveManagerOrderService", () => {
             it("should return all orders", async () => {
                 const traderAddress = stubAmadeusService.getMainAddress();
                 const expectedLength = (await stubTokenPairsService.listPairs()).length;
-                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, traderAddress);
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, traderAddress);
                 returned.should.all.have.property("maker", traderAddress);
                 expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
             });
@@ -281,7 +226,7 @@ describe("ReserveManagerOrderService", () => {
                 const nullAddressSymbol = "000";
                 const traderAddress = DEFAULT_ADDRESS + nullAddressSymbol;
                 const expectedLength = (await stubTokenPairsService.listPairs()).length;
-                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, traderAddress);
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, traderAddress);
                 returned.should.all.have.property("taker", traderAddress);
                 expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
             });
@@ -290,7 +235,7 @@ describe("ReserveManagerOrderService", () => {
             it("should not return any order", async () => {
                 const traderSymbol = TOKENS[0];
                 const traderAddress = DEFAULT_ADDRESS + traderSymbol;
-                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, traderAddress);
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, traderAddress);
                 // tslint:disable-next-line:no-unused-expression
                 expect(returned).to.be.an("array").that.is.empty;
             });
@@ -301,7 +246,7 @@ describe("ReserveManagerOrderService", () => {
             it("should return all orders", async () => {
                 const feeAddress = stubAmadeusService.getFeeAddress();
                 const expectedLength = (await stubTokenPairsService.listPairs()).length;
-                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, feeAddress);
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, feeAddress);
                 returned.should.all.have.property("feeRecipient", feeAddress);
                 expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
             });
@@ -309,7 +254,7 @@ describe("ReserveManagerOrderService", () => {
         context("As NOT the Amadeus fee address", () => {
             it("should not return any order", async () => {
                 const feeAddress = DEFAULT_ADDRESS + TOKENS[0];
-                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, feeAddress);
+                const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, feeAddress);
                 // tslint:disable-next-line:no-unused-expression
                 expect(returned).to.be.an("array").that.is.empty;
             });
@@ -338,7 +283,7 @@ describe("ReserveManagerOrderService", () => {
             it("should return error", async () => {
                 let returned;
                 try {
-                    returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, -1);
+                    returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, -1);
                 } catch (error) {
                     expect(error).to.be.instanceOf(RangeError).and.that.has.property("message", "Page should start at 1.");
                     return;
@@ -349,7 +294,7 @@ describe("ReserveManagerOrderService", () => {
         context("as a number greater than zero", () => {
             context("and it is greater than the number of pages", () => {
                 it("should not return any orders", async () => {
-                    const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 20);
+                    const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 20);
                     // tslint:disable-next-line:no-unused-expression
                     expect(returned).to.be.an("array").that.is.empty;
                 });
@@ -359,7 +304,7 @@ describe("ReserveManagerOrderService", () => {
                     const tokenAddress1 = DEFAULT_ADDRESS + TOKENS[0];
                     const tokenAddress2 = DEFAULT_ADDRESS + TOKENS[1];
                     const tokenAddress3 = DEFAULT_ADDRESS + TOKENS[2];
-                    const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 1, 2);
+                    const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 1, 2);
                     expect(returned).to.be.an("array").that.has.lengthOf(2);
                     expect(returned.findIndex((order) => order.makerTokenAddress === tokenAddress1 && order.takerTokenAddress === tokenAddress2)).to.be.equal(0);
                     expect(returned.findIndex((order) => order.makerTokenAddress === tokenAddress1 && order.takerTokenAddress === tokenAddress3)).to.be.equal(1);
@@ -370,7 +315,7 @@ describe("ReserveManagerOrderService", () => {
                     const tokenAddress1 = DEFAULT_ADDRESS + TOKENS[0];
                     const tokenAddress2 = DEFAULT_ADDRESS + TOKENS[1];
                     const tokenAddress3 = DEFAULT_ADDRESS + TOKENS[2];
-                    const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 2, 2);
+                    const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 2, 2);
                     expect(returned).to.be.an("array").that.has.lengthOf(2);
                     expect(returned.findIndex((order) => order.makerTokenAddress === tokenAddress2 && order.takerTokenAddress === tokenAddress1)).to.be.equal(0);
                     expect(returned.findIndex((order) => order.makerTokenAddress === tokenAddress2 && order.takerTokenAddress === tokenAddress3)).to.be.equal(1);
@@ -383,7 +328,7 @@ describe("ReserveManagerOrderService", () => {
             it("should return error", async () => {
                 let returned;
                 try {
-                    returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, -1);
+                    returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, -1);
                 } catch (error) {
                     expect(error).to.be.instanceOf(RangeError).and.that.has.property("message", "The number of itens per page must be greater than or equal to 1.");
                     return;
@@ -395,20 +340,20 @@ describe("ReserveManagerOrderService", () => {
             context("and there is more than one page", () => {
                 context("and the page is 1", () => {
                     it("should return the exact number of orders of perPage parameter", async () => {
-                        const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 1, 4);
+                        const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 1, 4);
                         expect(returned).to.be.an("array").that.has.lengthOf(4);
                     });
                 });
                 context("and the page parameter is the last page", () => {
                     it("should return only the remaining orders", async () => {
-                        const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 2, 4);
+                        const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 2, 4);
                         expect(returned).to.be.an("array").that.has.lengthOf(2);
                     });
                 });
             });
             context("and there is only one page", () => {
                 it("should return only the remaining orders", async () => {
-                    const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 1, 20);
+                    const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 1, 20);
                     expect(returned).to.be.an("array").that.has.lengthOf(6);
                 });
             });

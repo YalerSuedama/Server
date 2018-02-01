@@ -43,7 +43,7 @@ export class ReserveManagerOrderService implements OrderService {
         this.logger.setNamespace("reservemanagerorderservice");
     }
 
-    public async listOrders(exchangeContractAddress?: string, tokenAddress?: string, makerTokenAddress?: string, takerTokenAddress?: string, tokenA?: string, tokenB?: string, maker?: string, taker?: string, trader?: string, feeRecipient?: string, page?: number, perPage?: number): Promise<SignedOrder[]> {
+    public async listOrders(exchangeContractAddress?: string, tokenAddress?: string, makerTokenAddress?: string, takerTokenAddress?: string, maker?: string, taker?: string, trader?: string, feeRecipient?: string, page?: number, perPage?: number): Promise<SignedOrder[]> {
         const currentContractAddress = await this.exchangeService.get0xContractAddress();
         const feeRecipientAddress = this.amadeusService.getFeeAddress();
         const makerAddress = this.amadeusService.getMainAddress();
@@ -68,7 +68,7 @@ export class ReserveManagerOrderService implements OrderService {
             return [];
         }
 
-        let pairs: TokenPairTradeInfo[] = await this.tokenPairsService.listPairs(tokenA, tokenB);
+        let pairs: TokenPairTradeInfo[] = await this.tokenPairsService.listPairs();
         if (tokenAddress) {
             pairs = pairs.filter((pair) => pair.tokenA.address === tokenAddress || pair.tokenB.address === tokenAddress);
             this.logger.log("Filtered pairs for tokenAddress %s: %o.", tokenAddress, pairs);

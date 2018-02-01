@@ -24,8 +24,6 @@ export class OrderController extends Controller {
      * @param {string} tokenAddress Will return all orders where makerTokenAddress or takerTokenAddress is token address.
      * @param {string} makerTokenAddress Will return all orders where makerTokenAddress is the same address of this parameter.
      * @param {string} takerTokenAddress Will return all orders where takerTokenAddress is the same address of this parameter.
-     * @param {string} tokenA Symbol of a token that should be included on orders either as maker or taker. If tokenB is also informed, then this method will return orders with only both tokens, either as maker or taker.
-     * @param {string} tokenB Symbol of a token that should be included on orders either as maker or taker. If tokenA is also informed, then this method will return orders with only both tokens, either as maker or taker.
      * @param {string} maker Will return all orders where makerAddress is the same address of this parameter.
      * @param {string} taker Will return all orders where takerAddress is the same address of this parameter.
      * @param {string} trader Will return all orders where makerAddress or takerAddress is the same address of this parameter.
@@ -59,7 +57,7 @@ export class OrderController extends Controller {
         message: "some string",
     })
     @Get()
-    public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() tokenA?: string, @Query() tokenB?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<SignedOrder[]> {
+    public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<SignedOrder[]> {
         this.validateAddressParameters(
             {name: "exchangeContractAddress", value: exchangeContractAddress},
             {name: "tokenAddress", value: tokenAddress},
@@ -70,7 +68,7 @@ export class OrderController extends Controller {
             {name: "trader", value: trader},
             {name: "feeRecipient", value: feeRecipient},
         );
-        return await this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, tokenA, tokenB, maker, taker, trader, feeRecipient, page, perPage);
+        return await this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, maker, taker, trader, feeRecipient, page, perPage);
     }
 
     private validateAddressParameters(...addressParams: any[]): void {

@@ -82,29 +82,23 @@ describe("OrderController", () => {
         it("should pass takerTokenAddress as fourth parameter to orderService.listOrders", (done) => {
             callController(parameter, 3, done);
         });
-        it("should pass tokenA as fifth parameter to orderService.listOrders", (done) => {
+        it("should pass maker as fifth argument to orderService.listOrders", (done) => {
             callController(parameter, 4, done);
         });
-        it("should pass tokenB as sixth argument to orderService.listOrders", (done) => {
+        it("should pass taker as sixth argument to orderService.listOrders", (done) => {
             callController(parameter, 5, done);
         });
-        it("should pass maker as seventh argument to orderService.listOrders", (done) => {
+        it("should pass trader as seventh argument to orderService.listOrders", (done) => {
             callController(parameter, 6, done);
         });
-        it("should pass taker as eight argument to orderService.listOrders", (done) => {
+        it("should pass feeRecipient as eight argument to orderService.listOrders", (done) => {
             callController(parameter, 7, done);
         });
-        it("should pass trader as nineth argument to orderService.listOrders", (done) => {
+        it("should pass page as nineth argument to orderService.listOrders", (done) => {
             callController(parameter, 8, done);
         });
-        it("should pass feeRecipient as tenth argument to orderService.listOrders", (done) => {
+        it("should pass per_page as tenth argument to orderService.listOrders", (done) => {
             callController(parameter, 9, done);
-        });
-        it("should pass page as eleventh argument to orderService.listOrders", (done) => {
-            callController(parameter, 10, done);
-        });
-        it("should pass per_page as twelveth argument to orderService.listOrders", (done) => {
-            callController(parameter, 11, done);
         });
     });
 });

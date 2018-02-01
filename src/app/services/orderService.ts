@@ -6,8 +6,6 @@ export interface OrderService {
         tokenAddress?: string,
         makerTokenAddress?: string,
         takerTokenAddress?: string,
-        tokenA?: string,
-        tokenB?: string,
         maker?: string,
         taker?: string,
         trader?: string,

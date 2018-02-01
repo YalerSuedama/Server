@@ -223,20 +223,6 @@
 						"type": "string"
 					},
 					{
-						"description": "Symbol of a token that should be included on orders either as maker or taker. If tokenB is also informed, then this method will return orders with only both tokens, either as maker or taker.",
-						"in": "query",
-						"name": "tokenA",
-						"required": false,
-						"type": "string"
-					},
-					{
-						"description": "Symbol of a token that should be included on orders either as maker or taker. If tokenA is also informed, then this method will return orders with only both tokens, either as maker or taker.",
-						"in": "query",
-						"name": "tokenB",
-						"required": false,
-						"type": "string"
-					},
-					{
 						"description": "Will return all orders where makerAddress is the same address of this parameter.",
 						"in": "query",
 						"name": "maker",
