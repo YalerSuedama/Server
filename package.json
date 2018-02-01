@@ -14,8 +14,8 @@
         "start": "npm run build && node dist/server.js",
         "start:cloud": "npm run build:cloud && node dist/server.js",
         "start:dev": "npm run build:dev && cross-env DEBUG=* webpack --watch --config webpack.dev.config.js",
-        "test": "cross-env DEBUG=amadeusrelay:* mocha --opts \"./mocha.opts\"",
-        "test:coverage": "cross-env DEBUG=amadeusrelay:* nyc --require ts-node/register --require source-map-support/register mocha \"**/*.test.ts\""
+        "test": "cross-env DEBUG=amadeusrelay:TestLogger mocha --opts \"./mocha.opts\"",
+        "test:coverage": "cross-env DEBUG=amadeusrelay:TestLogger nyc --require ts-node/register --require source-map-support/register mocha \"**/*.test.ts\""
     },
     "repository": {
         "type": "git",
