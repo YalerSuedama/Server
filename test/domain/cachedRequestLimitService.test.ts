@@ -87,7 +87,10 @@ describe("CachedRequestLimitService", () => {
         it("should return a request limit with an expiration in one hour", async () => {
             const expirationWindow = moment().utc().add(testDuration).unix();
             const limit = await requestLimitService.getLimit(ip);
-            expect(limit).to.be.an("object").and.that.has.property("currentLimitExpiration", expirationWindow);
+            expect(limit).to.be.an("object").and.that.has.property("currentLimitExpiration");
+            
+            const duration = moment.duration(moment.unix(limit.currentLimitExpiration).utc().diff(moment().utc()));
+            expect(duration.asSeconds() - testDuration.asSeconds()).to.be.greaterThan(-1).and.to.be.lessThan(1);
         });
     });
 });
