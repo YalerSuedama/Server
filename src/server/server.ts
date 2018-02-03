@@ -13,40 +13,56 @@ import { RegisterRoutes } from "./middleware/routes/routes";
 import * as swaggerJSON from "./swagger/swagger.json";
 
 export class Server {
-    public expressServer: express.Application;
-    public expressDNSValidator: express.Application;
-    private isListeningServer: boolean = false;
-    private isListeningDNSValidator: boolean = false;
+    public expressServerHttps: express.Application;
+    public expressServerHttp: express.Application;
+    private isListeningHttps: boolean = false;
+    private isListeningHttp: boolean = false;
     private useDNSValidator: boolean;
+    private useHttps: boolean;
+    private useHttp: boolean;
     private logger: Logger;
 
     constructor() {
         this.logger = iocContainer.get<Logger>(TYPES.Logger);
         this.logger.setNamespace("Server");
-        this.expressServer = express();
-        this.configureServer(this.expressServer);
-        this.useDNSValidator = config.get("DNSValidator.active");
-        if (this.useDNSValidator) {
-            this.expressDNSValidator = express();
-            this.configureDNSValidator(this.expressDNSValidator);
+
+        this.useHttps = config.get("server.useHttps");
+        if (this.useHttps) {
+            this.expressServerHttps = express();
+            this.configureServer(this.expressServerHttps);
+            RegisterRoutes(this.expressServerHttps);
         }
-        RegisterRoutes(this.expressServer);
+
+        this.useDNSValidator = config.get("DNSValidator.active");
+        this.useHttp = config.get("server.useHttp");
+        if (this.useHttp || this.useDNSValidator) {
+            this.expressServerHttp = express();
+            if (this.useDNSValidator) {
+                this.configureDNSValidator(this.expressServerHttp);
+                RegisterRoutes(this.expressServerHttp);
+            }
+            if (this.useHttp) {
+                this.configureServer(this.expressServerHttp);
+            }
+        }
     }
 
     public start(): void {
-        this.startServer();
-        if (this.useDNSValidator) {
-            this.startDNSValidator();
+        if (this.useHttps) {
+            this.startHttps();
+        }
+        if (this.useHttp || this.useDNSValidator) {
+            this.startHttp();
         }
     }
 
-    private startServer(): void {
-        const port = parseInt(config.get("server.port"), 10);
+    private startHttps(): void {
+        const port = parseInt(config.get("server.port-https"), 10);
         let hostname: string = null;
         if (config.has("server.hostname")) {
             hostname = config.get("server.hostname") as string;
         }
-        if (this.isListeningServer) {
+        if (this.isListeningHttps) {
             throw new Error("Server is already started.");
         }
 
@@ -54,11 +70,11 @@ export class Server {
             key  : fs.readFileSync("ssl/backend.key"),
             cert : fs.readFileSync("ssl/backend.crt"),
             ca : [ fs.readFileSync("ssl/backendca.crt") ]},
-            this.expressServer).listen(port, hostname, (err: any) => {
+            this.expressServerHttps).listen(port, hostname, (err: any) => {
             if (err) {
                 throw err;
             }
-            this.isListeningServer = true;
+            this.isListeningHttps = true;
             const expressHost = server.address();
             this.logger.log(`
     ------------
@@ -69,26 +85,33 @@ export class Server {
         });
     }
 
-    private startDNSValidator(): void {
-        const port = parseInt(config.get("DNSValidator.port"), 10);
+    private startHttp(): void {
+        const port = parseInt(config.get("server.port-http"), 10);
         let hostname: string = null;
-        if (config.has("DNSValidator.hostname")) {
-            hostname = config.get("DNSValidator.hostname") as string;
+        if (config.has("server.hostname")) {
+            hostname = config.get("server.hostname") as string;
         }
-        if (this.isListeningDNSValidator) {
+        if (this.isListeningHttp) {
             throw new Error("Server is already started.");
         }
 
-        const server = this.expressDNSValidator.listen(port, hostname, (err: any) => {
+        const server = this.expressServerHttp.listen(port, hostname, (err: any) => {
             if (err) {
                 throw err;
             }
-            this.isListeningDNSValidator = true;
+            this.isListeningHttp = true;
             const expressHost = server.address();
             this.logger.log(`
-    ------------
-    DNS Validator started: http://${expressHost.address}:${expressHost.port}
     ------------`);
+            if (this.useHttp) {
+                this.logger.log(`    Server started: http://${expressHost.address}:${expressHost.port}
+    Health: http://${expressHost.address}:${expressHost.port}/ping
+    Swagger Spec: http://${expressHost.address}:${expressHost.port}/api-docs`);
+            }
+            if (this.useDNSValidator) {
+                this.logger.log(`    DNS Validator started: http://${expressHost.address}:${expressHost.port}`);
+            }
+            this.logger.log(`    ------------`);
         });
     }
 
@@ -110,8 +133,8 @@ export class Server {
     }
 
     private configureDNSValidator(app: express.Application): void {
-        this.logger.log("DNS checker called");
         app.get(config.get("DNSValidator.path"), (req, res) => {
+            this.logger.log("DNS checker called");
             res.send(config.get("DNSValidator.response"));
         });
     }

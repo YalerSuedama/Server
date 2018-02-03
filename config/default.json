@@ -9,14 +9,15 @@
     },
     "server": {
         "hostname": "0.0.0.0",
-        "port": 3001
+        "port-https": 3001,
+        "port-http": 3000,
+        "useHttp": true,
+        "useHttps": true
     },
     "DNSValidator": {
         "active": true,
         "path": "/.well-known/acme-challenge/BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU",
-        "response": "BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU.kfNcDmRcSJr-5Mrp7MX-dpuy6pIEM0lL1X4dbtcS4uM",
-        "hostname": "0.0.0.0",
-        "port": 3000
+        "response": "BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU.kfNcDmRcSJr-5Mrp7MX-dpuy6pIEM0lL1X4dbtcS4uM"
     },
     "amadeus": {
         "0x": {
