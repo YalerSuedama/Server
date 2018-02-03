@@ -39,10 +39,10 @@ export class Server {
             this.expressServerHttp = express();
             if (this.useDNSValidator) {
                 this.configureDNSValidator(this.expressServerHttp);
-                RegisterRoutes(this.expressServerHttp);
             }
             if (this.useHttp) {
                 this.configureServer(this.expressServerHttp);
+                RegisterRoutes(this.expressServerHttp);
             }
         }
     }
