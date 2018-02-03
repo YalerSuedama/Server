@@ -4,12 +4,20 @@
         "port": 80,
         "method": "POST",
         "url": "/collect",
-        // "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=b79c7265-0aaa-43c6-9309-840a02967c00&dh=kovan.amadeusrelay.org&dp="
+        // "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=b79c7265-0aaa-43c6-9309-840a02967c00&dh=api.amadeusrelay.org&dp="
         "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=994911df-4e73-4fc1-9480-266a2624fa8b&dh=localhost&dp="
     },
     "server": {
         "hostname": "0.0.0.0",
-        "port": 3000
+        "port-https": 3001,
+        "port-http": 3000,
+        "useHttp": true,
+        "useHttps": true
+    },
+    "DNSValidator": {
+        "active": true,
+        "path": "/.well-known/acme-challenge/BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU",
+        "response": "BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU.kfNcDmRcSJr-5Mrp7MX-dpuy6pIEM0lL1X4dbtcS4uM"
     },
     "amadeus": {
         "0x": {
@@ -50,9 +58,7 @@
             "GNT"
         ],
         // "wallet": "0xf14958eca9f5b341f74916aacfb6e3d2fb9a4a15",
-        // "wallet": "0x5409ed021d9299bf6814279a6a1411a7e866a631"
         "wallet": "0x6ecbe1db9ef729cbe972c83fb886247691fb6beb",
-        // "privateKey": "f2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d"
         "privateKey": "5d862464fe9303452126c8bc94274b8c5f9874cbd219789b3eb2128075a76f72"
     }
 }
