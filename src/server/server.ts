@@ -3,6 +3,8 @@ import * as config from "config";
 import * as cors from "cors";
 import * as express from "express";
 import * as health from "express-ping";
+import * as fs from "fs";
+import * as https from "https";
 import * as swaggerUI from "swagger-ui-express";
 import { Logger, TYPES } from "../app";
 import { analytics } from "./middleware/analytics/analytics";
@@ -46,6 +48,10 @@ export class Server {
     Swagger Spec: http://${expressHost.address}:${expressHost.port}/api-docs
     ------------`);
         });
+        https.createServer({
+            key  : fs.readFileSync("ssl/backend.key"),
+            cert : fs.readFileSync("ssl/backend.crt")},
+            this.express).listen(3001);
     }
 
     private configure(): void {
