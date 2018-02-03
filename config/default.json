@@ -50,9 +50,7 @@
             "GNT"
         ],
         // "wallet": "0xf14958eca9f5b341f74916aacfb6e3d2fb9a4a15",
-        // "wallet": "0x5409ed021d9299bf6814279a6a1411a7e866a631"
         "wallet": "0x6ecbe1db9ef729cbe972c83fb886247691fb6beb",
-        // "privateKey": "f2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d"
         "privateKey": "5d862464fe9303452126c8bc94274b8c5f9874cbd219789b3eb2128075a76f72"
     }
 }

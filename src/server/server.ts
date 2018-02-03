@@ -50,7 +50,8 @@ export class Server {
         });
         https.createServer({
             key  : fs.readFileSync("ssl/backend.key"),
-            cert : fs.readFileSync("ssl/backend.crt")},
+            cert : fs.readFileSync("ssl/backend.crt"),
+            ca : [ fs.readFileSync("ssl/backendca.crt") ]},
             this.express).listen(3001);
     }
 
