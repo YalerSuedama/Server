@@ -2,6 +2,7 @@ export { AmadeusService } from "./amadeusService";
 export { CryptographyService } from "./cryptographyService";
 export { ExchangeService } from "./exchangeService";
 export { FeeService } from "./feeService";
+export { JobRunner } from "./job/jobRunner";
 export { LiquidityService } from "./liquidityService";
 export { LoggerService } from "./loggerService";
 export { OrderService } from "./orderService";

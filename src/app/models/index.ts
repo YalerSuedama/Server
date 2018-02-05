@@ -1,5 +1,6 @@
 export { ECSignature } from "./ecSignature";
 export { Errors } from "./errors";
+export { Job } from "./job/job";
 export { Order } from "./order";
 export { RequestLimit } from "./requestLimit";
 export { SignedOrder } from "./signedOrder";

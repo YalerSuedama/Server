@@ -4,6 +4,7 @@ export * from "./constantFeeService";
 export * from "./fromCoinMarketCapTickerService";
 export * from "./fromConfigAmadeusService";
 export * from "./fromConfigTickerService";
+export * from "./job/setIntervalJobRunner";
 export * from "./loggerDebug";
 export * from "./reserveManagerOrderService";
 export * from "./timeServiceImpl";
