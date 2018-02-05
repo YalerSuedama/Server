@@ -45,8 +45,7 @@ const stubTickerService: TickerService = {
     getTicker: (tokenFrom: Token, tokenTo: Token) => Promise.resolve({
         from: tokenFrom,
         to: tokenTo,
-        bid: new BigNumber(1),
-        ask: new BigNumber(1.01),
+        price: new BigNumber(1.01),
     }),
 };
 

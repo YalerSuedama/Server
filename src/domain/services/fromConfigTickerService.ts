@@ -13,19 +13,16 @@ export class FromConfigTickerService implements TickerService {
             return Promise.resolve({
                 from: tokenFrom,
                 to: tokenTo,
-                bid: new BigNumber(config.get(`${key}.bid`) as string),
-                ask: new BigNumber(config.get(`${key}.ask`) as string),
+                price: new BigNumber(config.get(`${key}.price`) as string),
             });
         }
         const reversedKey = `amadeus.ticker.${tokenTo.symbol}-${tokenFrom.symbol}`;
         if (config.has(reversedKey)) {
-            const bid = new BigNumber(config.get(`${reversedKey}.bid`));
-            const ask = new BigNumber(config.get(`${reversedKey}.ask`));
+            const price = new BigNumber(config.get(`${reversedKey}.price`));
             return Promise.resolve({
                 from: tokenFrom,
                 to: tokenTo,
-                bid: new BigNumber(1).dividedBy(bid),
-                ask: new BigNumber(1).dividedBy(ask),
+                price: new BigNumber(1).dividedBy(price),
             });
         }
         return null;

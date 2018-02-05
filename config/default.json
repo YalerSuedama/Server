@@ -25,29 +25,27 @@
         },
         "liquidityPercentage": 0.02,
         "ticker": {
+            "WETH": "ethereum",
+            "GNT": "golem",
+            "REP": "augur",
+            "ZRX": "0x",
             "WETH-GNT": {
-                "bid": 1,
-                "ask": 1500
+                "price": 1500
             },
             "WETH-REP": {
-                "bid": 1,
-                "ask": 12.93
+                "price": 12.93
             },
             "WETH-ZRX": {
-                "bid": 1,
-                "ask": 1700
+                "price": 1700
             },
             "GNT-ZRX": {
-                "bid": 1,
-                "ask": 1.13175
+                "price": 1.13175
             },
             "GNT-REP": {
-                "bid": 1,
-                "ask": 0.00877
+                "price": 0.00877
             },
             "REP-ZRX": {
-                "bid": 1,
-                "ask": 158
+                "price": 158
             }
         },
         "tradableTokens": [
