@@ -4,15 +4,10 @@ import * as moment from "moment";
 import "reflect-metadata";
 import { RequestLimitService } from "../../src/app";
 import { CachedRequestLimitService } from "../../src/domain";
+import { delay } from "../util";
 
 const should = chai.should();
 const expect = chai.expect;
-
-async function delay(milliseconds: number) {
-    return new Promise<void>((resolve) => {
-        setTimeout(resolve, milliseconds);
-    });
-}
 
 class WithConstructorParamsCachedRequestLimitService extends CachedRequestLimitService {
     constructor(maximumLimitForTest: number, expirationTimeWindowForTest: moment.Duration) {

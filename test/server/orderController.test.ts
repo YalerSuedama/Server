@@ -6,12 +6,10 @@ import * as sinonChai from "sinon-chai";
 import { ValidateError } from "tsoa";
 import { OrderService, TYPES, ValidationService } from "../../src/app";
 import { OrderController } from "../../src/server/controllers/orderController";
+import { stubOrderService } from "../stubs";
+import { createContainer } from "../stubs/util";
 
 use(sinonChai);
-
-const orderServiceStub: OrderService = {
-    listOrders: (tokenA?: string, tokenB?: string, makerTokenAddress?: string, takerTokenAddress?: string) => Promise.resolve(null),
-};
 
 let shouldValidateFalse = false;
 
@@ -19,12 +17,12 @@ const validationServiceStub: ValidationService = {
     isAddress: (address: string) => !shouldValidateFalse,
 };
 
-const iocContainer = new Container();
-iocContainer.bind<OrderController>(OrderController).toSelf();
-iocContainer.bind<OrderService>(TYPES.OrderService).toConstantValue(orderServiceStub);
-iocContainer.bind<ValidationService>(TYPES.ValidationService).toConstantValue(validationServiceStub);
-
 describe("OrderController", () => {
+    const iocContainer = createContainer(false, stubOrderService, (c: Container) => {
+        c.bind<OrderController>(OrderController).toSelf();
+        c.bind<ValidationService>(TYPES.ValidationService).toConstantValue(validationServiceStub);
+    });
+
     describe(".listOrders", () => {
         let spy: sinon.SinonSpy;
         const parameter = "VALUE";

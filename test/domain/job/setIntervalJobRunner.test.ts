@@ -6,14 +6,9 @@ import * as sinon from "sinon";
 import { JobRunner } from "../../../src/app";
 import { Job } from "../../../src/app/models";
 import { SetIntervalJobRunner } from "../../../src/domain";
+import { delay } from "../../util";
 
 const expect = chai.expect;
-
-async function delay(milliseconds: number) {
-    return new Promise<void>((resolve) => {
-        setTimeout(resolve, milliseconds);
-    });
-}
 
 describe("JobRunner", () => {
     let jobRunner: SetIntervalJobRunner;

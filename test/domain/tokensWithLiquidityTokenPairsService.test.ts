@@ -2,10 +2,10 @@ import { BigNumber } from "bignumber.js";
 import * as chai from "chai";
 import { Container, interfaces } from "inversify";
 import "reflect-metadata";
-import { LiquidityService, LoggerService, PaginationService, TickerService, TokenPairsService, TokenService, TYPES } from "../../src/app";
-import { Ticker, Token, TokenPool } from "../../src/app/models";
-import { LoggerDebug } from "../../src/domain/services/loggerDebug";
+import { LoggerService, TokenPairsService, TYPES } from "../../src/app";
 import { TokensWithLiquidityTokenPairsService } from "../../src/domain/services/tokensWithLiquidityTokenPairsService";
+import { stubLiquidityService, stubTickerService, stubTokenService } from "../stubs";
+import { createContainer, createToken, DEFAULT_ADDRESS, TOKENS } from "../stubs/util";
 
 const chaiSubsetLoader = () => require("chai-subset");
 const chaiThingsLoader = () => require("chai-things");
@@ -14,49 +14,10 @@ chai.use(chaiThingsLoader());
 const should = chai.should();
 const expect = chai.expect;
 
-const DEFAULT_ADDRESS = "0x0000000000000000000000000000000000000";
-const TOKENS = ["TK1", "TK2", "TK3"];
-
-function createToken(symbol: string): Token {
-    return {
-        address: DEFAULT_ADDRESS + symbol,
-        symbol,
-        decimals: 18,
-    };
-}
-
-const stubTokenService: TokenService = {
-    getToken: (symbol: string) => Promise.resolve(createToken(symbol)),
-    getTokenByAddress: (address: string) => Promise.resolve(TOKENS.map((symbol) => createToken(symbol)).find((token) => token.address === address)),
-    listAllTokens: () => Promise.resolve(TOKENS.map((symbol) => createToken(symbol))),
-};
-
-const stubLiquidityService: LiquidityService = {
-    getAvailableAmount: (token: Token) => Promise.resolve({
-        token,
-        availableAmount: new BigNumber(10),
-        maximumAmount: new BigNumber(10),
-        minimumAmount: new BigNumber(0),
-        precision: 5,
-    }),
-};
-
-const stubTickerService: TickerService = {
-    getTicker: (tokenFrom: Token, tokenTo: Token) => Promise.resolve({
-        from: tokenFrom,
-        to: tokenTo,
-        price: new BigNumber(1.01),
-    }),
-};
-
 describe("TokensWithLiquidityTokenPairsService", () => {
-    const iocContainer = new Container({ defaultScope: "Singleton" });
-    iocContainer.bind<TokenPairsService>(TYPES.TokenPairsService).to(TokensWithLiquidityTokenPairsService);
-    iocContainer.bind<LiquidityService>(TYPES.LiquidityService).toConstantValue(stubLiquidityService);
-    iocContainer.bind<TickerService>(TYPES.TickerService).toConstantValue(stubTickerService);
-    iocContainer.bind<TokenService>(TYPES.TokenService).toConstantValue(stubTokenService);
-    iocContainer.bind<LoggerService>(TYPES.LoggerService).to(LoggerDebug);
-    iocContainer.bind(PaginationService).toSelf();
+    const iocContainer = createContainer(true, stubLiquidityService, stubTickerService, stubTokenService, (c: Container) => {
+        c.bind<TokenPairsService>(TYPES.TokenPairsService).to(TokensWithLiquidityTokenPairsService);
+    });
 
     it("should not return the same token as tokenA and tokenB", async () => {
         const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs();

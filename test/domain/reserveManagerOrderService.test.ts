@@ -2,10 +2,10 @@ import { BigNumber } from "bignumber.js";
 import * as chai from "chai";
 import { Container, interfaces } from "inversify";
 import "reflect-metadata";
-import { AmadeusService, CryptographyService, ExchangeService, FeeService, LoggerService, OrderService, PaginationService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../src/app";
-import { Order, Token, TokenPairTradeInfo } from "../../src/app/models";
-import { LoggerDebug } from "../../src/domain/services/loggerDebug";
+import { AmadeusService, OrderService, TokenPairsService, TYPES } from "../../src/app";
 import { ReserveManagerOrderService } from "../../src/domain/services/reserveManagerOrderService";
+import { stubAmadeusService, stubCryptographyService, stubExchangeService, stubFeeService, stubSaltService, stubTickerService, stubTimeService, stubTokenPairsService, stubTokenService } from "../stubs";
+import { createContainer, createToken, DEFAULT_ADDRESS, TOKENS } from "../stubs/util";
 
 const chaiSubsetLoader = () => require("chai-subset");
 const chaiThingsLoader = () => require("chai-things");
@@ -14,115 +14,10 @@ chai.use(chaiThingsLoader());
 const should = chai.should();
 const expect = chai.expect;
 
-const DEFAULT_ADDRESS = "0x0000000000000000000000000000000000000";
-const TOKENS = ["TK1", "TK2", "TK3"];
-
-function createToken(symbol: string): Token {
-    return {
-        address: DEFAULT_ADDRESS + symbol,
-        symbol,
-        decimals: 18,
-    };
-}
-const stubAmadeusService: AmadeusService = {
-    getFeeAddress: () => DEFAULT_ADDRESS + "FEE",
-    getMainAddress: () => DEFAULT_ADDRESS + "ADD",
-};
-
-const stubCryptographyService: CryptographyService = {
-    signOrder: (order: Order) => Promise.resolve(Object.assign({
-        ecSignature: {
-            v: 1,
-            r: "",
-            s: "",
-        },
-    }, order)),
-};
-
-const stubExchangeService: ExchangeService = {
-    get0xContractAddress: () => Promise.resolve(DEFAULT_ADDRESS + "ZRX"),
-    getBalance: (address: string, token?: Token) => Promise.resolve(new BigNumber(1)),
-    ensureAllowance: (amount: BigNumber, tokenAddress: string, spenderAddress: string) => Promise.resolve(),
-};
-
-const stubFeeService: FeeService = {
-    getMakerFee: (token?: Token) => Promise.resolve(new BigNumber(0)),
-    getTakerFee: (token?: Token) => Promise.resolve(new BigNumber(0)),
-    getFeeRecipient: (token?: Token) => Promise.resolve(DEFAULT_ADDRESS + "FEE"),
-};
-
-const stubTokenPairsService: TokenPairsService = {
-    listPairs: (tokenA?: string, tokenB?: string) => {
-        const tokens = TOKENS.map((token) => createToken(token));
-        let pairs: TokenPairTradeInfo[] = [];
-        for (const token of tokens) {
-            for (const tokenTo of tokens) {
-                if (tokenTo !== token) {
-                    pairs.push({
-                        tokenA: {
-                            address: token.address,
-                            minAmount: "0",
-                            maxAmount: "1",
-                            precision: 1,
-                        },
-                        tokenB: {
-                            address: tokenTo.address,
-                            minAmount: "0",
-                            maxAmount: "1",
-                            precision: 1,
-                        },
-                    });
-                }
-            }
-        }
-        if (tokenA) {
-            const token = tokens.find((t) => t.symbol === tokenA);
-            pairs = pairs.filter((pair) => pair.tokenA.address === token.address || pair.tokenB.address === token.address);
-        }
-        if (tokenB) {
-            const token = tokens.find((t) => t.symbol === tokenB);
-            pairs = pairs.filter((pair) => pair.tokenA.address === token.address || pair.tokenB.address === token.address);
-        }
-        return Promise.resolve(pairs);
-    },
-};
-
-const stubSaltService: SaltService = {
-    getSalt: () => Promise.resolve("SALT"),
-};
-
-const stubTickerService: TickerService = {
-    getTicker: (tokenFrom: Token, tokenTo: Token) => Promise.resolve({
-        from: tokenFrom,
-        to: tokenTo,
-        price: new BigNumber(TOKENS.findIndex((token) => token === tokenFrom.symbol)),
-    }),
-};
-
-const stubTimeService: TimeService = {
-    getExpirationTimestamp: () => "1",
-};
-
-const stubTokenService: TokenService = {
-    getToken: (symbol: string) => Promise.resolve(createToken(symbol)),
-    getTokenByAddress: (address: string) => Promise.resolve(TOKENS.map((symbol) => createToken(symbol)).find((token) => token.address === address)),
-    listAllTokens: () => Promise.resolve(TOKENS.map((symbol) => createToken(symbol))),
-};
-
 describe("ReserveManagerOrderService", () => {
-    const iocContainer = new Container({ defaultScope: "Singleton" });
-    iocContainer.bind<OrderService>(TYPES.OrderService).to(ReserveManagerOrderService);
-    iocContainer.bind<AmadeusService>(TYPES.AmadeusService).toConstantValue(stubAmadeusService);
-    iocContainer.bind<CryptographyService>(TYPES.CryptographyService).toConstantValue(stubCryptographyService);
-    iocContainer.bind<ExchangeService>(TYPES.ExchangeService).toConstantValue(stubExchangeService);
-    iocContainer.bind<FeeService>(TYPES.FeeService).toConstantValue(stubFeeService);
-    iocContainer.bind<TokenPairsService>(TYPES.TokenPairsService).toConstantValue(stubTokenPairsService);
-    iocContainer.bind<SaltService>(TYPES.SaltService).toConstantValue(stubSaltService);
-    iocContainer.bind<TickerService>(TYPES.TickerService).toConstantValue(stubTickerService);
-    iocContainer.bind<TimeService>(TYPES.TimeService).toConstantValue(stubTimeService);
-    iocContainer.bind<TokenService>(TYPES.TokenService).toConstantValue(stubTokenService);
-    iocContainer.bind<LoggerService>(TYPES.LoggerService).to(LoggerDebug);
-    iocContainer.bind(PaginationService).toSelf();
+    const iocContainer = createContainer(true, stubAmadeusService, stubCryptographyService, stubExchangeService, stubFeeService, stubTokenPairsService, stubSaltService, stubTickerService, stubTimeService, stubTokenService, (c: Container) => {
+        c.bind<OrderService>(TYPES.OrderService).to(ReserveManagerOrderService);
+    });
 
     context("when exchangeContractAddress is informed", () => {
         it("should not return orders when it differs from current 0x contract address", async () => {
@@ -173,8 +68,8 @@ describe("ReserveManagerOrderService", () => {
     context("when maker is informed", () => {
         context("as the Amadeus address", async () => {
             it("should return all orders", async () => {
-                const makerAddress = stubAmadeusService.getMainAddress();
-                const expectedLength = (await stubTokenPairsService.listPairs()).length;
+                const makerAddress = iocContainer.get<AmadeusService>(TYPES.AmadeusService).getMainAddress();
+                const expectedLength = (await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs()).length;
                 const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, makerAddress);
                 returned.should.all.have.property("maker", makerAddress);
                 expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
@@ -194,7 +89,7 @@ describe("ReserveManagerOrderService", () => {
             it("should return all orders", async () => {
                 const nullAddressSymbol = "000";
                 const takerAddress = DEFAULT_ADDRESS + nullAddressSymbol;
-                const expectedLength = (await stubTokenPairsService.listPairs()).length;
+                const expectedLength = (await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs()).length;
                 const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, takerAddress);
                 returned.should.all.have.property("taker", takerAddress);
                 expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
@@ -213,8 +108,8 @@ describe("ReserveManagerOrderService", () => {
     context("when trader is informed", () => {
         context("as the Amadeus address", async () => {
             it("should return all orders", async () => {
-                const traderAddress = stubAmadeusService.getMainAddress();
-                const expectedLength = (await stubTokenPairsService.listPairs()).length;
+                const traderAddress = iocContainer.get<AmadeusService>(TYPES.AmadeusService).getMainAddress();
+                const expectedLength = (await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs()).length;
                 const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, traderAddress);
                 returned.should.all.have.property("maker", traderAddress);
                 expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
@@ -224,7 +119,7 @@ describe("ReserveManagerOrderService", () => {
             it("should return all orders", async () => {
                 const nullAddressSymbol = "000";
                 const traderAddress = DEFAULT_ADDRESS + nullAddressSymbol;
-                const expectedLength = (await stubTokenPairsService.listPairs()).length;
+                const expectedLength = (await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs()).length;
                 const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, traderAddress);
                 returned.should.all.have.property("taker", traderAddress);
                 expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
@@ -243,8 +138,8 @@ describe("ReserveManagerOrderService", () => {
     context("When feeRecipient is informed", () => {
         context("As the Amadeus fee address", () => {
             it("should return all orders", async () => {
-                const feeAddress = stubAmadeusService.getFeeAddress();
-                const expectedLength = (await stubTokenPairsService.listPairs()).length;
+                const feeAddress = iocContainer.get<AmadeusService>(TYPES.AmadeusService).getFeeAddress();
+                const expectedLength = (await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs()).length;
                 const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, undefined, feeAddress);
                 returned.should.all.have.property("feeRecipient", feeAddress);
                 expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
