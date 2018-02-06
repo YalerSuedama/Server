@@ -24,36 +24,52 @@
             "etherTokenContractAddress": "0xd0a1e359811322d97991e03f863a0c30c2cf029c"
         },
         "liquidityPercentage": 0.02,
+        "tokens": [
+            {
+                "symbol": "WETH",
+                "identifier": "ethereum"
+            },
+            {
+                "symbol": "GNT",
+                "identifier": "golem"
+            },
+            {
+                "symbol": "REP",
+                "identifier": "augur"
+            },
+            {
+                "symbol": "ZRX",
+                "identifier": "0x"
+            }
+        ],
         "ticker": {
-            "WETH": "ethereum",
-            "GNT": "golem",
-            "REP": "augur",
-            "ZRX": "0x",
-            "WETH-GNT": {
-                "price": 1500
+            "cache": {
+                "ttl": {
+                    "value": 5,
+                    "unit": "minutes"
+                }
             },
-            "WETH-REP": {
-                "price": 12.93
-            },
-            "WETH-ZRX": {
-                "price": 1700
-            },
-            "GNT-ZRX": {
-                "price": 1.13175
-            },
-            "GNT-REP": {
-                "price": 0.00877
-            },
-            "REP-ZRX": {
-                "price": 158
+            "fixedPairs": {
+                "WETH-GNT": {
+                    "price": 1500
+                },
+                "WETH-REP": {
+                    "price": 12.93
+                },
+                "WETH-ZRX": {
+                    "price": 1700
+                },
+                "GNT-ZRX": {
+                    "price": 1.13175
+                },
+                "GNT-REP": {
+                    "price": 0.00877
+                },
+                "REP-ZRX": {
+                    "price": 158
+                }
             }
         },
-        "tradableTokens": [
-            "WETH",
-            "REP",
-            "ZRX",
-            "GNT"
-        ],
         // "wallet": "0xf14958eca9f5b341f74916aacfb6e3d2fb9a4a15",
         // "wallet": "0x5409ed021d9299bf6814279a6a1411a7e866a631"
         "wallet": "0x6ecbe1db9ef729cbe972c83fb886247691fb6beb",

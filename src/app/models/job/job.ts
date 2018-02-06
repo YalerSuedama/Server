@@ -1,7 +1,7 @@
 import * as moment from "moment";
 
 export interface Job {
-    name: string;
-    interval?: moment.Duration;
-    task: () => Promise<void>;
+    getName(): string;
+    getInterval(): moment.Duration;
+    doTask(): Promise<void>;
 }
