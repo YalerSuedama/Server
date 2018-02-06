@@ -17,8 +17,9 @@ export class SetIntervalJobRunner implements JobRunner {
     }
 
     public async stop(job: Job): Promise<boolean> {
-        if (this.intervals[job.getName()]) {
+        if (this.intervals.hasOwnProperty(job.getName())) {
             clearInterval(this.intervals[job.getName()]);
+            delete this.intervals[job.getName()];
             return true;
         }
         return false;
@@ -26,8 +27,9 @@ export class SetIntervalJobRunner implements JobRunner {
 
     public async stopAll(): Promise<boolean> {
         for (const intervalName in this.intervals) {
-            if (Object.hasOwnProperty(intervalName)) {
+            if (this.intervals.hasOwnProperty(intervalName)) {
                 clearInterval(this.intervals[intervalName]);
+                delete this.intervals[intervalName];
             }
         }
         return true;
