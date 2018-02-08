@@ -29,6 +29,7 @@
         "iocModule": "./src/server/middleware/iocContainer"
     },
     "ignore": [
-        "**/node_modules/0x.js/**/*"
+        "**/node_modules/0x.js/**/*",
+        "**/node_modules/@0xproject/**/*"
     ]
 }
