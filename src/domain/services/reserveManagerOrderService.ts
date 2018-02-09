@@ -47,20 +47,13 @@ export class ReserveManagerOrderService implements OrderService {
         const currentContractAddress = await this.exchangeService.get0xContractAddress();
         const feeRecipientAddress = this.amadeusService.getFeeAddress();
         const makerAddress = this.amadeusService.getMainAddress();
+        const takerAddress = taker || trader;
         if (exchangeContractAddress && exchangeContractAddress !== currentContractAddress) {
             this.logger.log("Asked for exchange contract address %s but currently we support %s.", exchangeContractAddress, currentContractAddress);
             return [];
         }
         if (maker && maker !== makerAddress) {
             this.logger.log("Asked for maker address %s but currently we support %s.", maker, makerAddress);
-            return [];
-        }
-        if (taker && taker !== Utils.ZERO_ADDRESS) {
-            this.logger.log("Asked for taker address %s but currently we support %s.", taker, Utils.ZERO_ADDRESS);
-            return [];
-        }
-        if (trader && trader !== makerAddress && trader !== Utils.ZERO_ADDRESS) {
-            this.logger.log("Asked for trader address %s but currently we support %s as maker and %s as trader.", trader, makerAddress, Utils.ZERO_ADDRESS);
             return [];
         }
         if (feeRecipient && feeRecipient !== feeRecipientAddress) {
@@ -82,7 +75,7 @@ export class ReserveManagerOrderService implements OrderService {
             this.logger.log("Filtered pairs for takerTokenAddress %s: %o.", takerTokenAddress, pairs);
         }
 
-        let orders = await Promise.all(pairs.map((pair) => this.createSignedOrderFromTokenPair(pair, currentContractAddress, makerAddress, feeRecipientAddress)));
+        let orders = await Promise.all(pairs.map((pair) => this.createSignedOrderFromTokenPair(pair, currentContractAddress, makerAddress, takerAddress, feeRecipientAddress)));
         this.logger.log("Found orders: %o.", orders);
         if (makerTokenAddress && takerTokenAddress) {
             orders = orders.sort((first, second) => {
@@ -98,7 +91,7 @@ export class ReserveManagerOrderService implements OrderService {
         return orders;
     }
 
-    private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo, exchangeContractAddress: string, maker: string, feeRecipient: string): Promise<SignedOrder> {
+    private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo, exchangeContractAddress: string, maker: string, taker: string, feeRecipient: string): Promise<SignedOrder> {
         this.ensureAllowance(new BigNumber(pair.tokenA.maxAmount), pair.tokenA.address, maker);
 
         const ticker: Ticker = await this.tickerService.getTicker(await this.tokenService.getTokenByAddress(pair.tokenA.address), await this.tokenService.getTokenByAddress(pair.tokenB.address));
@@ -111,7 +104,7 @@ export class ReserveManagerOrderService implements OrderService {
             makerTokenAddress: ticker.from.address,
             makerTokenAmount: pair.tokenA.maxAmount.toString(),
             salt: await this.saltService.getSalt(),
-            taker: Utils.ZERO_ADDRESS,
+            taker: taker || Utils.ZERO_ADDRESS,
             takerFee: (await this.feeService.getTakerFee(ticker.to)).toString(),
             takerTokenAddress: ticker.to.address,
             takerTokenAmount: new BigNumber(pair.tokenA.maxAmount).mul(ticker.price).floor().toString(),

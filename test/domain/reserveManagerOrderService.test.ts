@@ -86,7 +86,7 @@ describe("ReserveManagerOrderService", () => {
     });
     context("when taker is informed", () => {
         context("as the null address", () => {
-            it("should return all orders", async () => {
+            it("should return all orders with the taker filled with the Zero address", async () => {
                 const nullAddressSymbol = "000";
                 const takerAddress = DEFAULT_ADDRESS + nullAddressSymbol;
                 const expectedLength = (await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs()).length;
@@ -96,12 +96,13 @@ describe("ReserveManagerOrderService", () => {
             });
         });
         context("as NOT the null address", () => {
-            it("should not return any order", async () => {
+            it("should return all orders with the taker address filled with the taker", async () => {
                 const takerSymbol = TOKENS[0];
                 const takerAddress = DEFAULT_ADDRESS + takerSymbol;
+                const expectedLength = (await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs()).length;
                 const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, takerAddress);
-                // tslint:disable-next-line:no-unused-expression
-                expect(returned).to.be.an("array").that.is.empty;
+                returned.should.all.have.property("taker", takerAddress);
+                expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
             });
         });
     });
@@ -116,7 +117,7 @@ describe("ReserveManagerOrderService", () => {
             });
         });
         context("as the null address", () => {
-            it("should return all orders", async () => {
+            it("should return all orders with the taker address filled with the Zero address", async () => {
                 const nullAddressSymbol = "000";
                 const traderAddress = DEFAULT_ADDRESS + nullAddressSymbol;
                 const expectedLength = (await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs()).length;
@@ -126,12 +127,13 @@ describe("ReserveManagerOrderService", () => {
             });
         });
         context("as NOT the Amadeus address NOR the null address", () => {
-            it("should not return any order", async () => {
+            it("should return orders with the taker address filled with the trader", async () => {
                 const traderSymbol = TOKENS[0];
                 const traderAddress = DEFAULT_ADDRESS + traderSymbol;
+                const expectedLength = (await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs()).length;
                 const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, undefined, undefined, undefined, undefined, traderAddress);
-                // tslint:disable-next-line:no-unused-expression
-                expect(returned).to.be.an("array").that.is.empty;
+                returned.should.all.have.property("taker", traderAddress);
+                expect(returned).to.be.an("array").that.has.lengthOf(expectedLength);
             });
         });
     });
