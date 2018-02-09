@@ -15,8 +15,8 @@ export class FromRelayerTickerService implements TickerService {
 
     constructor( @inject(TYPES.LoggerService) private logger: LoggerService) {
         this.logger.setNamespace("fromrelayertickerservice");
-        // this.httpClient = new HttpClient("https://api.radarrelay.com/0x/v0/");
-        this.httpClient = new HttpClient("https://api.ercdex.com/api/standard/1/v0/");
+        this.httpClient = new HttpClient("https://api.radarrelay.com/0x/v0/");
+        // this.httpClient = new HttpClient("https://api.ercdex.com/api/standard/1/v0/");
     }
 
     public async getTicker(tokenFrom: Token, tokenTo: Token): Promise<Ticker> {
@@ -27,10 +27,11 @@ export class FromRelayerTickerService implements TickerService {
             this.logger.log("Token pair %s-%s was not on cache. Getting from relayer.", tokenFrom.symbol, tokenTo.symbol);
             value = await this.getFromRelayer(tokenFrom, tokenTo);
 
-            if (value === null) {
-                throw new Error(`Could not get the ticker from relayer to token pair ${tokenFrom.symbol}-${tokenTo.symbol}`);
-            }
             await FromRelayerTickerService.CachedTickers.setItem(`${tokenFrom.symbol}-${tokenTo.symbol}`, value, { ttl: moment.duration(5, "minutes").asSeconds() });
+        }
+
+        if (value == null) {
+            return null;
         }
         return {
             from: tokenFrom,
@@ -41,11 +42,9 @@ export class FromRelayerTickerService implements TickerService {
 
     private async getFromRelayer(tokenFrom: Token, tokenTo: Token): Promise<BigNumber> {
         try {
-            const tokenFromAddress = config.get<string>(`amadeus.relayerticker.${tokenFrom.symbol}`);
-            const tokenToAddress = config.get<string>(`amadeus.relayerticker.${tokenTo.symbol}`);
             const ordersRequest: OrdersRequest = {
-                makerTokenAddress: tokenFromAddress,
-                takerTokenAddress: tokenToAddress,
+                makerTokenAddress: this.getTokenAddress(tokenFrom),
+                takerTokenAddress: this.getTokenAddress(tokenTo),
             };
 
             const orders: SignedOrder[] = await this.httpClient.getOrdersAsync(ordersRequest);
@@ -56,6 +55,13 @@ export class FromRelayerTickerService implements TickerService {
             this.logger.log("error trying to get ticker %s-%s from relayer: %o", tokenFrom.symbol, tokenTo.symbol, e);
         }
 
-        return new BigNumber(1);
+        return null;
+    }
+
+    private getTokenAddress(token: Token): string {
+        if (config.get<boolean>("amadeus.relayerticker.useTokenAddress")) {
+            return token.address;
+        }
+        return config.get<string>(`amadeus.relayerticker.${token.symbol}`);
     }
 }

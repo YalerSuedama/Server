@@ -49,10 +49,15 @@
             }
         },
         "relayerticker": {
+            "useTokenAddress" : false,
             "WETH": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
             "GNT": "0xa74476443119A942dE498590Fe1f2454d7D4aC0d",
             "REP": "0xe94327d07fc17907b4db788e5adf2ed424addff6",
-            "ZRX": "0xe41d2489571d322189246dafa5ebde1f4699f498"
+            "ZRX": "0xe41d2489571d322189246dafa5ebde1f4699f498",
+            "urls": [
+                "https://api.radarrelay.com/0x/v0/",
+                "https://api.ercdex.com/api/standard/1/v0/" 
+            ]
         },
         "tradableTokens": [
             "WETH",
