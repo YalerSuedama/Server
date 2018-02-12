@@ -35,15 +35,15 @@ export class Server {
 
         this.useDNSValidator = config.get("DNSValidator.active");
         this.useHttp = config.get("server.useHttp");
-        if (this.useHttp || this.useDNSValidator) {
-            this.expressServerHttp = express();
-            if (this.useDNSValidator) {
-                this.configureDNSValidator(this.expressServerHttp);
-            }
-            if (this.useHttp) {
-                this.configureServer(this.expressServerHttp);
-                RegisterRoutes(this.expressServerHttp);
-            }
+        this.expressServerHttp = express();
+        if (this.useDNSValidator) {
+            this.configureDNSValidator(this.expressServerHttp);
+        }
+        if (this.useHttp) {
+            this.configureServer(this.expressServerHttp);
+            RegisterRoutes(this.expressServerHttp);
+        } else if (this.useHttps) {
+            this.configureRedirect(this.expressServerHttp);
         }
     }
 
@@ -51,9 +51,7 @@ export class Server {
         if (this.useHttps) {
             this.startHttps();
         }
-        if (this.useHttp || this.useDNSValidator) {
-            this.startHttp();
-        }
+        this.startHttp();
     }
 
     private startHttps(): void {
@@ -107,6 +105,8 @@ export class Server {
                 this.logger.log(`    Server started: http://${expressHost.address}:${expressHost.port}
     Health: http://${expressHost.address}:${expressHost.port}/ping
     Swagger Spec: http://${expressHost.address}:${expressHost.port}/api-docs`);
+            } else if (this.useHttps) {
+                this.logger.log(`    Redirect Server started: http://${expressHost.address}:${expressHost.port}`);
             }
             if (this.useDNSValidator) {
                 this.logger.log(`    DNS Validator started: http://${expressHost.address}:${expressHost.port}`);
@@ -136,6 +136,19 @@ export class Server {
         app.get(config.get("DNSValidator.path"), (req, res) => {
             this.logger.log("DNS checker called");
             res.send(config.get("DNSValidator.response"));
+        });
+    }
+
+    private configureRedirect(app: express.Application): void {
+        app.get("*", (req, res) => {
+            this.logger.log("Http redirect called");
+            const httpPort = ":" + parseInt(config.get("server.port-http"), 10);
+            const httpsPort = ":" + parseInt(config.get("server.port-https"), 10);
+            let host = req.headers.host;
+            if (req.headers.host.toString().indexOf(httpPort) > - 1) {
+                host = host.toString().replace(httpPort, httpsPort);
+            }
+            res.redirect("https://" + host + req.url);
         });
     }
 }
