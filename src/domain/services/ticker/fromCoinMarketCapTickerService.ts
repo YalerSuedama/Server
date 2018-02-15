@@ -24,8 +24,8 @@ export class FromCoinMarketCapTickerService implements TickerService {
         this.logger.log("Found price for %s-%s as %s", tokenFrom.symbol, tokenTo.symbol, price.toString());
         return {
             from: tokenFrom,
-            to: tokenTo,
             price,
+            to: tokenTo,
         };
     }
 

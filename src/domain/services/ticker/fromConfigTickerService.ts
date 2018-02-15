@@ -12,8 +12,8 @@ export class FromConfigTickerService implements TickerService {
         if (config.has(key)) {
             return Promise.resolve({
                 from: tokenFrom,
-                to: tokenTo,
                 price: new BigNumber(config.get(`${key}.price`) as string),
+                to: tokenTo,
             });
         }
         const reversedKey = `amadeus.ticker.fixedPairs.${tokenTo.symbol}-${tokenFrom.symbol}`;
@@ -21,8 +21,8 @@ export class FromConfigTickerService implements TickerService {
             const price = new BigNumber(config.get(`${reversedKey}.price`));
             return Promise.resolve({
                 from: tokenFrom,
-                to: tokenTo,
                 price: new BigNumber(1).dividedBy(price),
+                to: tokenTo,
             });
         }
         return null;

@@ -37,8 +37,8 @@ export class FromRelayerTickerService implements TickerService {
         this.logger.log("Found price of %s for ticker %s from relayer %s.", value.toString(), tickerSymbol, this.url);
         return {
             from: tokenFrom,
-            to: tokenTo,
             price: value,
+            to: tokenTo,
         };
     }
 
