@@ -3,6 +3,8 @@ import * as config from "config";
 import * as cors from "cors";
 import * as express from "express";
 import * as health from "express-ping";
+import * as fs from "fs";
+import * as https from "https";
 import * as swaggerUI from "swagger-ui-express";
 import { ValidateError } from "tsoa";
 import { LoggerService, TYPES } from "../app";
@@ -14,14 +16,19 @@ import { RegisterRoutes } from "./middleware/routes/routes";
 import * as swaggerJSON from "./swagger/swagger.json";
 
 export class Server {
-    public express: express.Application;
+    protected express: express.Application;
+    protected logger: LoggerService;
     private isListening: boolean = false;
-    private logger: LoggerService;
+    private useHttps: boolean;
 
-    constructor() {
+    constructor(useHttps: boolean) {
+        this.useHttps = useHttps;
         this.express = express();
         this.logger = iocContainer.get<LoggerService>(TYPES.LoggerService);
         this.logger.setNamespace("Server");
+        if (config.get<boolean>("server.dnsValidator.active")) {
+            this.configureDnsValidator();
+        }
         this.configure();
         RegisterRoutes(this.express);
         this.express.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -32,7 +39,7 @@ export class Server {
     }
 
     public start(): void {
-        const port: number = config.get("server.port");
+        const port: number = config.get(`server.port-${this.useHttps ? "https" : "http"}`);
         let hostname: string = null;
         if (config.has("server.hostname")) {
             hostname = config.get("server.hostname") as string;
@@ -41,7 +48,13 @@ export class Server {
             throw new Error("Server is already started.");
         }
 
-        const server = this.express.listen(port, hostname, (err: any) => {
+        const application = this.useHttps ? https.createServer({
+            key  : fs.readFileSync("ssl/backend.key"),
+            cert : fs.readFileSync("ssl/backend.crt"),
+            ca : [ fs.readFileSync("ssl/backendca.crt") ]},
+            this.express) : this.express;
+
+        const server = application.listen(port, hostname, (err: any) => {
             if (err) {
                 throw err;
             }
@@ -56,7 +69,7 @@ export class Server {
         });
     }
 
-    private configure(): void {
+    protected configure(): void {
         this.express.use(cors());
         this.express.use(bodyParser.json());
         this.express.use(bodyParser.urlencoded({ extended: false }));
@@ -65,5 +78,12 @@ export class Server {
         this.express.use(requestLimit);
         this.express.use("/swagger.json", express.static(__dirname + "/swagger.json"));
         this.express.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJSON));
+    }
+
+    protected configureDnsValidator() {
+        this.express.get(config.get("server.dnsValidator.path"), (req, res) => {
+            this.logger.log("DNS checker called");
+            res.send(config.get("server.dnsValidator.response"));
+        });
     }
 }

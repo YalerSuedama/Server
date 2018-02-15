@@ -22,10 +22,7 @@ function createErrorFromValidateError(validateError: ValidateError): ErrorModel 
 }
 
 function createGenericError(error: any): ErrorModel {
-    let message = `Error executing the operation: ${JSON.stringify(error)}`;
-    if (error.message) {
-        message = error.message;
-    }
+    const message: string = error.message || `Error executing the operation: ${JSON.stringify(error)}`;
     return {
         message,
     };
