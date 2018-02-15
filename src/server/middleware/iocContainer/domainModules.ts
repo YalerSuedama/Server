@@ -2,7 +2,7 @@ import * as debug from "debug";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
 import { Controller } from "tsoa";
 import { AmadeusService, CryptographyService, ExchangeService, FeeService, JobRunner, LiquidityService, LoggerService, OrderService, PaginationService, RequestLimitService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../../app";
-import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantFeeService, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, LoggerDebug, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
+import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantFeeService, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromRelayerTickerService, LoggerDebug, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
 import { OrderController } from "../../controllers/orderController";
 import { TokenPairsController } from "../../controllers/tokenPairsController";
 
@@ -27,6 +27,7 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<TickerService>(TYPES.TickerService).to(FromCacheTickerService).whenInjectedInto(ReserveManagerOrderService);
     bind<TickerService>(TYPES.TickerService).to(FromCacheTickerService).whenInjectedInto(TokensWithLiquidityTokenPairsService);
     bind<TickerService>(TYPES.TickerService).to(FromCoinMarketCapTickerService).whenTargetTagged("source", "CMC");
+    bind<TickerService>(TYPES.TickerService).to(FromRelayerTickerService).whenTargetTagged("source", "relayer");
     bind<TimeService>(TYPES.TimeService).to(TimeServiceImpl);
     bind<TokenPairsService>(TYPES.TokenPairsService).to(TokensWithLiquidityTokenPairsService);
     bind<TokenService>(TYPES.TokenService).to(ZeroExWrapper).inSingletonScope();

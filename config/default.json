@@ -27,19 +27,23 @@
         "tokens": [
             {
                 "symbol": "WETH",
-                "identifier": "ethereum"
+                "identifier": "ethereum",
+                "defaultAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
             },
             {
                 "symbol": "GNT",
-                "identifier": "golem"
+                "identifier": "golem",
+                "defaultAddress": "0xa74476443119a942de498590fe1f2454d7d4ac0d"
             },
             {
                 "symbol": "REP",
-                "identifier": "augur"
+                "identifier": "augur",
+                "defaultAddress": "0xe94327d07fc17907b4db788e5adf2ed424addff6"
             },
             {
                 "symbol": "ZRX",
-                "identifier": "0x"
+                "identifier": "0x",
+                "defaultAddress": "0xe41d2489571d322189246dafa5ebde1f4699f498"
             }
         ],
         "ticker": {
@@ -68,6 +72,13 @@
                 "REP-ZRX": {
                     "price": 158
                 }
+            },
+            "relayerticker": {
+                "useTokenAddress" : false,
+                "urls": [
+                    "https://api.radarrelay.com/0x/v0/",
+                    "https://api.ercdex.com/api/standard/1/v0/" 
+                ]
             }
         },
         // "wallet": "0xf14958eca9f5b341f74916aacfb6e3d2fb9a4a15",

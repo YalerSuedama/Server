@@ -19,7 +19,7 @@ export class FillTickerJob implements Job {
         const availableTokens = await iocContainer.get<TokenService>(TYPES.TokenService).listAllTokens();
         for (const from of availableTokens) {
             for (const to of availableTokens.filter((token) => token.symbol !== from.symbol)) {
-                const ticker = await iocContainer.getTagged<TickerService>(TYPES.TickerService, "source", "CMC").getTicker(from, to);
+                const ticker = await iocContainer.getTagged<TickerService>(TYPES.TickerService, "source", "relayer").getTicker(from, to);
                 if (ticker) {
                     await iocContainer.get<FromCacheTickerService>(FromCacheTickerService).addTicker(ticker);
                 }
