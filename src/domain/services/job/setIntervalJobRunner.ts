@@ -11,7 +11,7 @@ export class SetIntervalJobRunner implements JobRunner {
             await job.doTask();
             const interval = job.getInterval();
             if (interval) {
-                this.intervals[job.getName()] = setInterval(job.doTask, interval.asMilliseconds());
+                this.intervals[job.getName()] = setInterval(() => job.doTask(), interval.asMilliseconds());
             }
         });
     }
