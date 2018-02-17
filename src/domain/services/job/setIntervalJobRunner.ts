@@ -1,12 +1,11 @@
 import { injectable } from "inversify";
-import { JobRunner } from "../../../app";
-import { Job } from "../../../app/models";
+import { JobRunner, JobTask } from "../../../app";
 
 @injectable()
 export class SetIntervalJobRunner implements JobRunner {
     private intervals: any = {};
 
-    public async start(...jobs: Job[]): Promise<void> {
+    public async start(...jobs: JobTask[]): Promise<void> {
         jobs.forEach(async (job) => {
             await job.doTask();
             const interval = job.getInterval();
@@ -16,7 +15,7 @@ export class SetIntervalJobRunner implements JobRunner {
         });
     }
 
-    public async stop(job: Job): Promise<boolean> {
+    public async stop(job: JobTask): Promise<boolean> {
         if (this.intervals.hasOwnProperty(job.getName())) {
             clearInterval(this.intervals[job.getName()]);
             delete this.intervals[job.getName()];

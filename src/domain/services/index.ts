@@ -1,3 +1,4 @@
+export * from "./job/task/fillTickerTask";
 export * from "./job/setIntervalJobRunner";
 export * from "./ticker/fromCacheTickerService";
 export * from "./ticker/fromCoinMarketCapTickerService";

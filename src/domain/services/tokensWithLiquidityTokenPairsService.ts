@@ -1,5 +1,5 @@
 import * as config from "config";
-import { inject, injectable } from "inversify";
+import { inject, injectable, named } from "inversify";
 import { LiquidityService, LoggerService, PaginationService, TickerService, TokenPairsService, TokenService, TYPES } from "../../app";
 import { Ticker, Token, TokenPairTradeInfo, TokenPool } from "../../app/models";
 import * as Utils from "../util";
@@ -9,7 +9,7 @@ export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
 
     constructor(
         @inject(TYPES.LiquidityService) private liquidityService: LiquidityService,
-        @inject(TYPES.TickerService) private tickerService: TickerService,
+        @inject(TYPES.TickerService) @named("Repository") private tickerService: TickerService,
         @inject(TYPES.TokenService) private tokenService: TokenService,
         @inject(TYPES.LoggerService) private loggerService: LoggerService,
         private paginationService: PaginationService,

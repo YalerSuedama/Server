@@ -1,5 +1,5 @@
 import { BigNumber } from "bignumber.js";
-import { inject, injectable } from "inversify";
+import { inject, injectable, named } from "inversify";
 import * as _ from "lodash";
 import { AmadeusService, CryptographyService, ExchangeService, FeeService, LoggerService, OrderService, PaginationService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../app";
 import { SignedOrder, Ticker, TokenPairTradeInfo } from "../../app/models";
@@ -23,7 +23,7 @@ export class ReserveManagerOrderService implements OrderService {
         @inject(TYPES.SaltService)
         private saltService: SaltService,
 
-        @inject(TYPES.TickerService)
+        @inject(TYPES.TickerService) @named("Repository")
         private tickerService: TickerService,
 
         @inject(TYPES.TimeService)
