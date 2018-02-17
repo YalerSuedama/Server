@@ -7,13 +7,15 @@ import { iocContainer } from "../iocContainer/index";
 export function analytics(request: express.Request, response: express.Response, next: express.NextFunction): void {
     try {
         const analyticsConfig: any = config.get("analytics");
-        const req = http.request({
-            hostname: analyticsConfig.hostname,
-            port: analyticsConfig.port,
-            path: `${analyticsConfig.url}?${analyticsConfig.payload}${request.originalUrl}`,
-            method: analyticsConfig.method,
-        });
-        req.end();
+        if (analyticsConfig.enabled) {
+            const req = http.request({
+                hostname: analyticsConfig.hostname,
+                port: analyticsConfig.port,
+                path: `${analyticsConfig.url}?${analyticsConfig.payload}${request.originalUrl}`,
+                method: analyticsConfig.method,
+            });
+            req.end();
+        }
     } catch (error) {
         const logger = iocContainer.get<LoggerService>(TYPES.LoggerService);
         logger.setNamespace("analytics");

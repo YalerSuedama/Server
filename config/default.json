@@ -1,59 +1,9 @@
 {
-    "analytics": {
-        "hostname": "www.google-analytics.com",
-        "port": 80,
-        "method": "POST",
-        "url": "/collect",
-        // "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=b79c7265-0aaa-43c6-9309-840a02967c00&dh=api.amadeusrelay.org&dp="
-        "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=994911df-4e73-4fc1-9480-266a2624fa8b&dh=localhost&dp="
-    },
-    "server": {
-        "hostname": "0.0.0.0",
-        "port-https": 3001,
-        "port-http": 3000,
-        "useHttp": true,
-        "useHttps": false,
-        "requestLimit": {
-            "maximumAllowedCallsPerWindow": 3600,
-            "timeWindow": {
-                "amount": 1,
-                "unit": "h"
-            }
-        },
-        "dnsValidator": {
-            "active": false,
-            "path": "/.well-known/acme-challenge/BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU",
-            "response": "BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU.kfNcDmRcSJr-5Mrp7MX-dpuy6pIEM0lL1X4dbtcS4uM"
-        }
-    },
     "amadeus": {
         "0x": {
-            // Kovan:
             "etherTokenContractAddress": "0xd0a1e359811322d97991e03f863a0c30c2cf029c"
         },
         "liquidityPercentage": 0.02,
-        "tokens": [
-            {
-                "symbol": "WETH",
-                "identifier": "ethereum",
-                "defaultAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-            },
-            {
-                "symbol": "GNT",
-                "identifier": "golem",
-                "defaultAddress": "0xa74476443119a942de498590fe1f2454d7d4ac0d"
-            },
-            {
-                "symbol": "REP",
-                "identifier": "augur",
-                "defaultAddress": "0xe94327d07fc17907b4db788e5adf2ed424addff6"
-            },
-            {
-                "symbol": "ZRX",
-                "identifier": "0x",
-                "defaultAddress": "0xe41d2489571d322189246dafa5ebde1f4699f498"
-            }
-        ],
         "ticker": {
             "cache": {
                 "ttl": {
@@ -81,7 +31,7 @@
                     "price": 158
                 }
             },
-            "relayerticker": {
+            "relayer": {
                 "useTokenAddress" : false,
                 "urls": [
                     "https://api.radarrelay.com/0x/v0/",
@@ -89,8 +39,54 @@
                 ]
             }
         },
-        // "wallet": "0xf14958eca9f5b341f74916aacfb6e3d2fb9a4a15",
-        "wallet": "0x6ecbe1db9ef729cbe972c83fb886247691fb6beb",
-        "privateKey": "5d862464fe9303452126c8bc94274b8c5f9874cbd219789b3eb2128075a76f72"
+        "tokens": {
+            "WETH": {
+                "identifier": "ethereum",
+                "defaultAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+            },
+            "GNT": {
+                "identifier": "golem",
+                "defaultAddress": "0xa74476443119a942de498590fe1f2454d7d4ac0d"
+            },
+            "REP": {
+                "identifier": "augur",
+                "defaultAddress": "0xe94327d07fc17907b4db788e5adf2ed424addff6"
+            },
+            "ZRX": {
+                "identifier": "0x",
+                "defaultAddress": "0xe41d2489571d322189246dafa5ebde1f4699f498"
+            }
+        },
+        "wallet": {
+            "address": "0x6ecbe1db9ef729cbe972c83fb886247691fb6beb",
+            "privateKey": "5d862464fe9303452126c8bc94274b8c5f9874cbd219789b3eb2128075a76f72"
+        }
+    },
+    "analytics": {
+        "enabled": false,
+        "hostname": "www.google-analytics.com",
+        "port": 80,
+        "method": "POST",
+        "url": "/collect",
+        "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=994911df-4e73-4fc1-9480-266a2624fa8b&dh=localhost&dp="
+    },
+    "server": {
+        "hostname": "0.0.0.0",
+        "port-https": 3001,
+        "port-http": 3000,
+        "useHttp": true,
+        "useHttps": false,
+        "requestLimit": {
+            "maximumAllowedCallsPerWindow": 3600,
+            "timeWindow": {
+                "amount": 1,
+                "unit": "h"
+            }
+        },
+        "dnsValidator": {
+            "active": false,
+            "path": "/.well-known/acme-challenge/BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU",
+            "response": "BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU.kfNcDmRcSJr-5Mrp7MX-dpuy6pIEM0lL1X4dbtcS4uM"
+        }
     }
 }

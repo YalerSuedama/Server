@@ -14,9 +14,6 @@ module.exports = merge(baseConfig, {
         new NodemonPlugin({ nodeArgs: ['--inspect=5858'] }),
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('development'),
-            'process.env.ETHEREUM_NODE': JSON.stringify('localhost'),
-            'process.env.DEBUG': '*'
-        }),
-        new CopyWebpackPlugin([{ from: './config/default.json', to: './config' }])
+        })
     ]
 });

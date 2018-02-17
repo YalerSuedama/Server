@@ -61,12 +61,11 @@ export class FromRelayerTickerService implements TickerService {
     }
 
     private getTokenAddress(token: Token): string {
-        if (config.get<boolean>("amadeus.ticker.relayerticker.useTokenAddress")) {
+        if (config.get<boolean>("amadeus.ticker.relayer.useTokenAddress")) {
             return token.address;
         }
 
-        const tokens = config.get<any[]>("amadeus.tokens");
-        const found = tokens.find((t) => t.symbol === token.symbol);
+        const found = config.get<any>(`amadeus.tokens.${token.symbol}`);
         return found ? found.defaultAddress : null;
     }
 

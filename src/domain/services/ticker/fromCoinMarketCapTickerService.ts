@@ -9,11 +9,8 @@ import { Ticker, Token } from "../../../app/models";
 @injectable()
 export class FromCoinMarketCapTickerService implements TickerService {
 
-    private tokens: any[];
-
     constructor( @inject(TYPES.LoggerService) private logger: LoggerService) {
         this.logger.setNamespace("fromcoinmarketcaptickerservice");
-        this.tokens = config.get("amadeus.tokens");
     }
 
     public async getTicker(tokenFrom: Token, tokenTo: Token): Promise<Ticker> {
@@ -61,7 +58,7 @@ export class FromCoinMarketCapTickerService implements TickerService {
     }
 
     private getTokenIdentifier(token: Token): string {
-        const found = this.tokens.find((t) => t.symbol === token.symbol);
+        const found: any = config.get<any>(`amadeus.tokens.${token.symbol}`);
         if (found) {
             return found.identifier;
         }

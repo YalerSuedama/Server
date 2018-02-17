@@ -8,9 +8,10 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 module.exports = merge(baseConfig, {
     plugins: [
         new webpack.DefinePlugin({
+            'process.env.NODE_CONFIG_ENV': JSON.stringify('kovan'),
             'process.env.NODE_ENV': JSON.stringify('production'),
         }),
-        new CopyWebpackPlugin([{ from: './config/production.json', to: './config' }]),
+        new CopyWebpackPlugin([{ from: './config/kovan.json', to: './config' }]),
         new UglifyJsPlugin({
             uglifyOptions: {
                 compress: {

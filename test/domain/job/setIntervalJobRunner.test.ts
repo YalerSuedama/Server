@@ -3,8 +3,7 @@ import * as config from "config";
 import * as moment from "moment";
 import "reflect-metadata";
 import * as sinon from "sinon";
-import { JobRunner } from "../../../src/app";
-import { Job } from "../../../src/app/models";
+import { JobRunner, JobTask } from "../../../src/app";
 import { SetIntervalJobRunner } from "../../../src/domain";
 import { delay } from "../../util";
 
@@ -12,7 +11,7 @@ const expect = chai.expect;
 
 describe("JobRunner", () => {
     let jobRunner: SetIntervalJobRunner;
-    const job: Job = {
+    const job: JobTask = {
         getName: () => "Test job",
         getInterval: () => moment.duration(50, "ms"),
         doTask: async () => { /* Do nothing */ },
@@ -45,7 +44,7 @@ describe("JobRunner", () => {
             });
         });
         context("And it does not have an interval", () => {
-            const jobInner: Job = {
+            const jobInner: JobTask = {
                 getName: () => "test",
                 getInterval: () => null,
                 doTask: async () => { /* do nothing */ },

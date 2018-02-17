@@ -8,7 +8,6 @@ module.exports = merge(baseConfig, {
     plugins: [
         new webpack.DefinePlugin({
             'process.env.ETHEREUM_NODE': JSON.stringify(process.env.TESTRPC_SERVICE_HOST),
-        }),
-        new CopyWebpackPlugin([{ from: './config/default.json', to: './config' }])
+        })
     ]
 });
