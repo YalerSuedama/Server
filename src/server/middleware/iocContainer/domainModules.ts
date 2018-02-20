@@ -2,7 +2,7 @@ import * as debug from "debug";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
 import { Controller } from "tsoa";
 import { AmadeusService, CryptographyService, ExchangeService, FeeService, JobRunner, JobTask, LiquidityService, LoggerService, OrderService, PaginationService, RequestLimitService, SaltService, TickerRepository, TickerService, TimeService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../../app";
-import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromRelayerTickerService, LoggerDebug, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
+import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromManagerTickerService, FromRelayerTickerService, LoggerDebug, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
 import { OrderController } from "../../controllers/orderController";
 import { TokenPairsController } from "../../controllers/tokenPairsController";
 
@@ -27,8 +27,9 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<TickerRepository>(TYPES.TickerRepository).to(FromCacheTickerService);
     bind<TickerService>(TYPES.TickerService).to(FromCacheTickerService).whenTargetNamed("Repository");
     bind<TickerService>(TYPES.TickerService).to(FromCoinMarketCapTickerService).whenTargetNamed("CMC");
-    bind<TickerService>(TYPES.TickerService).to(FromRelayerTickerService).whenTargetNamed("Relayer");
+    bind<TickerService>(TYPES.UrlTickerService).to(FromRelayerTickerService).whenTargetNamed("Relayer");
     bind<TickerService>(TYPES.TickerService).to(FromConfigTickerService).whenTargetNamed("Config");
+    bind<TickerService>(TYPES.TickerService).to(FromManagerTickerService).whenTargetNamed("Manager");
     bind<TimeService>(TYPES.TimeService).to(TimeServiceImpl);
     bind<TokenPairsService>(TYPES.TokenPairsService).to(TokensWithLiquidityTokenPairsService);
     bind<TokenService>(TYPES.TokenService).to(ZeroExWrapper).inSingletonScope();

@@ -4,11 +4,11 @@ import * as config from "config";
 import { inject, injectable } from "inversify";
 import * as moment from "moment";
 import { ExpirationStrategy, MemoryStorage } from "node-ts-cache";
-import { LoggerService, TickerService, TYPES } from "../../../app";
+import { LoggerService, UrlTickerService, TYPES } from "../../../app";
 import { Ticker, Token } from "../../../app/models/";
 
 @injectable()
-export class FromRelayerTickerService implements TickerService {
+export class FromRelayerTickerService implements UrlTickerService {
 
     private static CachedTickers = new ExpirationStrategy(new MemoryStorage());
     private httpClient: HttpClient;
@@ -16,6 +16,10 @@ export class FromRelayerTickerService implements TickerService {
 
     constructor( @inject(TYPES.LoggerService) private logger: LoggerService) {
         this.logger.setNamespace("fromrelayertickerservice");
+    }
+
+    public async setUrl(url: string): Promise<void> {
+        this.url = url;
         this.httpClient = new HttpClient(this.url);
     }
 
@@ -44,6 +48,12 @@ export class FromRelayerTickerService implements TickerService {
 
     private async getFromRelayer(tokenFrom: Token, tokenTo: Token): Promise<BigNumber> {
         try {
+
+            if(this.url == null){
+                this.logger.log("Url was not set");
+                return null;
+            }
+            
             const ordersRequest: OrdersRequest = {
                 makerTokenAddress: this.getTokenAddress(tokenFrom),
                 takerTokenAddress: this.getTokenAddress(tokenTo),

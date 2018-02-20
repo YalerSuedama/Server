@@ -7,6 +7,7 @@ export * from "./accountPercentageLiquidityService";
 export * from "./cachedRequestLimitService";
 export * from "./constantFeeService";
 export * from "./fromConfigAmadeusService";
+export * from "./ticker/fromManagerTickerService";
 export * from "./ticker/fromRelayerTickerService";
 export * from "./loggerDebug";
 export * from "./reserveManagerOrderService";
