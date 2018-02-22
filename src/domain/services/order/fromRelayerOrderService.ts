@@ -31,7 +31,7 @@ export class FromRelayerOrderService implements OrderService {
             trader,
             feeRecipient,
         };
-        const filterHash = hash(ordersRequest);
+        const filterHash = hash(Object.assign({ url: this.url }, ordersRequest));
 
         let orders = await FromRelayerOrderService.CachedOrders.getItem<SignedOrder[]>(filterHash);
 
