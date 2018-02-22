@@ -2,7 +2,7 @@ import * as debug from "debug";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
 import { Controller } from "tsoa";
 import { AmadeusService, CryptographyService, ExchangeService, FeeService, JobRunner, JobTask, LiquidityService, LoggerService, OrderService, PaginationService, RequestLimitService, SaltService, TickerRepository, TickerService, TimeService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../../app";
-import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromRelayerTickerService, LoggerDebug, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
+import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromRelayerOrderService, FromRelayerTickerService, LoggerDebug, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
 import { OrderController } from "../../controllers/orderController";
 import { TokenPairsController } from "../../controllers/tokenPairsController";
 
@@ -20,7 +20,7 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<JobTask>(TYPES.JobTask).to(FillTickerTask);
     bind<LiquidityService>(TYPES.LiquidityService).to(AccountPercentageLiquidityService);
     bind<LoggerService>(TYPES.LoggerService).to(LoggerDebug);
-    bind<OrderService>(TYPES.OrderService).to(ReserveManagerOrderService);
+    bind<OrderService>(TYPES.OrderService).to(FromRelayerOrderService);
     bind(PaginationService).toSelf();
     bind<RequestLimitService>(TYPES.RequestLimitService).to(CachedRequestLimitService).inSingletonScope();
     bind<SaltService>(TYPES.SaltService).to(ZeroExWrapper).inSingletonScope();
