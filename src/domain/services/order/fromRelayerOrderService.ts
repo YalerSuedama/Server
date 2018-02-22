@@ -14,9 +14,8 @@ export class FromRelayerOrderService implements OrderService {
 
     private static CachedOrders = new ExpirationStrategy(new MemoryStorage());
     private httpClient: HttpClient;
-    private url: string = "https://api.ercdex.com/api/standard/42/v0/"; // "https://api.ercdex.com/api/standard/1/v0/"
 
-    constructor(@inject(TYPES.LoggerService) private logger: LoggerService) {
+    constructor(@inject(TYPES.LoggerService) private logger: LoggerService, @inject(TYPES.OrderRelayerUrl) private url: string) {
         this.logger.setNamespace("fromrelayerorderservice");
         this.httpClient = new HttpClient(this.url);
     }
@@ -51,7 +50,7 @@ export class FromRelayerOrderService implements OrderService {
             this.logger.log("Could not find orders for filter %s from relayer %s.", filterHash, this.url);
             return null;
         }
-        this.logger.log("Filter %s of relayer %s has return %s orders: %o.", filterHash, this.url, orders && orders.length, orders);
+        this.logger.log("Filter %s of relayer %s has returned %s orders: %o.", filterHash, this.url, orders && orders.length, orders);
         return orders;
     }
 

@@ -7,6 +7,8 @@ export const TYPES = {
     JobTask: Symbol("JobTask"),
     LiquidityService: Symbol("LiquidityService"),
     LoggerService: Symbol("LoggerService"),
+    OrderFactory: Symbol("OrderFactory"),
+    OrderRelayerUrl: Symbol("OrderRelayerUrl"),
     OrderService: Symbol("OrderService"),
     RequestLimitService: Symbol("RequestLimitService"),
     SaltService: Symbol("SaltService"),
