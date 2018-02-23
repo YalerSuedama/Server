@@ -10,17 +10,11 @@ export class ZeroExFeeService implements FeeService {
     }
 
     public async getMakerFee(token?: Token): Promise<BigNumber> {
-        if (token.symbol === "ZRX") {
-            return Utils.toBaseUnit(0);
-        }
-        return this.constantFeeService.getMakerFee(token);
+        return Utils.toBaseUnit(0);
     }
 
     public async getTakerFee(token?: Token): Promise<BigNumber> {
-        if (token.symbol === "ZRX") {
-            return Utils.toBaseUnit(0);
-        }
-        return this.constantFeeService.getTakerFee(token);
+        return Utils.toBaseUnit(0);
     }
 
     public async getFeeRecipient(token?: Token): Promise<string> {

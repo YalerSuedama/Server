@@ -5,7 +5,7 @@ import { Ticker, Token } from "../../../app/models";
 @injectable()
 export class FromZeroExTickerService implements TickerService {
 
-    constructor( @inject(TYPES.TickerService) @named("Repository") private fromCacheTickerService: TickerService, @inject(TYPES.FeeService) private zeroExFeeService: FeeService) { }
+    constructor( @inject(TYPES.TickerService) @named("Repository") private fromCacheTickerService: TickerService, @inject(TYPES.FeeService) @named("ZeroEx") private zeroExFeeService: FeeService) { }
 
     public async getTicker(from: Token, to: Token): Promise<Ticker> {
         const ticker = await this.fromCacheTickerService.getTicker(from, to);

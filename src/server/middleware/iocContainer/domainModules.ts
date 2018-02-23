@@ -15,7 +15,7 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<AmadeusService>(TYPES.AmadeusService).to(FromConfigAmadeusService);
     bind<CryptographyService>(TYPES.CryptographyService).to(ZeroExWrapper).inSingletonScope();
     bind<ExchangeService>(TYPES.ExchangeService).to(ZeroExWrapper).inSingletonScope();
-    bind<FeeService>(TYPES.FeeService).to(ZeroExFeeService).whenTargetIsDefault();
+    bind<FeeService>(TYPES.FeeService).to(ZeroExFeeService).whenTargetNamed("ZeroEx");
     bind<FeeService>(TYPES.FeeService).to(ConstantFeeService).whenTargetNamed("Constant");
     bind<JobRunner>(TYPES.JobRunner).to(SetIntervalJobRunner).inSingletonScope();
     bind<JobTask>(TYPES.JobTask).to(FillTickerTask);
