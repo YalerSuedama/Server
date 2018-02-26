@@ -8,6 +8,26 @@
             "taker": 0.01
         },
         "liquidityPercentage": 0.02,
+        "orders": {
+            "cache": {
+                "ttl": {
+                    "value": 5,
+                    "unit": "minutes"
+                }
+            },
+            "sources": {
+                "amadeus": {
+                    "enabled": true
+                },
+                "relayers": {
+                    "enabled": true,
+                    "urls": [
+                        "https://api.radarrelay.com/0x/v0/",
+                        "https://api.ercdex.com/api/standard/42/v0/"
+                    ]
+                }
+            }
+        },
         "ticker": {
             "cache": {
                 "ttl": {
@@ -36,11 +56,7 @@
                 }
             },
             "relayer": {
-                "useTokenAddress" : false,
-                "urls": [
-                    "https://api.radarrelay.com/0x/v0/",
-                    "https://api.ercdex.com/api/standard/1/v0/" 
-                ]
+                "useTokenAddress" : false
             }
         },
         "tokens": {

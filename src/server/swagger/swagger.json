@@ -319,14 +319,14 @@
 				"security": [],
 				"parameters": [
 					{
-						"description": "Symbol of a token that could be on either side of the trade: either as a maker, or as a taker.",
+						"description": "Address of a token that could be on either side of the trade: either as a maker, or as a taker.",
 						"in": "query",
 						"name": "tokenA",
 						"required": false,
 						"type": "string"
 					},
 					{
-						"description": "Symbol of a token that could be on either side of the trade: either as a maker, or as a taker.",
+						"description": "Address of a token that could be on either side of the trade: either as a maker, or as a taker.",
 						"in": "query",
 						"name": "tokenB",
 						"required": false,
