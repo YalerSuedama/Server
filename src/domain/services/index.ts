@@ -7,7 +7,7 @@ export * from "./ticker/fromZeroExTickerService";
 export * from "./accountPercentageLiquidityService";
 export * from "./cachedRequestLimitService";
 export * from "./constantFeeService";
-export * from "./zeroExFeeService"; // any file that uses 0xConnect (even indirectly), MUST be exported AFTER this line 
+export * from "./zeroExFeeService"; // any file that uses 0xConnect (even indirectly), MUST be exported AFTER this line
 export * from "./fromConfigAmadeusService";
 export * from "./order/managerOrderService";
 export * from "./order/fromRelayerOrderService";
