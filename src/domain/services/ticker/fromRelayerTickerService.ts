@@ -4,7 +4,7 @@ import * as config from "config";
 import { inject, injectable } from "inversify";
 import * as moment from "moment";
 import { ExpirationStrategy, MemoryStorage } from "node-ts-cache";
-import { LoggerService, UrlTickerService, TYPES } from "../../../app";
+import { LoggerService, TYPES, UrlTickerService } from "../../../app";
 import { Ticker, Token } from "../../../app/models/";
 
 @injectable()
@@ -39,6 +39,7 @@ export class FromRelayerTickerService implements UrlTickerService {
             return null;
         }
         this.logger.log("Found price of %s for ticker %s from relayer %s.", value.toString(), tickerSymbol, this.url);
+
         return {
             from: tokenFrom,
             price: value,
@@ -49,11 +50,11 @@ export class FromRelayerTickerService implements UrlTickerService {
     private async getFromRelayer(tokenFrom: Token, tokenTo: Token): Promise<BigNumber> {
         try {
 
-            if(this.url == null){
+            if (this.url == null) {
                 this.logger.log("Url was not set");
                 return null;
             }
-            
+
             const ordersRequest: OrdersRequest = {
                 makerTokenAddress: this.getTokenAddress(tokenFrom),
                 takerTokenAddress: this.getTokenAddress(tokenTo),

@@ -8,7 +8,7 @@ export class FillTickerTask implements JobTask {
 
     public constructor(
         @inject(TYPES.TokenService) private tokenService: TokenService,
-        @inject(TYPES.TickerService) @named("Relayer") private tickerService: TickerService,
+        @inject(TYPES.UrlTickerService) @named("Relayer") private tickerService: TickerService,
         @inject(TYPES.TickerRepository) private cachedTickers: TickerRepository,
     ) {
     }
