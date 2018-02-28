@@ -4,22 +4,18 @@ import * as config from "config";
 import { inject, injectable } from "inversify";
 import * as moment from "moment";
 import { ExpirationStrategy, MemoryStorage } from "node-ts-cache";
-import { LoggerService, TYPES, UrlTickerService } from "../../../app";
+import { LoggerService, TickerService, TYPES } from "../../../app";
 import { Ticker, Token } from "../../../app/models/";
 
 @injectable()
-export class FromRelayerTickerService implements UrlTickerService {
+export class FromRelayerTickerService implements TickerService {
 
     private static CachedTickers = new ExpirationStrategy(new MemoryStorage());
     private httpClient: HttpClient;
-    private url: string = "https://api.radarrelay.com/0x/v0/"; // "https://api.ercdex.com/api/standard/1/v0/"
+    // private url: string = "https://api.radarrelay.com/0x/v0/"; // "https://api.ercdex.com/api/standard/1/v0/"
 
-    constructor( @inject(TYPES.LoggerService) private logger: LoggerService) {
+    constructor(@inject(TYPES.LoggerService) private logger: LoggerService, @inject(TYPES.TickerRelayerUrl) private url: string) {
         this.logger.setNamespace("fromrelayertickerservice");
-    }
-
-    public async setUrl(url: string): Promise<void> {
-        this.url = url;
         this.httpClient = new HttpClient(this.url);
     }
 

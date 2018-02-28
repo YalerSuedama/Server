@@ -12,11 +12,12 @@ export const TYPES = {
     OrderService: Symbol("OrderService"),
     RequestLimitService: Symbol("RequestLimitService"),
     SaltService: Symbol("SaltService"),
+    TickerFactory: Symbol("TickerFactory"),
+    TickerRelayerUrl: Symbol("TickerRelayerUrl"),
     TickerRepository: Symbol("TickerRepository"),
     TickerService: Symbol("TickerService"),
     TimeService: Symbol("TimeService"),
     TokenPairsService: Symbol("TokenPairsService"),
     TokenService: Symbol("TokenService"),
-    UrlTickerService: Symbol("UrlTickerService"),
     ValidationService: Symbol("ValidationService"),
 };

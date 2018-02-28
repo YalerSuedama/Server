@@ -37,9 +37,17 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<TickerRepository>(TYPES.TickerRepository).to(FromCacheTickerService);
     bind<TickerService>(TYPES.TickerService).to(FromCacheTickerService).whenTargetNamed("Repository");
     bind<TickerService>(TYPES.TickerService).to(FromCoinMarketCapTickerService).whenTargetNamed("CMC");
-    bind<TickerService>(TYPES.UrlTickerService).to(FromRelayerTickerService).whenTargetNamed("Relayer");
+    bind<TickerService>(TYPES.TickerService).to(FromRelayerTickerService).whenTargetNamed("Relayer");
     bind<TickerService>(TYPES.TickerService).to(FromConfigTickerService).whenTargetNamed("Config");
     bind<TickerService>(TYPES.TickerService).to(FromManagerTickerService).whenTargetNamed("Manager");
+    bind<interfaces.Factory<TickerService>>(TYPES.TickerFactory).toFactory((context: interfaces.Context) => {
+        return (url: string) => {
+            context.container.bind<string>(TYPES.TickerRelayerUrl).toConstantValue(url);
+            const tickerService = context.container.getNamed(TYPES.TickerService, "Relayer");
+            context.container.unbind(TYPES.TickerRelayerUrl);
+            return tickerService;
+        };
+    });
     bind<TimeService>(TYPES.TimeService).to(TimeServiceImpl);
     bind<TokenPairsService>(TYPES.TokenPairsService).to(TokensWithLiquidityTokenPairsService);
     bind<TokenService>(TYPES.TokenService).to(ZeroExWrapper).inSingletonScope();

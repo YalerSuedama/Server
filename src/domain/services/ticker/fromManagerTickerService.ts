@@ -2,14 +2,14 @@ import { BigNumber } from "bignumber.js";
 import * as config from "config";
 import { inject, injectable, named } from "inversify";
 import * as moment from "moment";
-import { LoggerService, TickerService, TYPES, UrlTickerService } from "../../../app";
+import { LoggerService, TickerService, TYPES } from "../../../app";
 import { Ticker, Token } from "../../../app/models/";
 
 @injectable()
 export class FromManagerTickerService implements TickerService {
 
     public constructor(
-        @inject(TYPES.UrlTickerService) @named("Relayer") private relayerTickerService: UrlTickerService,
+        @inject(TYPES.TickerFactory) private relayersTickerFactory: (url: string) => TickerService,
         @inject(TYPES.TickerService) @named("CMC") private cmcTickerService: TickerService,
     ) {
     }
@@ -18,43 +18,64 @@ export class FromManagerTickerService implements TickerService {
         const relayerUrls = config.get<any>("amadeus.ticker.relayer.urls");
 
         const relayerPrice = await this.getRelayersMediumPrice(tokenFrom, tokenTo, relayerUrls);
-        const cmcPrice = await this.getPriceFromCoinMarketCap(tokenFrom, tokenTo, this.getCmcWeight(relayerUrls));
+        const cmcPrice = await this.getPriceFromCoinMarketCap(tokenFrom, tokenTo, relayerPrice.weight);
+        const mediumPrice = this.calculateMediumPrice(relayerPrice.price, cmcPrice);
 
-        return {
-            from: tokenFrom,
-            price: relayerPrice.add(cmcPrice),
-            to: tokenTo,
-        };
+        if (mediumPrice != null) {
+            return {
+                from: tokenFrom,
+                price: mediumPrice,
+                to: tokenTo,
+            };
+        }
+        return null;
     }
 
-    private async getRelayersMediumPrice(tokenFrom: Token, tokenTo: Token, relayerUrls: any): Promise<BigNumber> {
-        const mediumPrice: BigNumber = new BigNumber(0);
+    private calculateMediumPrice(relayerPrice: BigNumber, cmcPrice: BigNumber): BigNumber {
+        if (relayerPrice != null && cmcPrice != null) {
+            return relayerPrice.add(cmcPrice);
+        }
+        if (relayerPrice != null) {
+            return relayerPrice;
+        }
+        if (cmcPrice != null) {
+            return cmcPrice;
+        }
+
+        return null;
+    }
+
+    private async getRelayersMediumPrice(tokenFrom: Token, tokenTo: Token, relayerUrls: any): Promise<any> {
+        let mediumPrice: BigNumber = null;
+        let totalWeight: number = 0;
 
         await Promise.all(relayerUrls.map(async (url: any) => {
             const price = await this.getPriceFromRelayer(tokenFrom, tokenTo, url.endpoint, url.weight);
-            mediumPrice.add(price);
+            if (price != null) {
+                if (mediumPrice == null) {
+                    mediumPrice = new BigNumber(0);
+                }
+                mediumPrice.add(price);
+                totalWeight = totalWeight + url.weight;
+            }
         }));
 
-        return mediumPrice;
+        return {price: mediumPrice, weight: totalWeight};
     }
 
     private async getPriceFromRelayer(tokenFrom: Token, tokenTo: Token, url: string, weight: number): Promise<BigNumber> {
-        this.relayerTickerService.setUrl(url);
-        const relayerTicker = await this.relayerTickerService.getTicker(tokenFrom, tokenTo);
-        return relayerTicker != null ? relayerTicker.price.times(weight) : new BigNumber(0);
+        const tickerService = this.relayersTickerFactory(url);
+        const relayerTicker = await tickerService.getTicker(tokenFrom, tokenTo);
+
+        if (relayerTicker != null) {
+            return relayerTicker.price.times(weight);
+        }
+        return null;
     }
 
     private async getPriceFromCoinMarketCap(tokenFrom: Token, tokenTo: Token, weight: number): Promise<BigNumber> {
         const cmcTicker = await this.cmcTickerService.getTicker(tokenFrom, tokenTo);
-        return cmcTicker != null ? cmcTicker.price.times(weight) : new BigNumber(0);
-    }
-
-    private getCmcWeight(relayerUrls: any): number {
-        let weight: number = 0;
-
-        for (const url of relayerUrls) {
-            weight += url.weight;
-        }
-        return Math.round(((1 - weight) * 100)) / 100;
+        const cmcWeight = (Math.round(((1 - weight) * 100)) / 100);
+        return cmcTicker != null ? cmcTicker.price.times(cmcWeight) : null;
     }
 }

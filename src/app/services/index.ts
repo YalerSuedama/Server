@@ -12,7 +12,6 @@ export { RequestLimitService } from "./requestLimitService";
 export { SaltService } from "./saltService";
 export { TickerService } from "./tickerService";
 export { TickerRepository } from "./tickerRepository";
-export { UrlTickerService } from "./urlTickerService";
 export { TimeService } from "./timeService";
 export { TokenPairsService } from "./tokenPairsService";
 export { TokenService } from "./tokenService";
