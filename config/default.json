@@ -4,6 +4,26 @@
             "etherTokenContractAddress": "0xd0a1e359811322d97991e03f863a0c30c2cf029c"
         },
         "liquidityPercentage": 0.02,
+        "orders": {
+            "cache": {
+                "ttl": {
+                    "value": 5,
+                    "unit": "minutes"
+                }
+            },
+            "sources": {
+                "amadeus": {
+                    "enabled": true
+                },
+                "relayers": {
+                    "enabled": true,
+                    "urls": [
+                        "https://api.radarrelay.com/0x/v0/",
+                        "https://api.ercdex.com/api/standard/42/v0/"
+                    ]
+                }
+            }
+        },
         "ticker": {
             "cache": {
                 "ttl": {

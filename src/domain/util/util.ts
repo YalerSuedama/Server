@@ -1,5 +1,4 @@
 import { BigNumber } from "bignumber.js";
-import * as debug from "debug";
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 

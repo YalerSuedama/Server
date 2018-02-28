@@ -26,37 +26,40 @@ export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
         let pairs: TokenPairTradeInfo[] = [];
         if (!tokenA && !tokenB) {
             for (const tokenPool of pools) {
-                const foundPairs = await this.getTokenPairsOfToken(tokenPool.token.symbol, pools);
-                pairs = pairs.concat(foundPairs.filter((pair) => pair != null));
+                const foundPairs = await this.getTokenPairsOfToken(tokenPool.token.address, pools);
+                pools = pools.filter((pool) => pool.token.address !== tokenPool.token.address);
+                pairs = pairs.concat(foundPairs);
             }
             this.loggerService.log("Pairs found when tokenA and tokenB not informed: %o", pairs);
-        }
-        if (tokenA) {
-            const tokenAPairs = await this.getTokenPairsOfToken(tokenA, pools);
-            this.loggerService.log("Pairs found for tokenA %s: %o", tokenA, tokenAPairs);
-            pairs = pairs.concat(tokenAPairs);
-        }
-        if (tokenB) {
-            const tokenBPairs = await this.getTokenPairsOfToken(tokenB, pools);
-            this.loggerService.log("Pairs found for tokenB %s: %o", tokenB, tokenBPairs);
-            pairs = pairs.concat(tokenBPairs);
+        } else {
+            if (tokenA) {
+                const tokenAPairs = await this.getTokenPairsOfToken(tokenA, pools);
+                pools = pools.filter((pool) => pool.token.address !== tokenA);
+                this.loggerService.log("Pairs found for tokenA %s: %o", tokenA, tokenAPairs);
+                pairs = pairs.concat(tokenAPairs);
+            }
+            if (tokenB) {
+                const tokenBPairs = await this.getTokenPairsOfToken(tokenB, pools);
+                this.loggerService.log("Pairs found for tokenB %s: %o", tokenB, tokenBPairs);
+                pairs = pairs.concat(tokenBPairs);
+            }
         }
         pairs = await this.paginationService.paginate(pairs, page, perPage);
         this.loggerService.log("Pairs are paginated: %o", pairs);
         return pairs;
     }
 
-    private async getTokenPairsOfToken(tokenSymbol: string, pools: TokenPool[]): Promise<TokenPairTradeInfo[]> {
-        const tokenPool = pools.find((pool) => pool.token.symbol === tokenSymbol);
+    private async getTokenPairsOfToken(tokenAddress: string, pools: TokenPool[]): Promise<TokenPairTradeInfo[]> {
+        const tokenPool = pools.find((pool) => pool.token.address === tokenAddress);
         let pairs: TokenPairTradeInfo[] = [];
         if (tokenPool) {
-            const testingPools = pools.filter((pool) => pool.token !== tokenPool.token);
+            const testingPools = pools.filter((pool) => pool.token.address !== tokenPool.token.address);
             pairs = pairs.concat(await Promise.all(testingPools.map(async (pool) => await this.createTokenPairTradeInfo(tokenPool, pool))));
             for (const pool of testingPools) {
                 pairs.push(await this.createTokenPairTradeInfo(pool, tokenPool));
             }
         }
-        return pairs;
+        return pairs.filter((pair) => pair != null);
     }
 
     private async createTokenPairTradeInfo(tokenPoolFrom: TokenPool, tokenPoolTo: TokenPool): Promise<TokenPairTradeInfo> {
