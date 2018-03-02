@@ -52,7 +52,17 @@
                 }
             },
             "relayer": {
-                "useTokenAddress" : false
+                "useTokenAddress" : false,
+                "urls": [
+                    {
+                        "endpoint": "https://api.radarrelay.com/0x/v0/",
+                        "weight": 0.6
+                    },
+                    {
+                        "endpoint": "https://api.ercdex.com/api/standard/1/v0/orders",
+                        "weight": 0.2
+                    }
+                ]
             }
         },
         "tokens": {

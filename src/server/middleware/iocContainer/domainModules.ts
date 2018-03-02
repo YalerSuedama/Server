@@ -2,7 +2,7 @@ import * as config from "config";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
 import { Controller } from "tsoa";
 import { AmadeusService, CryptographyService, ExchangeService, FeeService, JobRunner, JobTask, LiquidityService, LoggerService, OrderService, PaginationService, RequestLimitService, SaltService, TickerRepository, TickerService, TimeService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../../app";
-import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromRelayerOrderService, FromRelayerTickerService, LoggerDebug, ManagerOrderService, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
+import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromManagerTickerService, FromRelayerOrderService, FromRelayerTickerService, LoggerDebug, ManagerOrderService, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
 import { OrderController } from "../../controllers/orderController";
 import { TokenPairsController } from "../../controllers/tokenPairsController";
 
@@ -39,6 +39,15 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<TickerService>(TYPES.TickerService).to(FromCoinMarketCapTickerService).whenTargetNamed("CMC");
     bind<TickerService>(TYPES.TickerService).to(FromRelayerTickerService).whenTargetNamed("Relayer");
     bind<TickerService>(TYPES.TickerService).to(FromConfigTickerService).whenTargetNamed("Config");
+    bind<TickerService>(TYPES.TickerService).to(FromManagerTickerService).whenTargetNamed("Manager");
+    bind<interfaces.Factory<TickerService>>(TYPES.TickerFactory).toFactory((context: interfaces.Context) => {
+        return (url: string) => {
+            context.container.bind<string>(TYPES.TickerRelayerUrl).toConstantValue(url);
+            const tickerService = context.container.getNamed(TYPES.TickerService, "Relayer");
+            context.container.unbind(TYPES.TickerRelayerUrl);
+            return tickerService;
+        };
+    });
     bind<TimeService>(TYPES.TimeService).to(TimeServiceImpl);
     bind<TokenPairsService>(TYPES.TokenPairsService).to(TokensWithLiquidityTokenPairsService);
     bind<TokenService>(TYPES.TokenService).to(ZeroExWrapper).inSingletonScope();

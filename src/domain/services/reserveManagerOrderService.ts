@@ -23,7 +23,7 @@ export class ReserveManagerOrderService implements OrderService {
         @inject(TYPES.SaltService)
         private saltService: SaltService,
 
-        @inject(TYPES.TickerService) @named("Repository")
+        @inject(TYPES.TickerService) @named("Manager")
         private tickerService: TickerService,
 
         @inject(TYPES.TimeService)

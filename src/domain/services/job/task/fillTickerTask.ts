@@ -8,7 +8,7 @@ export class FillTickerTask implements JobTask {
 
     public constructor(
         @inject(TYPES.TokenService) private tokenService: TokenService,
-        @inject(TYPES.TickerService) @named("Relayer") private tickerService: TickerService,
+        @inject(TYPES.TickerService) @named("Manager") private managerTickerService: TickerService,
         @inject(TYPES.TickerRepository) private cachedTickers: TickerRepository,
     ) {
     }
@@ -25,7 +25,7 @@ export class FillTickerTask implements JobTask {
         const availableTokens = await this.tokenService.listAllTokens();
         for (const from of availableTokens) {
             for (const to of availableTokens.filter((token) => token.symbol !== from.symbol)) {
-                const ticker = await this.tickerService.getTicker(from, to);
+                const ticker = await this.managerTickerService.getTicker(from, to);
                 if (ticker) {
                     await this.cachedTickers.addTicker(ticker);
                 }
