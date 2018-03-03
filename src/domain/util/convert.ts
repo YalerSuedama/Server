@@ -8,19 +8,19 @@ export function toAmadeusSignedOrders(zeroExSignedOrders: ZeroExSignedOrder[]): 
 
     return zeroExSignedOrders.map<SignedOrder>((signedOrder) => {
         return {
-            maker: signedOrder.maker,
-            taker: signedOrder.taker,
-            makerFee: signedOrder.makerFee.toString(),
-            takerFee: signedOrder.takerFee.toString(),
-            makerTokenAmount: signedOrder.makerTokenAmount.toString(),
-            takerTokenAmount: signedOrder.takerTokenAmount.toString(),
-            makerTokenAddress: signedOrder.makerTokenAddress,
-            takerTokenAddress: signedOrder.takerTokenAddress,
-            salt: signedOrder.salt.toString(),
-            exchangeContractAddress: signedOrder.exchangeContractAddress,
-            feeRecipient: signedOrder.feeRecipient,
-            expirationUnixTimestampSec: signedOrder.expirationUnixTimestampSec.toString(),
             ecSignature: signedOrder.ecSignature,
+            exchangeContractAddress: signedOrder.exchangeContractAddress,
+            expirationUnixTimestampSec: signedOrder.expirationUnixTimestampSec.toString(),
+            feeRecipient: signedOrder.feeRecipient,
+            maker: signedOrder.maker,
+            makerFee: signedOrder.makerFee.toString(),
+            makerTokenAddress: signedOrder.makerTokenAddress,
+            makerTokenAmount: signedOrder.makerTokenAmount.toString(),
+            salt: signedOrder.salt.toString(),
+            taker: signedOrder.taker,
+            takerFee: signedOrder.takerFee.toString(),
+            takerTokenAddress: signedOrder.takerTokenAddress,
+            takerTokenAmount: signedOrder.takerTokenAmount.toString(),
         };
     });
 }

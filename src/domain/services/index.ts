@@ -3,9 +3,11 @@ export * from "./job/setIntervalJobRunner";
 export * from "./ticker/fromCacheTickerService";
 export * from "./ticker/fromCoinMarketCapTickerService";
 export * from "./ticker/fromConfigTickerService";
+export * from "./ticker/fromZeroExTickerService";
 export * from "./accountPercentageLiquidityService";
 export * from "./cachedRequestLimitService";
-export * from "./constantFeeService"; // any file that uses 0xConnect (even indirectly), MUST be exported AFTER this line
+export * from "./constantFeeService";
+export * from "./zeroExFeeService"; // any file that uses 0xConnect (even indirectly), MUST be exported AFTER this line
 export * from "./fromConfigAmadeusService";
 export * from "./ticker/fromManagerTickerService";
 export * from "./order/managerOrderService";

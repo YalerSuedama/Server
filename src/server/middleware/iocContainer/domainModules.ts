@@ -2,7 +2,7 @@ import * as config from "config";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
 import { Controller } from "tsoa";
 import { AmadeusService, CryptographyService, ExchangeService, FeeService, JobRunner, JobTask, LiquidityService, LoggerService, OrderService, PaginationService, RequestLimitService, SaltService, TickerRepository, TickerService, TimeService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../../app";
-import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromManagerTickerService, FromRelayerOrderService, FromRelayerTickerService, LoggerDebug, ManagerOrderService, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
+import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromManagerTickerService, FromRelayerOrderService, FromRelayerTickerService, FromZeroExTickerService, LoggerDebug, ManagerOrderService, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExFeeService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
 import { OrderController } from "../../controllers/orderController";
 import { TokenPairsController } from "../../controllers/tokenPairsController";
 
@@ -15,7 +15,8 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<AmadeusService>(TYPES.AmadeusService).to(FromConfigAmadeusService);
     bind<CryptographyService>(TYPES.CryptographyService).to(ZeroExWrapper).inSingletonScope();
     bind<ExchangeService>(TYPES.ExchangeService).to(ZeroExWrapper).inSingletonScope();
-    bind<FeeService>(TYPES.FeeService).to(ConstantFeeService);
+    bind<FeeService>(TYPES.FeeService).to(ZeroExFeeService).whenTargetNamed("ZeroEx");
+    bind<FeeService>(TYPES.FeeService).to(ConstantFeeService).whenTargetNamed("Constant");
     bind<JobRunner>(TYPES.JobRunner).to(SetIntervalJobRunner).inSingletonScope();
     bind<JobTask>(TYPES.JobTask).to(FillTickerTask);
     bind<LiquidityService>(TYPES.LiquidityService).to(AccountPercentageLiquidityService);
@@ -35,6 +36,7 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<RequestLimitService>(TYPES.RequestLimitService).to(CachedRequestLimitService).inSingletonScope();
     bind<SaltService>(TYPES.SaltService).to(ZeroExWrapper).inSingletonScope();
     bind<TickerRepository>(TYPES.TickerRepository).to(FromCacheTickerService);
+    bind<TickerService>(TYPES.TickerService).to(FromZeroExTickerService).whenTargetIsDefault();
     bind<TickerService>(TYPES.TickerService).to(FromCacheTickerService).whenTargetNamed("Repository");
     bind<TickerService>(TYPES.TickerService).to(FromCoinMarketCapTickerService).whenTargetNamed("CMC");
     bind<TickerService>(TYPES.TickerService).to(FromRelayerTickerService).whenTargetNamed("Relayer");
