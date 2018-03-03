@@ -22,14 +22,14 @@ export class FromRelayerOrderService implements OrderService {
 
     public async listOrders(exchangeContractAddress?: string, tokenAddress?: string, makerTokenAddress?: string, takerTokenAddress?: string, maker?: string, taker?: string, trader?: string, feeRecipient?: string, page?: number, perPage?: number): Promise<SignedOrder[]> {
         const ordersRequest: OrdersRequest = {
-            exchangeContractAddress,
-            tokenAddress,
-            makerTokenAddress,
-            takerTokenAddress,
-            maker,
-            taker,
-            trader,
-            feeRecipient,
+            exchangeContractAddress: exchangeContractAddress,
+            feeRecipient: feeRecipient,
+            maker: maker,
+            makerTokenAddress: makerTokenAddress,
+            taker: taker,
+            takerTokenAddress: takerTokenAddress,
+            tokenAddress: tokenAddress,
+            trader: trader,
         };
         const filterHash = hash(Object.assign({ url: this.url }, ordersRequest));
 
