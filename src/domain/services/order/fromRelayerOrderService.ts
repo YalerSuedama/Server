@@ -64,6 +64,6 @@ export class FromRelayerOrderService implements OrderService {
             this.logger.log("error trying to get filter orders %s from relayer %s: %o", filterHash, this.url, e);
         }
 
-        return null;
+        return [];
     }
 }
