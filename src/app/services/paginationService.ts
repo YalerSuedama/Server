@@ -20,7 +20,7 @@ export class PaginationService {
         }
         if (!perPage) {
             this.logger.log("Setting default items per page to the list size.");
-            perPage = list.length;
+            perPage = list.length > 100 ? list.length : 100;
         }
 
         if (page < 1) {

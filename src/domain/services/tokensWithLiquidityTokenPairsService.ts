@@ -9,7 +9,7 @@ export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
 
     constructor(
         @inject(TYPES.LiquidityService) private liquidityService: LiquidityService,
-        @inject(TYPES.TickerService) @named("Manager") private tickerService: TickerService,
+        @inject(TYPES.TickerService) @named("Repository") private tickerService: TickerService,
         @inject(TYPES.TokenService) private tokenService: TokenService,
         @inject(TYPES.LoggerService) private loggerService: LoggerService,
         private paginationService: PaginationService,

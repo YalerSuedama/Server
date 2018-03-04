@@ -20,7 +20,12 @@ export class ManagerOrderService implements OrderService {
             const urls: string[] = config.get("amadeus.orders.sources.relayers.urls");
             for (const url of urls) {
                 const orderService = this.relayersOrderFactory(url);
-                orders = orders.concat(await orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, maker, taker, trader, feeRecipient, page, perPage));
+                try {
+                    const relayerOrders = await orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, maker, taker, trader, feeRecipient, page, perPage);
+                    orders = orders.concat(relayerOrders);
+                } catch (e) {
+                    this.logger.log(e.message);
+                }
             }
         }
         if (config.get<boolean>("amadeus.orders.sources.amadeus.enabled")) {
