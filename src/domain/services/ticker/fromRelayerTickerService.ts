@@ -51,7 +51,7 @@ export class FromRelayerTickerService implements TickerService {
 
             const orders: SignedOrder[] = await this.httpClient.getOrdersAsync(ordersRequest);
             if (orders != null && orders.length > 0) {
-                return orders[0].makerTokenAmount.dividedBy(orders[0].takerTokenAmount);
+                return orders[0].takerTokenAmount.dividedBy(orders[0].makerTokenAmount);
             }
         } catch (e) {
             this.logger.log("error trying to get ticker %s from relayer: %o", this.getTickerSymbol(tokenFrom, tokenTo), e);
