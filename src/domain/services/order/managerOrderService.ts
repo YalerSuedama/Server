@@ -17,13 +17,16 @@ export class ManagerOrderService implements OrderService {
 
     public async listOrders(exchangeContractAddress?: string, tokenAddress?: string, makerTokenAddress?: string, takerTokenAddress?: string, maker?: string, taker?: string, trader?: string, feeRecipient?: string, page?: number, perPage?: number): Promise<SignedOrder[]> {
         let orders: SignedOrder[] = [];
-        const tokens = await this.tokenService.listAllTokens();
         if (config.get<boolean>("amadeus.orders.sources.relayers.enabled")) {
             const urls: string[] = config.get("amadeus.orders.sources.relayers.urls");
             for (const url of urls) {
                 const orderService = this.relayersOrderFactory(url);
-                orders = orders.concat(await orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, maker, taker, trader, feeRecipient, page, perPage));
-                orders = orders.filter((order) => tokens.some((token) => token.address === order.makerTokenAddress) && tokens.some((token) => token.address === order.takerTokenAddress));
+                try {
+                    const relayerOrders = await orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, maker, taker, trader, feeRecipient, page, perPage);
+                    orders = orders.concat(relayerOrders);
+                } catch (e) {
+                    this.logger.log(e.message);
+                }
             }
         }
         if (config.get<boolean>("amadeus.orders.sources.amadeus.enabled")) {
