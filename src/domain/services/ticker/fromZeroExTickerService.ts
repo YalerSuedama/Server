@@ -12,8 +12,8 @@ export class FromZeroExTickerService implements TickerService {
 
         const newTicker: Ticker = {
             from: ticker.from,
-            to: ticker.to,
             price: ticker.price,
+            to: ticker.to,
         };
 
         if (from.symbol === "ZRX") {
