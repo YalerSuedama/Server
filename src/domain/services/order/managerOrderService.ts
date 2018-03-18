@@ -1,6 +1,6 @@
 import * as config from "config";
 import { inject, injectable, named } from "inversify";
-import { LoggerService, OrderService, TYPES } from "../../../app";
+import { LoggerService, OrderService, TokenService, TYPES } from "../../../app";
 import { SignedOrder } from "../../../app/models";
 
 @injectable()
@@ -10,6 +10,7 @@ export class ManagerOrderService implements OrderService {
         @inject(TYPES.LoggerService) private logger: LoggerService,
         @inject(TYPES.OrderService) @named("Amadeus") private amadeusOrderService: OrderService,
         @inject(TYPES.OrderFactory) private relayersOrderFactory: (url: string) => OrderService,
+        @inject(TYPES.TokenService) private tokenService: TokenService,
     ) {
         this.logger.setNamespace("managerorderservice");
     }

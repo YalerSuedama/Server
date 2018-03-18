@@ -5,13 +5,20 @@ import { Ticker, Token } from "../../../app/models";
 @injectable()
 export class FromZeroExTickerService implements TickerService {
 
-    constructor( @inject(TYPES.TickerService) @named("Repository") private fromCacheTickerService: TickerService, @inject(TYPES.FeeService) @named("ZeroEx") private zeroExFeeService: FeeService) { }
+    constructor( @inject(TYPES.TickerService) @named("Repository") private fromCacheTickerService: TickerService, @inject(TYPES.FeeService) @named("Constant") private feeService: FeeService) { }
 
     public async getTicker(from: Token, to: Token): Promise<Ticker> {
         const ticker = await this.fromCacheTickerService.getTicker(from, to);
+
+        const newTicker: Ticker = {
+            from: ticker.from,
+            to: ticker.to,
+            price: ticker.price,
+        };
+
         if (from.symbol === "ZRX") {
-            ticker.price =  ticker.price.plus(await this.zeroExFeeService.getTakerFee(from));
+            newTicker.price =  ticker.price.plus(await this.feeService.getTakerFee(to, ticker.price));
         }
-        return ticker;
+        return newTicker;
     }
 }

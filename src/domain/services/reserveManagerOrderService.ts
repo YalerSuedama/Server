@@ -17,17 +17,11 @@ export class ReserveManagerOrderService implements OrderService {
         @inject(TYPES.ExchangeService)
         private exchangeService: ExchangeService,
 
-        @inject(TYPES.FeeService) @named("ZeroEx")
-        private zeroExFeeService: FeeService,
-
         @inject(TYPES.FeeService) @named("Constant")
         private feeService: FeeService,
 
         @inject(TYPES.SaltService)
         private saltService: SaltService,
-
-        @inject(TYPES.TickerService)
-        private zeroExTickerService: TickerService,
 
         @inject(TYPES.TickerService) @named("Repository")
         private tickerService: TickerService,
@@ -81,10 +75,7 @@ export class ReserveManagerOrderService implements OrderService {
             this.logger.log("Filtered pairs for takerTokenAddress %s: %o.", takerTokenAddress, pairs);
         }
 
-        let orders: SignedOrder[] = [];
-        for (const pair of pairs) {
-            orders = orders.concat(await this.createSignedOrderFromTokenPair(pair, currentContractAddress, makerAddress, takerAddress, feeRecipientAddress));
-        }
+        let orders = await Promise.all(pairs.map((pair) => this.createSignedOrderFromTokenPair(pair, currentContractAddress, makerAddress, takerAddress, feeRecipientAddress)));
 
         this.logger.log("Found orders: %o.", orders);
         if (makerTokenAddress && takerTokenAddress) {
@@ -101,32 +92,13 @@ export class ReserveManagerOrderService implements OrderService {
         return orders;
     }
 
-    private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo, exchangeContractAddress: string, maker: string, taker: string, feeRecipient: string): Promise<SignedOrder[]> {
+    private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo, exchangeContractAddress: string, maker: string, taker: string, feeRecipient: string): Promise<SignedOrder> {
         this.ensureAllowance(new BigNumber(pair.tokenA.maxAmount), pair.tokenA.address, maker);
-        const zeroExToken = await this.tokenService.getToken("ZRX");
-
-        const orders: SignedOrder[] = [];
-
-        if (pair.tokenA.address === zeroExToken.address) {
-            const zeroExTicker: Ticker = await this.zeroExTickerService.getTicker(await this.tokenService.getTokenByAddress(pair.tokenA.address), await this.tokenService.getTokenByAddress(pair.tokenB.address));
-            orders.push(await this.cryptographyService.signOrder({
-                exchangeContractAddress,
-                expirationUnixTimestampSec: this.timeService.getExpirationTimestamp(),
-                feeRecipient,
-                maker,
-                makerFee: (await this.zeroExFeeService.getMakerFee(zeroExTicker.from)).toString(),
-                makerTokenAddress: zeroExTicker.from.address,
-                makerTokenAmount: pair.tokenA.maxAmount.toString(),
-                salt: await this.saltService.getSalt(),
-                taker: taker || Utils.ZERO_ADDRESS,
-                takerFee: (await this.zeroExFeeService.getTakerFee(zeroExTicker.to)).toString(),
-                takerTokenAddress: zeroExTicker.to.address,
-                takerTokenAmount: new BigNumber(pair.tokenA.maxAmount).mul(zeroExTicker.price).floor().toString(),
-            }));
-        }
 
         const ticker: Ticker = await this.tickerService.getTicker(await this.tokenService.getTokenByAddress(pair.tokenA.address), await this.tokenService.getTokenByAddress(pair.tokenB.address));
-        orders.push(await this.cryptographyService.signOrder({
+        const takerTokenAmount: BigNumber = new BigNumber(pair.tokenA.maxAmount).mul(ticker.price).floor();
+
+        return await this.cryptographyService.signOrder({
             exchangeContractAddress,
             expirationUnixTimestampSec: this.timeService.getExpirationTimestamp(),
             feeRecipient,
@@ -136,12 +108,30 @@ export class ReserveManagerOrderService implements OrderService {
             makerTokenAmount: pair.tokenA.maxAmount.toString(),
             salt: await this.saltService.getSalt(),
             taker: taker || Utils.ZERO_ADDRESS,
-            takerFee: (await this.feeService.getTakerFee(ticker.to)).toString(),
+            takerFee: (await this.feeService.getTakerFee(ticker.to, takerTokenAmount)).toString(),
             takerTokenAddress: ticker.to.address,
-            takerTokenAmount: new BigNumber(pair.tokenA.maxAmount).mul(ticker.price).floor().toString(),
-        }));
+            takerTokenAmount: takerTokenAmount.toString(),
+        });
+    }
 
-        return orders;
+    private async createOrder(pair: TokenPairTradeInfo, exchangeContractAddress: string, feeRecipient: string, maker: string, taker: string, tickerService: TickerService, feeService: FeeService) {
+        const ticker: Ticker = await tickerService.getTicker(await this.tokenService.getTokenByAddress(pair.tokenA.address), await this.tokenService.getTokenByAddress(pair.tokenB.address));
+        const takerTokenAmount: BigNumber = new BigNumber(pair.tokenA.maxAmount).mul(ticker.price).floor();
+
+        return await this.cryptographyService.signOrder({
+            exchangeContractAddress,
+            expirationUnixTimestampSec: this.timeService.getExpirationTimestamp(),
+            feeRecipient,
+            maker,
+            makerFee: (await feeService.getMakerFee(ticker.from)).toString(),
+            makerTokenAddress: ticker.from.address,
+            makerTokenAmount: pair.tokenA.maxAmount.toString(),
+            salt: await this.saltService.getSalt(),
+            taker: taker || Utils.ZERO_ADDRESS,
+            takerFee: (await feeService.getTakerFee(ticker.to, takerTokenAmount)).toString(),
+            takerTokenAddress: ticker.to.address,
+            takerTokenAmount: takerTokenAmount.toString(),
+        });
     }
 
     private ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string) {
