@@ -29,7 +29,7 @@ describe("TokensWithLiquidityTokenPairsService", () => {
         it("returns pairs with tokenA as left-hand side or right-hand side of pair", async () => {
             const symbol = TOKENS[1];
             const address = DEFAULT_ADDRESS + symbol;
-            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(symbol);
+            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(address);
             // tslint:disable-next-line:no-unused-expression
             expect(returned.find((pair) => pair.tokenA.address === address)).to.be.ok;
             // tslint:disable-next-line:no-unused-expression
@@ -40,7 +40,7 @@ describe("TokensWithLiquidityTokenPairsService", () => {
         it("returns pairs with tokenB as left-hand side or right-hand side of pair.", async () => {
             const symbol = TOKENS[1];
             const address = DEFAULT_ADDRESS + symbol;
-            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(null, symbol);
+            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(null, address);
             // tslint:disable-next-line:no-unused-expression
             expect(returned.find((pair) => pair.tokenA.address === address)).to.be.ok;
             // tslint:disable-next-line:no-unused-expression
@@ -49,12 +49,12 @@ describe("TokensWithLiquidityTokenPairsService", () => {
     });
     context("When tokenA and tokenB are informed", () => {
         it("returns pairs with at least one of the tokens and the other token of the pair is tokenC.", async () => {
-            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(TOKENS[0], TOKENS[1]);
+            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(DEFAULT_ADDRESS + TOKENS[0], DEFAULT_ADDRESS + TOKENS[1]);
             // tslint:disable-next-line:no-unused-expression
             expect(returned.find((pair) => pair.tokenB.address === DEFAULT_ADDRESS + TOKENS[2])).to.be.ok;
         });
         it("returns pairs with tokenA and tokenB as one of the pairs (in that order).", async () => {
-            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(TOKENS[0], TOKENS[1]);
+            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(DEFAULT_ADDRESS + TOKENS[0], DEFAULT_ADDRESS + TOKENS[1]);
             // tslint:disable-next-line:no-unused-expression
             expect(returned.find((pair) => pair.tokenA.address === DEFAULT_ADDRESS + TOKENS[0] && pair.tokenB.address === DEFAULT_ADDRESS + TOKENS[1])).to.be.ok;
         });
