@@ -96,6 +96,7 @@ export class ReserveManagerOrderService implements OrderService {
         this.ensureAllowance(new BigNumber(pair.tokenA.maxAmount), pair.tokenA.address, maker);
 
         const ticker: Ticker = await this.tickerService.getTicker(await this.tokenService.getTokenByAddress(pair.tokenA.address), await this.tokenService.getTokenByAddress(pair.tokenB.address));
+        const takerTokenAmount: BigNumber = Utils.getRoundAmount(new BigNumber(pair.tokenA.maxAmount).mul(ticker.price));
 
         return await this.cryptographyService.signOrder({
             exchangeContractAddress,
@@ -107,9 +108,9 @@ export class ReserveManagerOrderService implements OrderService {
             makerTokenAmount: pair.tokenA.maxAmount.toString(),
             salt: await this.saltService.getSalt(),
             taker: taker || Utils.ZERO_ADDRESS,
-            takerFee: (await this.feeService.getTakerFee(ticker.to, new BigNumber(pair.tokenB.maxAmount))).toString(),
+            takerFee: (await this.feeService.getTakerFee(ticker.to, takerTokenAmount)).toString(),
             takerTokenAddress: ticker.to.address,
-            takerTokenAmount: pair.tokenB.maxAmount,
+            takerTokenAmount: takerTokenAmount.toString(),
         });
     }
 
