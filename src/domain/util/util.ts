@@ -27,6 +27,6 @@ export function getRoundAmount(amount: BigNumber): BigNumber {
     if (amount.lessThanOrEqualTo(10)) {
         return amount;
     }
-    const baseValue = new BigNumber(10).pow(config.get("amadeus.decimalPlaces") || 6);
+    const baseValue = new BigNumber(10).pow(18 - (config.get<number>("amadeus.decimalPlaces") || 6));
     return amount.dividedToIntegerBy(baseValue).mul(baseValue);
 }
