@@ -1,4 +1,5 @@
 import { BigNumber } from "bignumber.js";
+import * as config from "config";
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -20,4 +21,12 @@ export function flatten<T>(array: T[][], removeNulls?: boolean): T[] {
         }
         return result.concat(a);
     }).filter((el) => !removeNulls || el);
+}
+
+export function getRoundAmount(amount: BigNumber): BigNumber {
+    if (amount.lessThanOrEqualTo(10)) {
+        return amount;
+    }
+    const baseValue = new BigNumber(10).pow(config.get("amadeus.decimalPlaces") || 6);
+    return amount.dividedToIntegerBy(baseValue).mul(baseValue);
 }
