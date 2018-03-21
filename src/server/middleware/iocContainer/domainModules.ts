@@ -20,9 +20,9 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<JobTask>(TYPES.JobTask).to(FillTickerTask);
     bind<LiquidityService>(TYPES.LiquidityService).to(AccountPercentageLiquidityService);
     bind<LoggerService>(TYPES.LoggerService).to(LoggerDebug);
-    bind<OrderService>(TYPES.OrderService).to(ManagerOrderService).whenTargetIsDefault();
-    bind<OrderService>(TYPES.OrderService).to(FromRelayerOrderService).whenTargetNamed("Relayer");
-    bind<OrderService>(TYPES.OrderService).to(ReserveManagerOrderService).whenTargetNamed("Amadeus");
+    // bind<OrderService>(TYPES.OrderService).to(ManagerOrderService).whenTargetIsDefault();
+    // bind<OrderService>(TYPES.OrderService).to(FromRelayerOrderService).whenTargetNamed("Relayer");
+    bind<OrderService>(TYPES.OrderService).to(ReserveManagerOrderService).whenTargetIsDefault(); // .whenTargetNamed("Amadeus");
     bind<interfaces.Factory<OrderService>>(TYPES.OrderFactory).toFactory((context: interfaces.Context) => {
         return (url: string) => {
             context.container.bind<string>(TYPES.OrderRelayerUrl).toConstantValue(url);
