@@ -27,10 +27,11 @@ export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
         pools = pools.filter((pool) => pool && !pool.maximumAmount.isNegative() && !pool.maximumAmount.isZero());
         this.loggerService.log("Pools with amount: %o", pools);
         let pairs: TokenPairTradeInfo[] = await this.getAllPairs(pools, tradabletokens);
-        if (tokenA) {
+        if (tokenA && tokenB) {
+            pairs = pairs.filter((pair) => pair.tokenA.address === tokenA || pair.tokenB.address === tokenA || pair.tokenA.address === tokenB || pair.tokenB.address === tokenB);
+        } else if (tokenA) {
             pairs = pairs.filter((pair) => pair.tokenA.address === tokenA || pair.tokenB.address === tokenA);
-        }
-        if (tokenB) {
+        } else if (tokenB) {
             pairs = pairs.filter((pair) => pair.tokenA.address === tokenB || pair.tokenB.address === tokenB);
         }
         pairs = await this.paginationService.paginate(pairs, page, perPage);
