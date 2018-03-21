@@ -8,7 +8,7 @@ const stub: TickerService = {
     getTicker: (tokenFrom: Token, tokenTo: Token) => Promise.resolve({
         from: tokenFrom,
         to: tokenTo,
-        price: new BigNumber(TOKENS.findIndex((token) => token === tokenFrom.symbol)),
+        price: new BigNumber(TOKENS.findIndex((token) => token === tokenFrom.symbol) + 1),
     }),
 };
 

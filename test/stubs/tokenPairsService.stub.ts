@@ -13,15 +13,15 @@ const stub: TokenPairsService = {
                     pairs.push({
                         tokenA: {
                             address: token.address,
-                            minAmount: "0",
-                            maxAmount: "1",
-                            precision: 1,
+                            minAmount: "10000000000000",
+                            maxAmount: "100000000000000",
+                            precision: 5,
                         },
                         tokenB: {
                             address: tokenTo.address,
-                            minAmount: "0",
-                            maxAmount: "1",
-                            precision: 1,
+                            minAmount: "20000000000000",
+                            maxAmount: "200000000000000",
+                            precision: 5,
                         },
                     });
                 }

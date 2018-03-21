@@ -59,7 +59,7 @@ describe("TokensWithLiquidityTokenPairsService", () => {
             expect(returned.find((pair) => pair.tokenA.address === DEFAULT_ADDRESS + TOKENS[0] && pair.tokenB.address === DEFAULT_ADDRESS + TOKENS[1])).to.be.ok;
         });
         it("returns pairs with tokenA and tokenB as one of the pairs (in reversed order).", async () => {
-            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(TOKENS[1], TOKENS[0]);
+            const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(DEFAULT_ADDRESS + TOKENS[1], DEFAULT_ADDRESS + TOKENS[0]);
             // tslint:disable-next-line:no-unused-expression
             expect(returned.find((pair) => pair.tokenA.address === DEFAULT_ADDRESS + TOKENS[0] && pair.tokenB.address === DEFAULT_ADDRESS + TOKENS[1])).to.be.ok;
         });
@@ -104,7 +104,7 @@ describe("TokensWithLiquidityTokenPairsService", () => {
                     const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(undefined, undefined, 2, 2);
                     expect(returned).to.be.an("array").that.has.lengthOf(2);
                     expect(returned.findIndex((pair) => pair.tokenA.address === tokenAddress2 && pair.tokenB.address === tokenAddress1)).to.be.equal(0);
-                    expect(returned.findIndex((pair) => pair.tokenA.address === tokenAddress3 && pair.tokenB.address === tokenAddress1)).to.be.equal(1);
+                    expect(returned.findIndex((pair) => pair.tokenA.address === tokenAddress2 && pair.tokenB.address === tokenAddress3)).to.be.equal(1);
                 });
             });
         });
@@ -125,22 +125,22 @@ describe("TokensWithLiquidityTokenPairsService", () => {
         context("as a number greater than zero", () => {
             context("and there is more than one page", () => {
                 context("and the page is 1", () => {
-                    it("should return the exact number of orders of perPage parameter", async () => {
+                    it("should return the exact number of pairs of perPage parameter", async () => {
                         const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(undefined, undefined, 1, 4);
                         expect(returned).to.be.an("array").that.has.lengthOf(4);
                     });
                 });
                 context("and the page parameter is the last page", () => {
-                    it("should return only the remaining orders", async () => {
-                        const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(undefined, undefined, 2, 8);
-                        expect(returned).to.be.an("array").that.has.lengthOf(4);
+                    it("should return only the remaining pairs", async () => {
+                        const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(undefined, undefined, 2, 4);
+                        expect(returned).to.be.an("array").that.has.lengthOf(2);
                     });
                 });
             });
             context("and there is only one page", () => {
-                it("should return only the remaining orders", async () => {
+                it("should return only the remaining pairs", async () => {
                     const returned = await iocContainer.get<TokenPairsService>(TYPES.TokenPairsService).listPairs(undefined, undefined, 1, 20);
-                    expect(returned).to.be.an("array").that.has.lengthOf(12);
+                    expect(returned).to.be.an("array").that.has.lengthOf(6);
                 });
             });
         });

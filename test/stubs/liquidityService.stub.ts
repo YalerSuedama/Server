@@ -6,10 +6,10 @@ import { Token } from "../../src/app/models";
 const stub: LiquidityService = {
     getAvailableAmount: (token: Token) => Promise.resolve({
         token,
-        availableAmount: new BigNumber(10),
-        maximumAmount: new BigNumber(10),
-        minimumAmount: new BigNumber(0),
-        precision: 5,
+        availableAmount: new BigNumber(10).pow(16),
+        maximumAmount: new BigNumber(10).pow(15),
+        minimumAmount: new BigNumber(10).pow(13),
+        precision: 6,
     }),
 };
 
