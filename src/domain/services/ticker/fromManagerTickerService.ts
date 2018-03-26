@@ -75,7 +75,7 @@ export class FromManagerTickerService implements TickerService {
 
     private async getPriceFromCoinMarketCap(tokenFrom: Token, tokenTo: Token, weight: number): Promise<BigNumber> {
         const cmcTicker = await this.cmcTickerService.getTicker(tokenFrom, tokenTo);
-        const cmcWeight = (Math.round(((1 - weight) * 100)) / 100);
+        const cmcWeight = (Math.round(((1 - weight) * 100)) / 100.0);
         return cmcTicker != null ? cmcTicker.price.times(cmcWeight) : null;
     }
 }
