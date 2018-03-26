@@ -5,7 +5,7 @@
         },
         "fee": {
             "maker": 0,
-            "taker": 0.01
+            "taker": 0.001
         },
         "liquidityPercentage": 0.02,
         "decimalPlaces": 6,
