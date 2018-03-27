@@ -5,7 +5,7 @@
         },
         "fee": {
             "maker": 0,
-            "taker": 0.01
+            "taker": 0.001
         },
         "liquidityPercentage": 0.02,
         "decimalPlaces": 6,
@@ -65,7 +65,7 @@
                         "weight": 0.6
                     },
                     {
-                        "endpoint": "https://api.ercdex.com/api/standard/1/v0/orders",
+                        "endpoint": "https://api.ercdex.com/api/standard/1/v0/",
                         "weight": 0.2
                     }
                 ]

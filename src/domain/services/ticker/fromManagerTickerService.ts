@@ -55,7 +55,7 @@ export class FromManagerTickerService implements TickerService {
                 if (mediumPrice == null) {
                     mediumPrice = new BigNumber(0);
                 }
-                mediumPrice.add(price);
+                mediumPrice = mediumPrice.add(price);
                 totalWeight = totalWeight + url.weight;
             }
         }));
@@ -75,7 +75,7 @@ export class FromManagerTickerService implements TickerService {
 
     private async getPriceFromCoinMarketCap(tokenFrom: Token, tokenTo: Token, weight: number): Promise<BigNumber> {
         const cmcTicker = await this.cmcTickerService.getTicker(tokenFrom, tokenTo);
-        const cmcWeight = (Math.round(((1 - weight) * 100)) / 100);
+        const cmcWeight = (Math.round(((1 - weight) * 100)) / 100.0);
         return cmcTicker != null ? cmcTicker.price.times(cmcWeight) : null;
     }
 }
