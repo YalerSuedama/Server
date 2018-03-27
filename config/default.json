@@ -65,7 +65,7 @@
                         "weight": 0.6
                     },
                     {
-                        "endpoint": "https://api.ercdex.com/api/standard/1/v0/orders",
+                        "endpoint": "https://api.ercdex.com/api/standard/1/v0/",
                         "weight": 0.2
                     }
                 ]

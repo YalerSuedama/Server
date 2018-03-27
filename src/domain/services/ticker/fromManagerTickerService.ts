@@ -55,7 +55,7 @@ export class FromManagerTickerService implements TickerService {
                 if (mediumPrice == null) {
                     mediumPrice = new BigNumber(0);
                 }
-                mediumPrice.add(price);
+                mediumPrice = mediumPrice.add(price);
                 totalWeight = totalWeight + url.weight;
             }
         }));
