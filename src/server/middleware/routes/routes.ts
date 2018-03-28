@@ -3,6 +3,7 @@ import { Controller, ValidateParam, FieldErrors, ValidateError, TsoaRoute } from
 import { iocContainer } from './../iocContainer';
 import { OrderController } from './../../controllers/orderController';
 import { TokenPairsController } from './../../controllers/tokenPairsController';
+import { PostOrderController } from './../../controllers/postOrderController';
 
 const models: TsoaRoute.Models = {
     "ECSignature": {
@@ -99,6 +100,24 @@ export function RegisterRoutes(app: any) {
 
 
             const promise = controller.listPairs.apply(controller, validatedArgs);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.get('/api/v0/order',
+        function(request: any, response: any, next: any) {
+            const args = {
+                signedOrder: { "in": "body", "name": "signedOrder", "dataType": "SignedOrder" }
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<PostOrderController>(PostOrderController);
+
+            const promise = controller.postOrder.apply(controller, validatedArgs);
             promiseHandler(controller, promise, response, next);
         });
 

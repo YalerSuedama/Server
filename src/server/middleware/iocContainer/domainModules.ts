@@ -5,11 +5,13 @@ import { AmadeusService, CryptographyService, ExchangeService, FeeService, JobRu
 import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromManagerTickerService, FromRelayerOrderService, FromRelayerTickerService, FromZeroExTickerService, LoggerDebug, ManagerOrderService, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExFeeService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
 import { OrderController } from "../../controllers/orderController";
 import { TokenPairsController } from "../../controllers/tokenPairsController";
+import { PostOrderController } from "../../controllers/postOrderController";
 
 export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     // Controllers
     bind<OrderController>(OrderController).toSelf();
     bind<TokenPairsController>(TokenPairsController).toSelf();
+    bind<PostOrderController>(PostOrderController).toSelf();
 
     // Services
     bind<AmadeusService>(TYPES.AmadeusService).to(FromConfigAmadeusService);

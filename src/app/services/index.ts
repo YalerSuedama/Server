@@ -8,6 +8,7 @@ export { LiquidityService } from "./liquidityService";
 export { LoggerService } from "./loggerService";
 export { OrderService } from "./orderService";
 export { PaginationService } from "./paginationService";
+export { PostOrderService } from "./postOrderService";
 export { RequestLimitService } from "./requestLimitService";
 export { SaltService } from "./saltService";
 export { TickerService } from "./tickerService";

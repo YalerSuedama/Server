@@ -52,6 +52,26 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
         return Object.assign({}, order, { ecSignature: signature });
     }
 
+    public async isValidSignedOrder(signedOrder: SignedOrder): Promise<boolean> {
+        const hash = ZeroEx.getOrderHashHex({
+            maker: signedOrder.maker,
+            taker: signedOrder.taker,
+            makerFee: new BigNumber(signedOrder.makerFee),
+            takerFee: new BigNumber(signedOrder.takerFee),
+            makerTokenAmount: new BigNumber(signedOrder.makerTokenAmount),
+            takerTokenAmount: new BigNumber(signedOrder.takerTokenAmount),
+            makerTokenAddress: signedOrder.makerTokenAddress,
+            takerTokenAddress: signedOrder.takerTokenAddress,
+            salt: new BigNumber(signedOrder.salt),
+            exchangeContractAddress: signedOrder.exchangeContractAddress,
+            feeRecipient: signedOrder.feeRecipient,
+            expirationUnixTimestampSec: new BigNumber(signedOrder.expirationUnixTimestampSec),
+            ecSignature: signedOrder.ecSignature
+        });
+        return ZeroEx.isValidOrderHash(hash) && 
+            ZeroEx.isValidSignature(hash, signedOrder.ecSignature, signedOrder.maker);
+    }
+
     /** ExchangeService */
 
     public async get0xContractAddress(): Promise<string> {
