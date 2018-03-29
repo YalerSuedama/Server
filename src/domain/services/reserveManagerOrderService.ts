@@ -17,7 +17,7 @@ export class ReserveManagerOrderService implements OrderService {
         @inject(TYPES.ExchangeService)
         private exchangeService: ExchangeService,
 
-        @inject(TYPES.FeeService) @named("Constant")
+        @inject(TYPES.FeeService) @named("ConstantReserveManager")
         private feeService: FeeService,
 
         @inject(TYPES.SaltService)
