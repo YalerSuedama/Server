@@ -24,11 +24,7 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
 
     public init() {
         this.web3 = new Web3Factory().createWeb3(ZeroExWrapper.privateKey, this.loggerService.clone());
-        if (config.has("amadeus.0x")) {
-            this.zeroEx = new ZeroEx(this.web3.currentProvider, config.get("amadeus.0x"));
-        } else {
-            this.zeroEx = new ZeroEx(this.web3.currentProvider);
-        }
+        this.zeroEx = new ZeroEx(this.web3.currentProvider, config.get("amadeus.0x"));
     }
 
     /** CryptographyService */
@@ -48,14 +44,14 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
             feeRecipient: order.feeRecipient,
             expirationUnixTimestampSec: new BigNumber(order.expirationUnixTimestampSec),
         });
-        const signature = await this.zeroEx.signOrderHashAsync(hash, await this.web3.eth.getCoinbase());
+        const signature = await this.zeroEx.signOrderHashAsync(hash, await this.web3.eth.getCoinbase(), false);
         return Object.assign({}, order, { ecSignature: signature });
     }
 
     /** ExchangeService */
 
     public async get0xContractAddress(): Promise<string> {
-        return this.zeroEx.exchange.getContractAddressAsync();
+        return this.zeroEx.exchange.getContractAddress();
     }
 
     public async getBalance(address: string, token?: Token): Promise<BigNumber> {
@@ -101,14 +97,14 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     }
 
     private async isWETHAddress(address: string): Promise<boolean> {
-        return (await this.zeroEx.etherToken.getContractAddressAsync()) === address;
+        return this.zeroEx.etherToken.getContractAddressIfExists() === address;
     }
 
     private async wrapETH(amount: string, address: string): Promise<void> {
         const amountAsBigNumber = new BigNumber(amount);
-        const balance = await this.zeroEx.token.getBalanceAsync(await this.zeroEx.etherToken.getContractAddressAsync(), address);
+        const balance = await this.zeroEx.token.getBalanceAsync(this.zeroEx.etherToken.getContractAddressIfExists(), address);
         if (balance.lessThan(amountAsBigNumber)) {
-            const tx = await this.zeroEx.etherToken.depositAsync(amountAsBigNumber.minus(balance), address);
+            const tx = await this.zeroEx.etherToken.depositAsync(this.zeroEx.etherToken.getContractAddressIfExists(), amountAsBigNumber.minus(balance), address);
             await this.zeroEx.awaitTransactionMinedAsync(tx);
         }
     }
