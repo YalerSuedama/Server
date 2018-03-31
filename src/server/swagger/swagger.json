@@ -132,6 +132,25 @@
 				"tokenB"
 			],
 			"type": "object"
+		},
+		"Fee": {
+			"properties": {
+				"feeRecipient": {
+					"type": "string"
+				},
+				"makerFee": {
+					"type": "string"
+				},
+				"takerFee": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"feeRecipient",
+				"makerFee",
+				"takerFee"
+			],
+			"type": "object"
 		}
 	},
 	"info": {
@@ -347,6 +366,162 @@
 						"required": false,
 						"format": "double",
 						"type": "number"
+					}
+				]
+			}
+		},
+		"/fees": {
+			"post": {
+				"operationId": "CalculateFee",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/Fee"
+						},
+						"examples": {
+							"application/json": {
+								"feeRecipient": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"makerFee": "000000000000000001",
+								"takerFee": "000000000000000001"
+							}
+						}
+					},
+					"400": {
+						"description": "A parameter is not informed correctly.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
+					},
+					"500": {
+						"description": "An unknown error occurred.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
+					}
+				},
+				"description": "This method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).",
+				"summary": "Given an unsigned order without the fee-related properties, returns the required feeRecipient, makerFee, and takerFee of that order.",
+				"security": [],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"schema": {
+							"properties": {
+								"exchangeContractAddress": {
+									"type": "string",
+									"description": "Will validate this contract address to calculate fee."
+								},
+								"makerTokenAddress": {
+									"type": "string",
+									"description": "Will calculate maker fee based on this maker token address price."
+								},
+								"takerTokenAddress": {
+									"type": "string",
+									"description": "Will calculate taker fee based on this taker token address price."
+								},
+								"maker": {
+									"type": "string",
+									"description": "Will validate this maker address to calculate fee."
+								},
+								"taker": {
+									"type": "string",
+									"description": "Will validate this taker address to calculate fee, and it has to be the relayer address."
+								},
+								"makerTokenAmount": {
+									"type": "string",
+									"description": "Will calculate convertion price based on this maker token amount, and will use it to calculate fee."
+								},
+								"takerTokenAmount": {
+									"type": "string",
+									"description": "Will calculate convertion price based on this taker token amount, and will use it to calculate fee."
+								},
+								"expirationUnixTimestampSec": {
+									"type": "string",
+									"description": "Will validate the expiration time to calculate fee."
+								},
+								"salt": {
+									"type": "string",
+									"description": "Will validate this unique number to calculate fee."
+								}
+							},
+							"title": "CalculateFeeBody",
+							"type": "object",
+							"required": [
+								"exchangeContractAddress",
+								"makerTokenAddress",
+								"takerTokenAddress",
+								"maker",
+								"taker",
+								"makerTokenAmount",
+								"takerTokenAmount",
+								"expirationUnixTimestampSec",
+								"salt"
+							]
+						}
+					}
+				]
+			}
+		},
+		"/order": {
+			"post": {
+				"operationId": "PostOrder",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"204": {
+						"description": "No content",
+						"examples": {
+							"application/json": {
+								"ecSignature": {
+									"r": "string",
+									"s": "string",
+									"v": 0
+								},
+								"exchangeContractAddress": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"expirationUnixTimestampSec": "1511833100",
+								"feeRecipient": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"maker": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"makerFee": "000000000000000001",
+								"makerTokenAddress": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"makerTokenAmount": "1000000000000000000",
+								"salt": "72190258645710948815942036721950834632004444658131970136856055217425783080581",
+								"taker": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"takerFee": "000000000000000001",
+								"takerTokenAddress": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"takerTokenAmount": "1000000000000000000"
+							}
+						}
+					},
+					"400": {
+						"description": "A parameter is not informed correctly.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
+					},
+					"500": {
+						"description": "An unknown error occurred.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
+					}
+				},
+				"description": "This method allows signed orders to be submited to our relayer.\nThis method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).",
+				"summary": "Submit a signed order to our relayer.",
+				"security": [],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "signedOrder",
+						"required": false,
+						"schema": {
+							"$ref": "#/definitions/SignedOrder"
+						}
 					}
 				]
 			}

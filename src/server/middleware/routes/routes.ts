@@ -3,6 +3,7 @@ import { Controller, ValidateParam, FieldErrors, ValidateError, TsoaRoute } from
 import { iocContainer } from './../iocContainer';
 import { OrderController } from './../../controllers/orderController';
 import { TokenPairsController } from './../../controllers/tokenPairsController';
+import { FeeController } from './../../controllers/feeController';
 import { PostOrderController } from './../../controllers/postOrderController';
 
 const models: TsoaRoute.Models = {
@@ -47,6 +48,13 @@ const models: TsoaRoute.Models = {
         "properties": {
             "tokenA": { "ref": "TokenTradeInfo", "required": true },
             "tokenB": { "ref": "TokenTradeInfo", "required": true },
+        },
+    },
+    "Fee": {
+        "properties": {
+            "feeRecipient": { "dataType": "string", "required": true },
+            "makerFee": { "dataType": "string", "required": true },
+            "takerFee": { "dataType": "string", "required": true },
         },
     },
 };
@@ -102,10 +110,37 @@ export function RegisterRoutes(app: any) {
             const promise = controller.listPairs.apply(controller, validatedArgs);
             promiseHandler(controller, promise, response, next);
         });
-    app.get('/api/v0/order',
+    app.post('/api/v0/fees',
         function(request: any, response: any, next: any) {
             const args = {
-                signedOrder: { "in": "body", "name": "signedOrder", "dataType": "SignedOrder" }
+                exchangeContractAddress: { "in": "body-prop", "name": "exchangeContractAddress", "required": true, "dataType": "string" },
+                makerTokenAddress: { "in": "body-prop", "name": "makerTokenAddress", "required": true, "dataType": "string" },
+                takerTokenAddress: { "in": "body-prop", "name": "takerTokenAddress", "required": true, "dataType": "string" },
+                maker: { "in": "body-prop", "name": "maker", "required": true, "dataType": "string" },
+                taker: { "in": "body-prop", "name": "taker", "required": true, "dataType": "string" },
+                makerTokenAmount: { "in": "body-prop", "name": "makerTokenAmount", "required": true, "dataType": "string" },
+                takerTokenAmount: { "in": "body-prop", "name": "takerTokenAmount", "required": true, "dataType": "string" },
+                expirationUnixTimestampSec: { "in": "body-prop", "name": "expirationUnixTimestampSec", "required": true, "dataType": "string" },
+                salt: { "in": "body-prop", "name": "salt", "required": true, "dataType": "string" },
+            };
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = iocContainer.get<FeeController>(FeeController);
+
+
+            const promise = controller.calculateFee.apply(controller, validatedArgs);
+            promiseHandler(controller, promise, response, next);
+        });
+    app.post('/api/v0/order',
+        function(request: any, response: any, next: any) {
+            const args = {
+                signedOrder: { "in": "body", "name": "signedOrder", "ref": "SignedOrder" },
             };
 
             let validatedArgs: any[] = [];
@@ -116,6 +151,7 @@ export function RegisterRoutes(app: any) {
             }
 
             const controller = iocContainer.get<PostOrderController>(PostOrderController);
+
 
             const promise = controller.postOrder.apply(controller, validatedArgs);
             promiseHandler(controller, promise, response, next);

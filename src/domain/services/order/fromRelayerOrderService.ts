@@ -1,4 +1,4 @@
-import { HttpClient, OrdersRequest, SignedOrder as ZeroExSignedOrder } from "@0xproject/connect";
+import { HttpClient, OrdersRequestOpts, SignedOrder as ZeroExSignedOrder } from "@0xproject/connect";
 import { BigNumber } from "bignumber.js";
 import * as config from "config";
 import { inject, injectable } from "inversify";
@@ -21,7 +21,7 @@ export class FromRelayerOrderService implements OrderService {
     }
 
     public async listOrders(exchangeContractAddress?: string, tokenAddress?: string, makerTokenAddress?: string, takerTokenAddress?: string, maker?: string, taker?: string, trader?: string, feeRecipient?: string, page?: number, perPage?: number): Promise<SignedOrder[]> {
-        const ordersRequest: OrdersRequest = {
+        const ordersRequest: OrdersRequestOpts = {
             exchangeContractAddress: exchangeContractAddress,
             feeRecipient: feeRecipient,
             maker: maker,
@@ -54,7 +54,7 @@ export class FromRelayerOrderService implements OrderService {
         return orders;
     }
 
-    private async getFromRelayer(filterHash: string, ordersRequest: OrdersRequest, page?: number, perPage?: number): Promise<SignedOrder[]> {
+    private async getFromRelayer(filterHash: string, ordersRequest: OrdersRequestOpts, page?: number, perPage?: number): Promise<SignedOrder[]> {
         try {
             const orders: ZeroExSignedOrder[] = await this.httpClient.getOrdersAsync(ordersRequest);
             if (orders != null && orders.length > 0) {

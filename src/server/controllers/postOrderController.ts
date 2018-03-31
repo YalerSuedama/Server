@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import * as moment from "moment";
-import { Controller, Example, FieldErrors, Post, Body, Response, Route, ValidateError } from "tsoa";
+import { Body, Controller, Example, FieldErrors, Post, Response, Route, ValidateError } from "tsoa";
 import { CryptographyService, PostOrderService, TYPES } from "../../app";
 import { SignedOrder } from "../../app/models";
 import { ErrorModel } from "../middleware/errorHandler";
@@ -17,7 +17,7 @@ export class PostOrderController extends Controller {
     }
 
     /**
-     * This method allows signed orders to be submited to our relayer.
+     * This method allows signed orders to be submited to our relayer so they can be filled by Amadeus Relayer.
      * This method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).
      * @summary Submit a signed order to our relayer.
      * @param {SignedOrder} signed order.
@@ -56,33 +56,33 @@ export class PostOrderController extends Controller {
     private validateSignedOrder(signedOrder: SignedOrder): void {
         const fieldErrors: FieldErrors = {};
 
-        if(signedOrder == null){
-            fieldErrors['null'] = {
-                message: 'Signed order not provided'
-            };
-        }
-      
-        if(!this.cryptographyService.isValidSignedOrder(signedOrder)){
-            fieldErrors['signature'] = {
-                message: 'Signed order not valid'
+        if (signedOrder == null) {
+            fieldErrors.null = {
+                message: "Signed order not provided",
             };
         }
 
-        if(!this.postOrderService.validateFee(signedOrder)){
-            fieldErrors['fee'] = {
-                message: 'Fee not valid'
+        if (!this.cryptographyService.isValidSignedOrder(signedOrder)) {
+            fieldErrors.signature = {
+                message: "Signed order not valid",
             };
         }
 
-        if(!this.postOrderService.validatePrice(signedOrder)){
-            fieldErrors['price'] = {
-                message: 'Fee not valid'
+        if (!this.postOrderService.validateFee(signedOrder)) {
+            fieldErrors.fee = {
+                message: "Fee not valid",
             };
         }
 
-        if(!this.postOrderService.validateTakerAddress(signedOrder)){
-            fieldErrors['takerAddress'] = {
-                message: 'Fee not valid'
+        if (!this.postOrderService.validatePrice(signedOrder)) {
+            fieldErrors.price = {
+                message: "Fee not valid",
+            };
+        }
+
+        if (!this.postOrderService.validateTakerAddress(signedOrder)) {
+            fieldErrors.takerAddress = {
+                message: "Fee not valid",
             };
         }
 

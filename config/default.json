@@ -1,11 +1,11 @@
 {
     "amadeus": {
         "0x": {
-            "etherTokenContractAddress": "0xd0a1e359811322d97991e03f863a0c30c2cf029c"
+            "networkId": 42
         },
         "fee": {
-            "maker": 0,
-            "taker": 0.01
+            "maker": 0.001,
+            "taker": 0.001
         },
         "liquidityPercentage": 0.02,
         "decimalPlaces": 6,
@@ -65,7 +65,7 @@
                         "weight": 0.6
                     },
                     {
-                        "endpoint": "https://api.ercdex.com/api/standard/1/v0/orders",
+                        "endpoint": "https://api.ercdex.com/api/standard/1/v0/",
                         "weight": 0.2
                     }
                 ]
