@@ -414,39 +414,39 @@
 							"properties": {
 								"exchangeContractAddress": {
 									"type": "string",
-									"description": "Will return all orders created to this contract address."
+									"description": "Will validate this contract address to calculate fee."
 								},
 								"makerTokenAddress": {
 									"type": "string",
-									"description": "Will return all orders where makerTokenAddress is the same address of this parameter."
+									"description": "Will calculate maker fee based on this maker token address price."
 								},
 								"takerTokenAddress": {
 									"type": "string",
-									"description": "Will return all orders where takerTokenAddress is the same address of this parameter."
+									"description": "Will calculate taker fee based on this taker token address price."
 								},
 								"maker": {
 									"type": "string",
-									"description": "Will return all orders where makerAddress is the same address of this parameter."
+									"description": "Will validate this maker address to calculate fee."
 								},
 								"taker": {
 									"type": "string",
-									"description": "Will return all orders where takerAddress is the same address of this parameter."
+									"description": "Will validate this taker address to calculate fee, and it has to be the relayer address."
 								},
 								"makerTokenAmount": {
 									"type": "string",
-									"description": "Will return all orders where takerAddress is the same address of this parameter."
+									"description": "Will calculate convertion price based on this maker token amount, and will use it to calculate fee."
 								},
 								"takerTokenAmount": {
 									"type": "string",
-									"description": "Will return all orders where takerAddress is the same address of this parameter."
+									"description": "Will calculate convertion price based on this taker token amount, and will use it to calculate fee."
 								},
 								"expirationUnixTimestampSec": {
 									"type": "string",
-									"description": "Will return all orders where takerAddress is the same address of this parameter."
+									"description": "Will validate the expiration time to calculate fee."
 								},
 								"salt": {
 									"type": "string",
-									"description": "Will return all orders where takerAddress is the same address of this parameter."
+									"description": "Will validate this unique number to calculate fee."
 								}
 							},
 							"title": "CalculateFeeBody",

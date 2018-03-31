@@ -15,16 +15,15 @@ export class FeeController extends Controller {
     /**
      * This method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).
      * @summary Given an unsigned order without the fee-related properties, returns the required feeRecipient, makerFee, and takerFee of that order.
-     * @param {string} exchangeContractAddress Will return all orders created to this contract address.
-     * @param {string} tokenAddress Will return all orders where makerTokenAddress or takerTokenAddress is token address.
-     * @param {string} makerTokenAddress Will return all orders where makerTokenAddress is the same address of this parameter.
-     * @param {string} takerTokenAddress Will return all orders where takerTokenAddress is the same address of this parameter.
-     * @param {string} maker Will return all orders where makerAddress is the same address of this parameter.
-     * @param {string} taker Will return all orders where takerAddress is the same address of this parameter.
-     * @param {string} makerTokenAmount Will return all orders where takerAddress is the same address of this parameter.
-     * @param {string} takerTokenAmount Will return all orders where takerAddress is the same address of this parameter.
-     * @param {string} expirationUnixTimestampSec Will return all orders where takerAddress is the same address of this parameter.
-     * @param {string} salt Will return all orders where takerAddress is the same address of this parameter.
+     * @param {string} exchangeContractAddress Will validate this contract address to calculate fee.
+     * @param {string} makerTokenAddress Will calculate maker fee based on this maker token address price.
+     * @param {string} takerTokenAddress Will calculate taker fee based on this taker token address price.
+     * @param {string} maker Will validate this maker address to calculate fee.
+     * @param {string} taker Will validate this taker address to calculate fee, and it has to be the relayer address.
+     * @param {string} makerTokenAmount Will calculate convertion price based on this maker token amount, and will use it to calculate fee.
+     * @param {string} takerTokenAmount Will calculate convertion price based on this taker token amount, and will use it to calculate fee.
+     * @param {string} expirationUnixTimestampSec Will validate the expiration time to calculate fee.
+     * @param {string} salt Will validate this unique number to calculate fee.
      */
     @Example<Fee>({
         feeRecipient: "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
