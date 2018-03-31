@@ -132,6 +132,25 @@
 				"tokenB"
 			],
 			"type": "object"
+		},
+		"Fee": {
+			"properties": {
+				"feeRecipient": {
+					"type": "string"
+				},
+				"makerFee": {
+					"type": "string"
+				},
+				"takerFee": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"feeRecipient",
+				"makerFee",
+				"takerFee"
+			],
+			"type": "object"
 		}
 	},
 	"info": {
@@ -347,6 +366,103 @@
 						"required": false,
 						"format": "double",
 						"type": "number"
+					}
+				]
+			}
+		},
+		"/fees": {
+			"post": {
+				"operationId": "CalculateFee",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/Fee"
+						},
+						"examples": {
+							"application/json": {
+								"feeRecipient": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"makerFee": "000000000000000001",
+								"takerFee": "000000000000000001"
+							}
+						}
+					},
+					"400": {
+						"description": "A parameter is not informed correctly.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
+					},
+					"500": {
+						"description": "An unknown error occurred.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
+					}
+				},
+				"description": "This method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).",
+				"summary": "Given an unsigned order without the fee-related properties, returns the required feeRecipient, makerFee, and takerFee of that order.",
+				"security": [],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"schema": {
+							"properties": {
+								"exchangeContractAddress": {
+									"type": "string",
+									"description": "Will validate this contract address to calculate fee."
+								},
+								"makerTokenAddress": {
+									"type": "string",
+									"description": "Will calculate maker fee based on this maker token address price."
+								},
+								"takerTokenAddress": {
+									"type": "string",
+									"description": "Will calculate taker fee based on this taker token address price."
+								},
+								"maker": {
+									"type": "string",
+									"description": "Will validate this maker address to calculate fee."
+								},
+								"taker": {
+									"type": "string",
+									"description": "Will validate this taker address to calculate fee, and it has to be the relayer address."
+								},
+								"makerTokenAmount": {
+									"type": "string",
+									"description": "Will calculate convertion price based on this maker token amount, and will use it to calculate fee."
+								},
+								"takerTokenAmount": {
+									"type": "string",
+									"description": "Will calculate convertion price based on this taker token amount, and will use it to calculate fee."
+								},
+								"expirationUnixTimestampSec": {
+									"type": "string",
+									"description": "Will validate the expiration time to calculate fee."
+								},
+								"salt": {
+									"type": "string",
+									"description": "Will validate this unique number to calculate fee."
+								}
+							},
+							"title": "CalculateFeeBody",
+							"type": "object",
+							"required": [
+								"exchangeContractAddress",
+								"makerTokenAddress",
+								"takerTokenAddress",
+								"maker",
+								"taker",
+								"makerTokenAmount",
+								"takerTokenAmount",
+								"expirationUnixTimestampSec",
+								"salt"
+							]
+						}
 					}
 				]
 			}

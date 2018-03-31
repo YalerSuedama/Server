@@ -2,7 +2,8 @@ import * as config from "config";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
 import { Controller } from "tsoa";
 import { AmadeusService, CryptographyService, ExchangeService, FeeService, JobRunner, JobTask, LiquidityService, LoggerService, OrderService, PaginationService, RequestLimitService, SaltService, TickerRepository, TickerService, TimeService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../../app";
-import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromManagerTickerService, FromRelayerOrderService, FromRelayerTickerService, FromZeroExTickerService, LoggerDebug, ManagerOrderService, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExFeeService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
+import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantQuoteFeeService, ConstantReserveManagerFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromManagerTickerService, FromRelayerOrderService, FromRelayerTickerService, FromZeroExTickerService, LoggerDebug, ManagerOrderService, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExFeeService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
+import { FeeController } from "../../controllers/feeController";
 import { OrderController } from "../../controllers/orderController";
 import { TokenPairsController } from "../../controllers/tokenPairsController";
 
@@ -10,12 +11,14 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     // Controllers
     bind<OrderController>(OrderController).toSelf();
     bind<TokenPairsController>(TokenPairsController).toSelf();
+    bind<FeeController>(FeeController).toSelf();
 
     // Services
     bind<AmadeusService>(TYPES.AmadeusService).to(FromConfigAmadeusService);
     bind<CryptographyService>(TYPES.CryptographyService).to(ZeroExWrapper).inSingletonScope();
     bind<ExchangeService>(TYPES.ExchangeService).to(ZeroExWrapper).inSingletonScope();
-    bind<FeeService>(TYPES.FeeService).to(ConstantFeeService).whenTargetNamed("Constant");
+    bind<FeeService>(TYPES.FeeService).to(ConstantReserveManagerFeeService).whenTargetNamed("ConstantReserveManager");
+    bind<FeeService>(TYPES.FeeService).to(ConstantQuoteFeeService).whenTargetNamed("ConstantQuote");
     bind<JobRunner>(TYPES.JobRunner).to(SetIntervalJobRunner).inSingletonScope();
     bind<JobTask>(TYPES.JobTask).to(FillTickerTask);
     bind<LiquidityService>(TYPES.LiquidityService).to(AccountPercentageLiquidityService);
