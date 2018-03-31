@@ -76,13 +76,13 @@ export class PostOrderController extends Controller {
 
         if (!this.postOrderService.validatePrice(signedOrder)) {
             fieldErrors.price = {
-                message: "Fee not valid",
+                message: "Price not valid",
             };
         }
 
         if (!this.postOrderService.validateTakerAddress(signedOrder)) {
             fieldErrors.takerAddress = {
-                message: "Fee not valid",
+                message: "Taker not valid",
             };
         }
 

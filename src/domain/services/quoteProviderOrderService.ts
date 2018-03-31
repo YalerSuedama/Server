@@ -43,23 +43,23 @@ export class QuoteProviderOrderService implements PostOrderService {
         this.logger.setNamespace("quoteproviderorderservice");
     }
 
-    public async postOrder(order: SignedOrder){
+    public async postOrder(order: SignedOrder) {
         const takerAddress = this.amadeusService.getMainAddress();
-        this.ensureAllowance(new BigNumber(order.takerTokenAmount), order.takerTokenAddress, takerAddress);
-        // todo - fill
+        await this.ensureAllowance(new BigNumber(order.takerTokenAmount), order.takerTokenAddress, takerAddress);
+        await this.exchangeService.fillOrder(order, takerAddress);
     }
 
-    public validateTakerAddress(order: SignedOrder): boolean{
-        return order.taker == this.amadeusService.getMainAddress();
+    public validateTakerAddress(order: SignedOrder): boolean {
+        return order.taker === this.amadeusService.getMainAddress();
     }
 
-    public async validateFee(order: SignedOrder) : Promise<boolean>{
+    public async validateFee(order: SignedOrder): Promise<boolean> {
         const token = await this.tokenService.getTokenByAddress(order.makerTokenAddress);
         const amadeusFee = await this.feeService.getMakerFee(token);
-        return amadeusFee <= new BigNumber(order.makerFee); 
+        return amadeusFee <= new BigNumber(order.makerFee);
     }
 
-    public async validatePrice(order:SignedOrder): Promise<boolean>{
+    public async validatePrice(order: SignedOrder): Promise<boolean> {
         const makerToken = await this.tokenService.getTokenByAddress(order.makerTokenAddress);
         const takerToken = await this.tokenService.getTokenByAddress(order.takerTokenAddress);
         const ticker = await this.tickerService.getTicker(makerToken, takerToken);
@@ -67,7 +67,7 @@ export class QuoteProviderOrderService implements PostOrderService {
         return ticker.price.comparedTo(orderPrice) >= 1;
     }
 
-    private ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string) {
-        this.exchangeService.ensureAllowance(amount, tokenAddress, spenderAddress);
+    private async ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string): Promise<void> {
+        await this.exchangeService.ensureAllowance(amount, tokenAddress, spenderAddress);
     }
 }

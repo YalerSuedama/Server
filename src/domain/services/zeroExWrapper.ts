@@ -7,7 +7,7 @@ import Web3JS = require("web3");
 import { CryptographyService, ExchangeService, LoggerService, SaltService, TokenService, TYPES } from "../../app";
 import { Order, SignedOrder, Token as Token } from "../../app/models";
 import * as Utils from "../util";
-import { Web3Factory } from "../util";
+import { fromAmadeusSignedOrders, Web3Factory } from "../util";
 
 @injectable()
 export class ZeroExWrapper implements CryptographyService, ExchangeService, SaltService, TokenService {
@@ -77,6 +77,20 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
         return this.zeroEx.token.getBalanceAsync(token.address, address);
     }
 
+    public async ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string): Promise<void> {
+        const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, spenderAddress);
+        if (alowancedValue.comparedTo(amount) < 0) {
+            const tx = await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(tokenAddress, spenderAddress);
+            await this.zeroEx.awaitTransactionMinedAsync(tx);
+        }
+    }
+
+    public async fillOrder(order: SignedOrder, fillerAddress?: string): Promise<void> {
+        const zeroExSignedOrder = fromAmadeusSignedOrders([order])[0];
+        const tx = await this.zeroEx.exchange.fillOrderAsync(zeroExSignedOrder, zeroExSignedOrder.takerTokenAmount, false, fillerAddress || zeroExSignedOrder.taker);
+        await this.zeroEx.awaitTransactionMinedAsync(tx);
+    }
+
     /** SaltService */
 
     public async getSalt(): Promise<string> {
@@ -96,14 +110,6 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     public async listAllTokens(): Promise<Token[]> {
         const tokens = await Promise.all(this.getTradableTokens().map(async (symbol) => this.getToken(symbol)));
         return tokens.filter((token) => token);
-    }
-
-    public async ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string): Promise<void> {
-        const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, spenderAddress);
-        if (alowancedValue.comparedTo(amount) < 0) {
-            const tx = await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(tokenAddress, spenderAddress);
-            await this.zeroEx.awaitTransactionMinedAsync(tx);
-        }
     }
 
     /** Private methods */
