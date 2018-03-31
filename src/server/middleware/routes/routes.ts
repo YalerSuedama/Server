@@ -117,8 +117,8 @@ export function RegisterRoutes(app: any) {
                 takerTokenAddress: { "in": "body-prop", "name": "takerTokenAddress", "required": true, "dataType": "string" },
                 maker: { "in": "body-prop", "name": "maker", "required": true, "dataType": "string" },
                 taker: { "in": "body-prop", "name": "taker", "required": true, "dataType": "string" },
-                makerTokenAmount: { "in": "body-prop", "name": "makerTokenAmount", "required": true, "dataType": "string" },
-                takerTokenAmount: { "in": "body-prop", "name": "takerTokenAmount", "required": true, "dataType": "string" },
+                makerTokenAmount: { "in": "body-prop", "name": "makerTokenAmount", "required": false, "dataType": "string" },
+                takerTokenAmount: { "in": "body-prop", "name": "takerTokenAmount", "required": false, "dataType": "string" },
                 expirationUnixTimestampSec: { "in": "body-prop", "name": "expirationUnixTimestampSec", "required": true, "dataType": "string" },
                 salt: { "in": "body-prop", "name": "salt", "required": true, "dataType": "string" },
             };
