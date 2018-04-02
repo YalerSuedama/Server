@@ -1,7 +1,8 @@
+import { BigNumber } from "bignumber.js";
 import { inject, injectable } from "inversify";
 import * as moment from "moment";
 import { Body, Controller, Example, FieldErrors, Post, Response, Route, ValidateError } from "tsoa";
-import { CryptographyService, PostOrderService, TYPES } from "../../app";
+import { CryptographyService, PostOrderService, TYPES, ValidationService } from "../../app";
 import { SignedOrder } from "../../app/models";
 import { ErrorModel } from "../middleware/errorHandler";
 
@@ -12,6 +13,7 @@ export class PostOrderController extends Controller {
     constructor(
         @inject(TYPES.PostOrderService) private postOrderService: PostOrderService,
         @inject(TYPES.CryptographyService) private cryptographyService: CryptographyService,
+        @inject(TYPES.ValidationService) private validationService: ValidationService,
     ) {
         super();
     }
@@ -49,11 +51,11 @@ export class PostOrderController extends Controller {
     })
     @Post()
     public async postOrder(@Body() signedOrder?: SignedOrder ): Promise<void> {
-        this.validateSignedOrder(signedOrder);
+        await this.validateSignedOrder(signedOrder);
         return await this.postOrderService.postOrder(signedOrder);
     }
 
-    private validateSignedOrder(signedOrder: SignedOrder): void {
+    private async validateSignedOrder(signedOrder: SignedOrder): Promise<void> {
         const fieldErrors: FieldErrors = {};
 
         if (signedOrder == null) {
@@ -62,25 +64,25 @@ export class PostOrderController extends Controller {
             };
         }
 
-        if (!this.cryptographyService.isValidSignedOrder(signedOrder)) {
+        if (! await this.cryptographyService.isValidSignedOrder(signedOrder)) {
             fieldErrors.signature = {
                 message: "Signed order not valid",
             };
         }
 
-        if (!this.postOrderService.validateFee(signedOrder)) {
+        if (! await this.validationService.validateFee(signedOrder.makerTokenAddress, new BigNumber(signedOrder.makerFee))) {
             fieldErrors.fee = {
                 message: "Fee not valid",
             };
         }
 
-        if (!this.postOrderService.validatePrice(signedOrder)) {
+        if (! await this.validationService.validatePrice(signedOrder.makerTokenAddress, signedOrder.takerTokenAddress, new BigNumber(signedOrder.makerTokenAmount), new BigNumber(signedOrder.takerTokenAmount))) {
             fieldErrors.price = {
                 message: "Price not valid",
             };
         }
 
-        if (!this.postOrderService.validateTakerAddress(signedOrder)) {
+        if (! await this.validationService.validateMainAddress(signedOrder.taker)) {
             fieldErrors.takerAddress = {
                 message: "Taker not valid",
             };

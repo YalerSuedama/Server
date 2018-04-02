@@ -23,14 +23,11 @@ export class ConstantQuoteFeeService extends ConstantFeeService implements FeeSe
     }
 
     public async calculateFee(exchangeContractAddress: string, makerTokenAddress: string, takerTokenAddress: string, maker: string, taker: string, makerTokenAmount: string, takerTokenAmount: string, expirationUnixTimestampSec: string, salt: string): Promise<Fee> {
-        let pairs: TokenPairTradeInfo[] = await this.tokenPairsService.listPairs(makerTokenAddress, takerTokenAddress);
-        pairs = pairs.filter((pair) => pair.tokenA.address === makerTokenAddress && pair.tokenB.address === takerTokenAddress);
-
-        if (!await this.validateOrder(pairs, exchangeContractAddress, makerTokenAddress, takerTokenAddress, taker, takerTokenAmount)) {
-            return;
+        if (!makerTokenAmount || !takerTokenAmount) {
+            const pair: TokenPairTradeInfo = await this.tokenPairsService.getPair(makerTokenAddress, takerTokenAddress);
+            makerTokenAmount = makerTokenAmount || pair.tokenA.maxAmount;
+            takerTokenAmount = takerTokenAmount || pair.tokenB.maxAmount;
         }
-        makerTokenAmount = makerTokenAmount || pairs[0].tokenA.maxAmount;
-        takerTokenAmount = takerTokenAmount || pairs[0].tokenB.maxAmount;
 
         const makerFee = await this.getMakerFee(await this.tokenService.getTokenByAddress(makerTokenAddress), new BigNumber(makerTokenAmount));
         const takerFee = await this.getTakerFee(await this.tokenService.getTokenByAddress(takerTokenAddress), new BigNumber(takerTokenAmount));
@@ -39,42 +36,6 @@ export class ConstantQuoteFeeService extends ConstantFeeService implements FeeSe
             feeRecipient : await this.getFeeRecipient(),
             makerFee : makerFee.toString(),
             takerFee : takerFee.toString(),
-        };
-    }
-
-    private async validateOrder(pairs: TokenPairTradeInfo[], exchangeContractAddress: string, makerTokenAddress: string, takerTokenAddress: string, taker: string, takerTokenAmount: string): Promise<boolean> {
-        const currentContractAddress = await this.exchangeService.get0xContractAddress();
-
-        const takerAddress = this.amadeusService.getMainAddress();
-        const fieldErrors: string[] = [];
-        const errors: FieldErrors = {};
-
-        if (exchangeContractAddress && exchangeContractAddress !== currentContractAddress) {
-            const message = `Asked for exchange contract address ${exchangeContractAddress} but currently we support ${currentContractAddress}.`;
-            this.parameterError(message, "exchangeContractAddress", errors);
-        }
-        if (taker && taker !== takerAddress) {
-            const message = `Asked for taker address ${taker} but currently we support ${takerAddress}.`;
-            this.parameterError(message, "takerAddress", errors);
-        }
-        if (pairs.length === 0) {
-            const message = `Asked for tokens ${makerTokenAddress} and ${takerTokenAddress} but currently we do not support this combination.`;
-            this.parameterError(message, "makerTokenAddress|takerTokenAddress", errors);
-        } else if (takerTokenAmount && takerTokenAmount > pairs[0].tokenB.maxAmount) {
-            const message = `Asked for taker token amount ${takerTokenAmount} but currently we support ${pairs[0].tokenB.maxAmount}.`;
-            this.parameterError(message, "takerTokenAmount", errors);
-        }
-
-        if (Object.keys(errors).length > 0) {
-            throw new ValidateError(errors, "");
-        }
-        return true;
-    }
-
-    private parameterError(message: string, wrongField: string, errors: FieldErrors) {
-        this.logger.log(message);
-        errors[wrongField] = {
-            message: message,
         };
     }
 }

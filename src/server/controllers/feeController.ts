@@ -1,6 +1,7 @@
+import { BigNumber } from "bignumber.js";
 import { inject, injectable, named } from "inversify";
 import { BodyProp, Controller, Example, FieldErrors, Get, Post, Query, Response, Route, SuccessResponse, ValidateError } from "tsoa";
-import { FeeService, TYPES } from "../../app";
+import { FeeService, TYPES, ValidationService } from "../../app";
 import { Fee } from "../../app/models";
 import { ErrorModel } from "../middleware/errorHandler";
 
@@ -8,7 +9,9 @@ import { ErrorModel } from "../middleware/errorHandler";
 @injectable()
 export class FeeController extends Controller {
 
-    constructor( @inject(TYPES.FeeService) @named("ConstantQuote") private feeService: FeeService) {
+    constructor( @inject(TYPES.FeeService) @named("ConstantQuote") private feeService: FeeService,
+                 @inject(TYPES.ValidationService) private validationService: ValidationService,
+               ) {
         super();
     }
 
@@ -38,6 +41,35 @@ export class FeeController extends Controller {
     })
     @Post()
     public async calculateFee(@BodyProp() exchangeContractAddress: string, @BodyProp() makerTokenAddress: string, @BodyProp() takerTokenAddress: string, @BodyProp() maker: string, @BodyProp() taker: string, @BodyProp() makerTokenAmount: string, @BodyProp() takerTokenAmount: string, @BodyProp() expirationUnixTimestampSec: string, @BodyProp() salt: string): Promise<Fee> {
+        await this.validateUnsignedOrder(exchangeContractAddress, makerTokenAddress, takerTokenAddress, taker, takerTokenAmount);
         return await this.feeService.calculateFee(exchangeContractAddress, makerTokenAddress, takerTokenAddress, maker, taker, makerTokenAmount, takerTokenAmount, expirationUnixTimestampSec, salt);
+    }
+
+    private async validateUnsignedOrder(exchangeContractAddress: string, makerTokenAddress: string, takerTokenAddress: string, taker: string, takerTokenAmount: string) {
+        const errors: FieldErrors = {};
+
+        if (!await this.validationService.validateCurrentContractAddress(exchangeContractAddress)) {
+            errors.exchangeContractAddress = {
+                message: "Invalid exchange contract address",
+            };
+        }
+        if (!this.validationService.validateMainAddress(taker)) {
+            errors.takerAddress = {
+                message: "Invalid taker address",
+            };
+        }
+        if (!await this.validationService.tokenPairIsSupported(makerTokenAddress, takerTokenAddress)) {
+            errors.makerTokenAddress_takerTokenAddress = {
+                message: "Invalid token combination",
+            };
+        } else if (!await this.validationService.validateTakerTokenAmount(makerTokenAddress, takerTokenAddress, new BigNumber(takerTokenAmount))) {
+            errors.takerTokenAmount = {
+                message: "Invalid taker token amount",
+            };
+        }
+
+        if (Object.keys(errors).length > 0) {
+            throw new ValidateError(errors, "");
+        }
     }
 }

@@ -49,24 +49,6 @@ export class QuoteProviderOrderService implements PostOrderService {
         await this.exchangeService.fillOrder(order, takerAddress);
     }
 
-    public validateTakerAddress(order: SignedOrder): boolean {
-        return order.taker === this.amadeusService.getMainAddress();
-    }
-
-    public async validateFee(order: SignedOrder): Promise<boolean> {
-        const token = await this.tokenService.getTokenByAddress(order.makerTokenAddress);
-        const amadeusFee = await this.feeService.getMakerFee(token);
-        return amadeusFee <= new BigNumber(order.makerFee);
-    }
-
-    public async validatePrice(order: SignedOrder): Promise<boolean> {
-        const makerToken = await this.tokenService.getTokenByAddress(order.makerTokenAddress);
-        const takerToken = await this.tokenService.getTokenByAddress(order.takerTokenAddress);
-        const ticker = await this.tickerService.getTicker(makerToken, takerToken);
-        const orderPrice = (new BigNumber(order.makerTokenAmount)).dividedBy(new BigNumber(order.takerTokenAmount));
-        return ticker.price.comparedTo(orderPrice) >= 1;
-    }
-
     private async ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string): Promise<void> {
         await this.exchangeService.ensureAllowance(amount, tokenAddress, spenderAddress);
     }
