@@ -4,7 +4,7 @@ import { AmadeusService } from "../../app";
 
 @injectable()
 export class FromConfigAmadeusService implements AmadeusService {
-    private readonly address = config.get("amadeus.wallet") as string;
+    private readonly address = config.get("amadeus.wallet.address") as string;
 
     public getFeeAddress(): string {
         return this.address;

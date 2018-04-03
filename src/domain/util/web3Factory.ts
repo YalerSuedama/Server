@@ -1,5 +1,6 @@
-import {GasPriceSubProvider} from "./gasPriceSubProvider";
-import {SignerSubProvider} from "./signerSubProvider";
+import { LoggerService } from "../../app";
+import { GasPriceSubProvider } from "./gasPriceSubProvider";
+import { SignerSubProvider } from "./signerSubProvider";
 
 const ProviderEngine = require("web3-provider-engine");
 const WalletSubprovider = require("web3-provider-engine/subproviders/wallet.js");
@@ -12,9 +13,9 @@ const NonceTrackerSubprovider = require("web3-provider-engine/subproviders/nonce
 const Web3 = require("web3");
 
 export class Web3Factory {
-    private static readonly  providerUrl = "https://kovan.infura.io/LhA6Si4etPyPRaC2QVFF";
+    private static readonly providerUrl = "https://kovan.infura.io/LhA6Si4etPyPRaC2QVFF";
 
-    public createWeb3(privateKey: string): any {
+    public createWeb3(privateKey: string, loggerService: LoggerService): any {
         Web3.providers.HttpProvider.prototype.sendAsync = Web3.providers.HttpProvider.prototype.send;
 
         const engine = new ProviderEngine();
@@ -22,11 +23,11 @@ export class Web3Factory {
             net_listening: true,
             eth_hashrate: "0x00",
             eth_mining: false,
-          }));
+        }));
         engine.addProvider(new CacheSubprovider());
         engine.addProvider(new FilterSubprovider());
         engine.addProvider(new NonceTrackerSubprovider());
-        engine.addProvider(new SignerSubProvider(privateKey));
+        engine.addProvider(new SignerSubProvider(privateKey, loggerService));
         engine.addProvider(new GasPriceSubProvider());
         engine.addProvider(new WalletSubprovider(this.getWallet(privateKey), {}));
         engine.addProvider(new RpcSubprovider({

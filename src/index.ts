@@ -1,4 +1,5 @@
-import * as Server from "./server";
-import "./server/controllers";
+import { startServer } from "./server";
+import { startTasks } from "./tasks";
 
-new Server.Server().start();
+startServer();
+startTasks();

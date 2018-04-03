@@ -1,65 +1,96 @@
+import { BigNumber } from "bignumber.js";
 import * as config from "config";
-import { inject, injectable } from "inversify";
-import { LiquidityService, TickerService, TokenPairsService, TokenService, TYPES } from "../../app";
+import { inject, injectable, named } from "inversify";
+import { LiquidityService, LoggerService, PaginationService, TickerService, TokenPairsService, TokenService, TYPES } from "../../app";
 import { Ticker, Token, TokenPairTradeInfo, TokenPool } from "../../app/models";
 import * as Utils from "../util";
 
 @injectable()
 export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
 
+    private static readonly BASE_VALUE = new BigNumber(10).pow(12);
+
     constructor(
         @inject(TYPES.LiquidityService) private liquidityService: LiquidityService,
-        @inject(TYPES.TickerService) private tickerService: TickerService,
+        @inject(TYPES.TickerService) @named("Repository") private tickerService: TickerService,
         @inject(TYPES.TokenService) private tokenService: TokenService,
-    ) { }
+        @inject(TYPES.LoggerService) private loggerService: LoggerService,
+        private paginationService: PaginationService,
+    ) {
+        this.loggerService.setNamespace("tokenswithliquiditytokenpairsservice");
+    }
 
-    public async listPairs(tokenA?: string, tokenB?: string): Promise<TokenPairTradeInfo[]> {
+    public async listPairs(tokenA?: string, tokenB?: string, page?: number, perPage?: number): Promise<TokenPairTradeInfo[]> {
         const tradabletokens: Token[] = await this.tokenService.listAllTokens();
+        this.loggerService.log("Tradable tokens: %o", tradabletokens);
         let pools: TokenPool[] = await Promise.all(tradabletokens.map(async (token) => await this.liquidityService.getAvailableAmount(token)));
         pools = pools.filter((pool) => pool && !pool.maximumAmount.isNegative() && !pool.maximumAmount.isZero());
-        let pairs: TokenPairTradeInfo[] = [];
-        if (!tokenA && !tokenB) {
-            for (const tokenPool of pools) {
-                const foundPairs = await this.getTokenPairsOfToken(tokenPool.token.symbol, pools);
-                pairs = pairs.concat(foundPairs.filter((pair) => pair != null));
+        this.loggerService.log("Pools with amount: %o", pools);
+        let pairs: TokenPairTradeInfo[] = await this.getAllPairs(pools, tradabletokens);
+        if (tokenA && tokenB) {
+            pairs = pairs.filter((pair) => pair.tokenA.address === tokenA || pair.tokenB.address === tokenA || pair.tokenA.address === tokenB || pair.tokenB.address === tokenB);
+        } else if (tokenA) {
+            pairs = pairs.filter((pair) => pair.tokenA.address === tokenA || pair.tokenB.address === tokenA);
+        } else if (tokenB) {
+            pairs = pairs.filter((pair) => pair.tokenA.address === tokenB || pair.tokenB.address === tokenB);
+        }
+        pairs = await this.paginationService.paginate(pairs, page, perPage);
+        this.loggerService.log("Pairs are paginated: %o", pairs);
+        return pairs;
+    }
+
+    private async getAllPairs(pools: TokenPool[], tradabletokens: Token[]): Promise<TokenPairTradeInfo[]> {
+        const pairs: TokenPairTradeInfo[] = [];
+        for (const pool of pools) {
+            for (const token of tradabletokens) {
+                if (token.address !== pool.token.address) {
+                    const pair = await this.createTokenPairTradeInfo(pool, token);
+                    if (pair) {
+                        pairs.push(pair);
+                    }
+                }
             }
-        }
-        if (tokenA) {
-            pairs = pairs.concat(await this.getTokenPairsOfToken(tokenA, pools));
-        }
-        if (tokenB) {
-            pairs = pairs.concat(await this.getTokenPairsOfToken(tokenB, pools));
         }
         return pairs;
     }
 
-    private async getTokenPairsOfToken(tokenSymbol: string, pools: TokenPool[]): Promise<TokenPairTradeInfo[]> {
-        const tokenPool = pools.find((pool) => pool.token.symbol === tokenSymbol);
-        if (tokenPool) {
-            const testingPools = pools.filter((pool) => pool.token !== tokenPool.token);
-            return Promise.all(testingPools.map(async (pool) => await this.createTokenPairTradeInfo(tokenPool, pool)));
+    private async createTokenPairTradeInfo(tokenPoolFrom: TokenPool, tokenTo: Token): Promise<TokenPairTradeInfo> {
+        const ticker = await this.tickerService.getTicker(tokenPoolFrom.token, tokenTo);
+        if (ticker) {
+            if (ticker.price.greaterThan(1)) {
+                return {
+                    tokenA: {
+                        address: tokenPoolFrom.token.address,
+                        minAmount: tokenPoolFrom.minimumAmount.toString(),
+                        maxAmount: tokenPoolFrom.maximumAmount.toString(),
+                        precision: tokenPoolFrom.precision,
+                    },
+                    tokenB: {
+                        address: tokenTo.address,
+                        minAmount: Utils.getRoundAmount(tokenPoolFrom.minimumAmount.mul(ticker.price)).toString(),
+                        maxAmount: Utils.getRoundAmount(tokenPoolFrom.maximumAmount.mul(ticker.price)).toString(),
+                        precision: tokenPoolFrom.precision,
+                    },
+                };
+            }
+            if (Utils.getRoundAmount(tokenPoolFrom.minimumAmount.dividedBy(ticker.price)).lessThan(tokenPoolFrom.maximumAmount)) {
+                return {
+                    tokenA: {
+                        address: tokenPoolFrom.token.address,
+                        minAmount: Utils.getRoundAmount(tokenPoolFrom.minimumAmount.dividedBy(ticker.price)).toString(),
+                        maxAmount: tokenPoolFrom.maximumAmount.toString(),
+                        precision: tokenPoolFrom.precision,
+                    },
+                    tokenB: {
+                        address: tokenTo.address,
+                        minAmount: tokenPoolFrom.minimumAmount.toString(),
+                        maxAmount: Utils.getRoundAmount(tokenPoolFrom.maximumAmount.mul(ticker.price)).toString(),
+                        precision: tokenPoolFrom.precision,
+                    },
+                };
+            }
         }
         return null;
     }
 
-    private async createTokenPairTradeInfo(tokenPoolFrom: TokenPool, tokenPoolTo: TokenPool): Promise<TokenPairTradeInfo> {
-        const ticker = await this.tickerService.getTicker(tokenPoolFrom.token, tokenPoolTo.token);
-        if (ticker) {
-            return {
-                tokenA: {
-                    address: tokenPoolFrom.token.address,
-                    minAmount: tokenPoolFrom.minimumAmount.toString(),
-                    maxAmount: tokenPoolFrom.maximumAmount.toString(),
-                    precision: tokenPoolFrom.precision,
-                },
-                tokenB: {
-                    address: tokenPoolTo.token.address,
-                    minAmount: tokenPoolTo.minimumAmount.toString(),
-                    maxAmount: tokenPoolTo.maximumAmount.toString(),
-                    precision: tokenPoolTo.precision,
-                },
-            };
-        }
-        return null;
-    }
 }

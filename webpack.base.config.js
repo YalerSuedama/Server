@@ -15,7 +15,11 @@ module.exports = {
         path: path.resolve(__dirname, 'dist')
     },
     plugins: [
-        new CopyWebpackPlugin([{ from: './src/server/swagger/swagger.json' }])
+        new webpack.DefinePlugin({
+            'process.env.ETHEREUM_NODE': JSON.stringify('localhost'),
+            'process.env.DEBUG': '*'
+        }),
+        new CopyWebpackPlugin([{ from: './config/default.json', to: './config' }, { from: './src/server/swagger/swagger.json' }])
     ],
     resolve: {
         extensions: [".ts", ".js"]

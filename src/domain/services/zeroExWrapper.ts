@@ -1,28 +1,29 @@
 import { ZeroEx } from "0x.js";
 import { BigNumber } from "bignumber.js";
 import * as config from "config";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import * as _ from "lodash";
 import Web3JS = require("web3");
-import { CryptographyService, ExchangeService, SaltService, TokenService } from "../../app";
+import { CryptographyService, ExchangeService, LoggerService, SaltService, TokenService, TYPES } from "../../app";
 import { Order, SignedOrder, Token as Token } from "../../app/models";
 import * as Utils from "../util";
 import { Web3Factory } from "../util";
 
 @injectable()
 export class ZeroExWrapper implements CryptographyService, ExchangeService, SaltService, TokenService {
-    private static readonly TRADABLE_TOKENS_KEY = "amadeus.tradableTokens";
+    private static readonly TRADABLE_TOKENS_KEY = "amadeus.tokens";
     private static readonly DEFAULT_TOKENS = ["WETH", "ZRX", "GNT"];
-    private static readonly privateKey = config.get("amadeus.privateKey") as string;
+    private static readonly privateKey = config.get("amadeus.wallet.privateKey") as string;
     private web3: Web3JS;
     private zeroEx: ZeroEx;
 
-    constructor() {
-        setTimeout(() => this.init(), 10);
+    constructor( @inject(TYPES.LoggerService) private loggerService: LoggerService) {
+        this.loggerService.setNamespace("zeroexwrapper");
+        this.init();
     }
 
     public init() {
-        this.web3 = new Web3Factory().createWeb3(ZeroExWrapper.privateKey);
+        this.web3 = new Web3Factory().createWeb3(ZeroExWrapper.privateKey, this.loggerService.clone());
         if (config.has("amadeus.0x")) {
             this.zeroEx = new ZeroEx(this.web3.currentProvider, config.get("amadeus.0x"));
         } else {
@@ -94,7 +95,7 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
 
     private getTradableTokens(): string[] {
         if (config.has(ZeroExWrapper.TRADABLE_TOKENS_KEY)) {
-            return config.get(ZeroExWrapper.TRADABLE_TOKENS_KEY) as string[];
+            return Object.keys(config.get(ZeroExWrapper.TRADABLE_TOKENS_KEY));
         }
         return ZeroExWrapper.DEFAULT_TOKENS;
     }

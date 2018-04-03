@@ -3,6 +3,7 @@ import * as config from "config";
 import { inject, injectable } from "inversify";
 import { AmadeusService, ExchangeService, LiquidityService, TYPES } from "../../app";
 import { Token, TokenPool } from "../../app/models";
+import * as Utils from "../util";
 
 @injectable()
 export class AccountPercentageLiquidityService implements LiquidityService {
@@ -20,21 +21,14 @@ export class AccountPercentageLiquidityService implements LiquidityService {
         }
 
         const totalAmount = await this.exchangeService.getBalance(this.amadeusService.getMainAddress(), token);
-        const availableAmount = totalAmount.times(this.getAvailablePercentage()).dividedToIntegerBy(1);
+        const minimun = new BigNumber(config.get("amadeus.minimun") || "10000000000000");
+        const availableAmount = Utils.getRoundAmount(totalAmount.times(this.getAvailablePercentage()).dividedToIntegerBy(1));
         return {
             token,
-            maximumAmount: this.getRoundAmount(availableAmount),
-            minimumAmount: new BigNumber(0),
-            precision: 6,
+            maximumAmount: availableAmount.greaterThan(minimun) ? availableAmount : new BigNumber(0),
+            minimumAmount: availableAmount.greaterThan(minimun) ? minimun : new BigNumber(0),
+            precision: config.get("amadeus.decimalPlaces") || 6,
         };
-    }
-
-    private getRoundAmount(amount: BigNumber): BigNumber {
-        if (amount.lessThanOrEqualTo(10)) {
-            return amount;
-        }
-        const base = new BigNumber(10).pow(amount.e);
-        return amount.dividedToIntegerBy(base).mul(base);
     }
 
     private getAvailablePercentage(): BigNumber {

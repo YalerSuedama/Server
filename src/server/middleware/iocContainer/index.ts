@@ -1,5 +1,4 @@
 import { Container } from "inversify";
-import "reflect-metadata";
 import { domainModules } from "./domainModules";
 import { thirdPartyModules } from "./thirdPartyModules";
 

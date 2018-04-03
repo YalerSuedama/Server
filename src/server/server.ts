@@ -6,149 +6,84 @@ import * as health from "express-ping";
 import * as fs from "fs";
 import * as https from "https";
 import * as swaggerUI from "swagger-ui-express";
-import { Logger, TYPES } from "../app";
+import { ValidateError } from "tsoa";
+import { LoggerService, TYPES } from "../app";
 import { analytics } from "./middleware/analytics/analytics";
+import { errorHandler } from "./middleware/errorHandler";
 import { iocContainer } from "./middleware/iocContainer";
+import requestLimit from "./middleware/requestLimit/requestLimit";
 import { RegisterRoutes } from "./middleware/routes/routes";
 import * as swaggerJSON from "./swagger/swagger.json";
 
 export class Server {
-    public expressServerHttps: express.Application;
-    public expressServerHttp: express.Application;
-    private isListeningHttps: boolean = false;
-    private isListeningHttp: boolean = false;
-    private useDNSValidator: boolean;
+    protected express: express.Application;
+    protected logger: LoggerService;
+    private isListening: boolean = false;
     private useHttps: boolean;
-    private useHttp: boolean;
-    private logger: Logger;
 
-    constructor() {
-        this.logger = iocContainer.get<Logger>(TYPES.Logger);
+    constructor(useHttps: boolean) {
+        this.useHttps = useHttps;
+        this.express = express();
+        this.logger = iocContainer.get<LoggerService>(TYPES.LoggerService);
         this.logger.setNamespace("Server");
-
-        this.useHttps = config.get("server.useHttps");
-        if (this.useHttps) {
-            this.expressServerHttps = express();
-            this.configureServer(this.expressServerHttps);
-            RegisterRoutes(this.expressServerHttps);
+        if (config.get<boolean>("server.dnsValidator.active")) {
+            this.configureDnsValidator();
         }
-
-        this.useDNSValidator = config.get("DNSValidator.active");
-        this.useHttp = config.get("server.useHttp");
-        this.expressServerHttp = express();
-        if (this.useDNSValidator) {
-            this.configureDNSValidator(this.expressServerHttp);
-        }
-        if (this.useHttp) {
-            this.configureServer(this.expressServerHttp);
-            RegisterRoutes(this.expressServerHttp);
-        } else if (this.useHttps) {
-            this.configureRedirect(this.expressServerHttp);
-        }
+        this.configure();
+        RegisterRoutes(this.express);
+        this.express.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+            this.logger.log("error with status %d and message '%s': %o", err.status, err.message, err);
+            next(err);
+        });
+        this.express.use(errorHandler);
     }
 
     public start(): void {
-        if (this.useHttps) {
-            this.startHttps();
-        }
-        this.startHttp();
-    }
-
-    private startHttps(): void {
-        const port = parseInt(config.get("server.port-https"), 10);
+        const port: number = config.get(`server.port-${this.useHttps ? "https" : "http"}`);
         let hostname: string = null;
         if (config.has("server.hostname")) {
             hostname = config.get("server.hostname") as string;
         }
-        if (this.isListeningHttps) {
+        if (this.isListening) {
             throw new Error("Server is already started.");
         }
 
-        const server = https.createServer({
+        const application = this.useHttps ? https.createServer({
             key  : fs.readFileSync("ssl/backend.key"),
             cert : fs.readFileSync("ssl/backend.crt"),
             ca : [ fs.readFileSync("ssl/backendca.crt") ]},
-            this.expressServerHttps).listen(port, hostname, (err: any) => {
+            this.express) : this.express;
+
+        const server = application.listen(port, hostname, (err: any) => {
             if (err) {
                 throw err;
             }
-            this.isListeningHttps = true;
+            this.isListening = true;
             const expressHost = server.address();
             this.logger.log(`
     ------------
-    Server started: https://${expressHost.address}:${expressHost.port}
-    Health: https://${expressHost.address}:${expressHost.port}/ping
-    Swagger Spec: https://${expressHost.address}:${expressHost.port}/api-docs
-    ------------`);
-        });
-    }
-
-    private startHttp(): void {
-        const port = parseInt(config.get("server.port-http"), 10);
-        let hostname: string = null;
-        if (config.has("server.hostname")) {
-            hostname = config.get("server.hostname") as string;
-        }
-        if (this.isListeningHttp) {
-            throw new Error("Server is already started.");
-        }
-
-        const server = this.expressServerHttp.listen(port, hostname, (err: any) => {
-            if (err) {
-                throw err;
-            }
-            this.isListeningHttp = true;
-            const expressHost = server.address();
-            this.logger.log(`
-    ------------`);
-            if (this.useHttp) {
-                this.logger.log(`    Server started: http://${expressHost.address}:${expressHost.port}
+    Server started: http://${expressHost.address}:${expressHost.port}
     Health: http://${expressHost.address}:${expressHost.port}/ping
-    Swagger Spec: http://${expressHost.address}:${expressHost.port}/api-docs`);
-            } else if (this.useHttps) {
-                this.logger.log(`    Redirect Server started: http://${expressHost.address}:${expressHost.port}`);
-            }
-            if (this.useDNSValidator) {
-                this.logger.log(`    DNS Validator started: http://${expressHost.address}:${expressHost.port}`);
-            }
-            this.logger.log(`    ------------`);
+    Swagger Spec: http://${expressHost.address}:${expressHost.port}/api-docs
+    ------------`);
         });
     }
 
-    private configureServer(app: express.Application): void {
-        app.use(cors());
-        app.use(bodyParser.json());
-        app.use(bodyParser.urlencoded({ extended: false }));
-        app.use(health.ping());
-        app.use(analytics);
-        app.use("/swagger.json", express.static(__dirname + "/swagger.json"));
-        app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJSON));
-        app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-            res.status(err.status || 500);
-            res.json({
-                message: err.message,
-                error: err,
-            });
-        });
+    protected configure(): void {
+        this.express.use(cors());
+        this.express.use(bodyParser.json());
+        this.express.use(bodyParser.urlencoded({ extended: false }));
+        this.express.use(health.ping());
+        this.express.use(analytics);
+        this.express.use(requestLimit);
+        this.express.use("/swagger.json", express.static(__dirname + "/swagger.json"));
+        this.express.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJSON));
     }
 
-    private configureDNSValidator(app: express.Application): void {
-        app.get(config.get("DNSValidator.path"), (req, res) => {
+    protected configureDnsValidator() {
+        this.express.get(config.get("server.dnsValidator.path"), (req, res) => {
             this.logger.log("DNS checker called");
-            res.send(config.get("DNSValidator.response"));
-        });
-    }
-
-    private configureRedirect(app: express.Application): void {
-        app.get("*", (req, res) => {
-            this.logger.log("Http redirect called");
-            const httpPort = ":" + parseInt(config.get("server.port-http"), 10);
-            const httpsPort = ":" + parseInt(config.get("server.port-https"), 10);
-            let host = req.headers.host;
-            if (req.headers.host.toString().indexOf(httpPort) > - 1) {
-                host = host.toString().replace(httpPort, httpsPort);
-            }
-            res.redirect("https://" + host + req.url);
+            res.send(config.get("server.dnsValidator.response"));
         });
     }
 }

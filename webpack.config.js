@@ -9,9 +9,8 @@ module.exports = merge(baseConfig, {
     plugins: [
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('production'),
-            'process.env.ETHEREUM_NODE': JSON.stringify('localhost'),
         }),
-        new CopyWebpackPlugin([{ from: './config/default.json', to: './config' }]),
+        new CopyWebpackPlugin([{ from: './config/production.json', to: './config' }]),
         new UglifyJsPlugin({
             uglifyOptions: {
                 compress: {
