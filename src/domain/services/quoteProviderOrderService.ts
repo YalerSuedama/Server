@@ -11,42 +11,23 @@ export class QuoteProviderOrderService implements PostOrderService {
         @inject(TYPES.AmadeusService)
         private amadeusService: AmadeusService,
 
-        @inject(TYPES.CryptographyService)
-        private cryptographyService: CryptographyService,
-
         @inject(TYPES.ExchangeService)
         private exchangeService: ExchangeService,
 
-        @inject(TYPES.FeeService) @named("Constant")
-        private feeService: FeeService,
-
-        @inject(TYPES.SaltService)
-        private saltService: SaltService,
-
-        @inject(TYPES.TickerService) @named("Repository")
-        private tickerService: TickerService,
-
-        @inject(TYPES.TimeService)
-        private timeService: TimeService,
-
-        @inject(TYPES.TokenPairsService)
-        private tokenPairsService: TokenPairsService,
-
-        @inject(TYPES.TokenService)
-        private tokenService: TokenService,
-
         @inject(TYPES.LoggerService)
         private logger: LoggerService,
-
-        private paginationService: PaginationService,
     ) {
         this.logger.setNamespace("quoteproviderorderservice");
     }
 
     public async postOrder(order: SignedOrder) {
-        const takerAddress = this.amadeusService.getMainAddress();
+        this.logger.log("Filling order %o.", order);
+        const takerAddress = this.amadeusService.getMainAddress() || order.taker;
+        this.logger.log("Filling order with address %s.", takerAddress);
         await this.ensureAllowance(new BigNumber(order.takerTokenAmount), order.takerTokenAddress, takerAddress);
+        this.logger.log("Allowance set for address %s.", takerAddress);
         await this.exchangeService.fillOrder(order, takerAddress);
+        this.logger.log("Order %o filled.", order);
     }
 
     private async ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string): Promise<void> {

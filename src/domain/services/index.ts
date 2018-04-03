@@ -9,12 +9,13 @@ export * from "./cachedRequestLimitService";
 export * from "./fee/constantQuoteFeeService";
 export * from "./fee/constantReserveManagerFeeService";
 export * from "./zeroExFeeService"; // any file that uses 0xConnect (even indirectly), MUST be exported AFTER this line
-export * from "./fromConfigAmadeusService";
-export * from "./ticker/fromManagerTickerService";
-export * from "./order/managerOrderService";
 export * from "./order/fromRelayerOrderService";
+export * from "./order/managerOrderService";
+export * from "./ticker/fromManagerTickerService";
 export * from "./ticker/fromRelayerTickerService";
+export * from "./fromConfigAmadeusService";
 export * from "./loggerDebug";
+export * from "./quoteProviderOrderService";
 export * from "./reserveManagerOrderService";
 export * from "./timeServiceImpl";
 export * from "./tokensWithLiquidityTokenPairsService";

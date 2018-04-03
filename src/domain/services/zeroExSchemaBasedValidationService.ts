@@ -3,6 +3,7 @@ import { BigNumber } from "bignumber.js";
 import { inject, injectable, named } from "inversify";
 import { AmadeusService, ExchangeService, FeeService, TickerService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../app";
 import { TokenPairTradeInfo } from "../../app/models";
+import { ZERO_ADDRESS } from "../util";
 
 @injectable()
 export class ZeroExSchemaBasedValidationService implements ValidationService {
@@ -23,7 +24,7 @@ export class ZeroExSchemaBasedValidationService implements ValidationService {
     }
 
     public validateMainAddress(address: string): boolean {
-        return address === this.amadeusService.getMainAddress();
+        return address === ZERO_ADDRESS || address === this.amadeusService.getMainAddress();
     }
 
     public async validateFee(makerTokenAddress: string, makerFee: BigNumber): Promise<boolean> {

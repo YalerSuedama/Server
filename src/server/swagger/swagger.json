@@ -511,7 +511,7 @@
 						}
 					}
 				},
-				"description": "This method allows signed orders to be submited to our relayer.\nThis method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).",
+				"description": "This method allows signed orders to be submited to our relayer so they can be filled by Amadeus Relayer.\nThis method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).",
 				"summary": "Submit a signed order to our relayer.",
 				"security": [],
 				"parameters": [

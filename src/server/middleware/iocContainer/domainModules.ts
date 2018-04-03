@@ -2,7 +2,7 @@ import * as config from "config";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
 import { Controller } from "tsoa";
 import { AmadeusService, CryptographyService, ExchangeService, FeeService, JobRunner, JobTask, LiquidityService, LoggerService, OrderService, PaginationService, RequestLimitService, SaltService, TickerRepository, TickerService, TimeService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../../app";
-import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantQuoteFeeService, ConstantReserveManagerFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromManagerTickerService, FromRelayerOrderService, FromRelayerTickerService, FromZeroExTickerService, LoggerDebug, ManagerOrderService, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExFeeService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
+import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantQuoteFeeService, ConstantReserveManagerFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromManagerTickerService, FromRelayerOrderService, FromRelayerTickerService, FromZeroExTickerService, LoggerDebug, ManagerOrderService, QuoteProviderOrderService, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExFeeService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
 import { FeeController } from "../../controllers/feeController";
 import { OrderController } from "../../controllers/orderController";
 import { PostOrderController } from "../../controllers/postOrderController";
@@ -37,6 +37,7 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
         };
     });
     bind(PaginationService).toSelf();
+    bind<PostOrderService>(TYPES.PostOrderService).to(QuoteProviderOrderService);
     bind<RequestLimitService>(TYPES.RequestLimitService).to(CachedRequestLimitService).inSingletonScope();
     bind<SaltService>(TYPES.SaltService).to(ZeroExWrapper).inSingletonScope();
     bind<TickerRepository>(TYPES.TickerRepository).to(FromCacheTickerService);
