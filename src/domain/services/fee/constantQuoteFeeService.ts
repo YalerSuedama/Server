@@ -53,8 +53,8 @@ export class ConstantQuoteFeeService extends ConstantFeeService implements FeeSe
             const message = `Asked for exchange contract address ${exchangeContractAddress} but currently we support ${currentContractAddress}.`;
             this.parameterError(message, "exchangeContractAddress", errors);
         }
-        if (taker && taker !== takerAddress) {
-            const message = `Asked for taker address ${taker} but currently we support ${takerAddress}.`;
+        if (taker && taker !== takerAddress && taker !== Utils.ZERO_ADDRESS) {
+            const message = `Asked for taker address ${taker} but currently we support ${takerAddress} or ${Utils.ZERO_ADDRESS}.`;
             this.parameterError(message, "takerAddress", errors);
         }
         if (pairs.length === 0) {
