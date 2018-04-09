@@ -70,7 +70,7 @@ export class PostOrderController extends Controller {
             };
         }
 
-        if (! await this.validationService.validateFee(signedOrder.makerTokenAddress, new BigNumber(signedOrder.makerFee))) {
+        if (! await this.validationService.validateFee(signedOrder.makerTokenAddress, new BigNumber(signedOrder.makerFee), new BigNumber(signedOrder.makerTokenAmount))) {
             fieldErrors.fee = {
                 message: "Fee not valid",
             };

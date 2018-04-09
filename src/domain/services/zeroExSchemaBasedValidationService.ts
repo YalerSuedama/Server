@@ -27,17 +27,17 @@ export class ZeroExSchemaBasedValidationService implements ValidationService {
         return address === ZERO_ADDRESS || address === this.amadeusService.getMainAddress();
     }
 
-    public async validateFee(makerTokenAddress: string, makerFee: BigNumber): Promise<boolean> {
+    public async validateFee(makerTokenAddress: string, makerFee: BigNumber, makerTokenAmount: BigNumber): Promise<boolean> {
         const token = await this.tokenService.getTokenByAddress(makerTokenAddress);
-        const amadeusFee = await this.feeService.getMakerFee(token);
-        return amadeusFee <= makerFee;
+        const amadeusFee = await this.feeService.getMakerFee(token, makerTokenAmount);
+        return amadeusFee.lessThanOrEqualTo(makerFee);
     }
     public async validatePrice(makerTokenAddress: string, takerTokenAddress: string, makerTokenAmount: BigNumber, takerTokenAmount: BigNumber): Promise<boolean> {
         const makerToken = await this.tokenService.getTokenByAddress(makerTokenAddress);
         const takerToken = await this.tokenService.getTokenByAddress(takerTokenAddress);
         const ticker = await this.tickerService.getTicker(makerToken, takerToken);
         const orderPrice = makerTokenAmount.dividedBy(takerTokenAmount);
-        return ticker.price.comparedTo(orderPrice) >= 1;
+        return ticker.price.greaterThan(orderPrice);
     }
 
     public async validateCurrentContractAddress(address: string): Promise<boolean> {
@@ -52,6 +52,6 @@ export class ZeroExSchemaBasedValidationService implements ValidationService {
 
     public async validateTakerTokenAmount(makerTokenAddress: string, takerTokenAddress: string, takerTokenAmount: BigNumber): Promise<boolean> {
         const pair: TokenPairTradeInfo = await this.tokenPairsService.getPair(makerTokenAddress, takerTokenAddress);
-        return !takerTokenAmount || takerTokenAmount <= new BigNumber(pair.tokenB.maxAmount);
+        return !takerTokenAmount || takerTokenAmount.lessThanOrEqualTo(new BigNumber(pair.tokenB.maxAmount));
     }
 }

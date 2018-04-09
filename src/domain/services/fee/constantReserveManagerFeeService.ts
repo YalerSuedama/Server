@@ -9,7 +9,7 @@ import { ConstantFeeService } from "./constantFeeService";
 @injectable()
 export class ConstantReserveManagerFeeService extends ConstantFeeService implements FeeService {
 
-    public async getMakerFee(token?: Token): Promise<BigNumber> {
+    public async getMakerFee(token?: Token, amount?: BigNumber): Promise<BigNumber> {
         return new BigNumber(0);
     }
 
