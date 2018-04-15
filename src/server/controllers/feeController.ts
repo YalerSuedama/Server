@@ -3,7 +3,7 @@ import { inject, injectable, named } from "inversify";
 import { BodyProp, Controller, Example, FieldErrors, Get, Post, Query, Response, Route, SuccessResponse, ValidateError } from "tsoa";
 import { FeeService, TYPES, ValidationService } from "../../app";
 import { Fee } from "../../app/models";
-import { ErrorModel } from "../middleware/errorHandler";
+import { ErrorCode, ErrorModel, ValidationErrorCode } from "../middleware/errorHandler";
 
 @Route("fees")
 @injectable()
@@ -34,25 +34,36 @@ export class FeeController extends Controller {
         takerFee: "000000000000000001",
     })
     @Response<ErrorModel>("400", "A parameter is not informed correctly.", {
-        message: "some string",
+        code: ErrorCode.ValidationFailed,
+        reason: "some string",
+        validationErrors: [{
+            code: ValidationErrorCode.RequiredField​​,
+            field: "field name",
+            reason: "some string",
+        }],
     })
     @Response<ErrorModel>("500", "An unknown error occurred.", {
-        message: "some string",
+        code: ErrorCode.UnknownError,
+        reason: "some string",
+        validationErrors: null,
     })
     @Post()
-    public async calculateFee(@BodyProp() exchangeContractAddress: string, @BodyProp() makerTokenAddress: string, @BodyProp() takerTokenAddress: string, @BodyProp() maker: string, @BodyProp() taker: string, @BodyProp() makerTokenAmount: string, @BodyProp() takerTokenAmount: string, @BodyProp() expirationUnixTimestampSec: string, @BodyProp() salt: string): Promise<Fee> {
+    public async calculateFee(@BodyProp() exchangeContractAddress: string, @BodyProp() makerTokenAddress: string, @BodyProp() takerTokenAddress: string,
+                              @BodyProp() maker: string, @BodyProp() taker: string, @BodyProp() expirationUnixTimestampSec: string,
+                              @BodyProp() salt: string, @BodyProp() makerTokenAmount?: number,
+                              @BodyProp() takerTokenAmount?: string): Promise<Fee> {
+
         await this.validateUnsignedOrder(exchangeContractAddress, makerTokenAddress, takerTokenAddress, taker, takerTokenAmount);
-        return await this.feeService.calculateFee(exchangeContractAddress, makerTokenAddress, takerTokenAddress, maker, taker, makerTokenAmount, takerTokenAmount, expirationUnixTimestampSec, salt);
+        return await this.feeService.calculateFee(exchangeContractAddress, makerTokenAddress, takerTokenAddress, maker, taker, makerTokenAmount + "", takerTokenAmount, expirationUnixTimestampSec, salt);
+    }
+
+    public getAddressParameters(): string[] {
+        return ["exchangeContractAddress", "makerTokenAddress", "takerTokenAddress", "maker", "taker"];
     }
 
     private async validateUnsignedOrder(exchangeContractAddress: string, makerTokenAddress: string, takerTokenAddress: string, taker: string, takerTokenAmount: string) {
         const errors: FieldErrors = {};
 
-        if (!await this.validationService.validateCurrentContractAddress(exchangeContractAddress)) {
-            errors.exchangeContractAddress = {
-                message: "Invalid exchange contract address",
-            };
-        }
         if (!this.validationService.validateMainAddress(taker)) {
             errors.takerAddress = {
                 message: "Invalid taker address",

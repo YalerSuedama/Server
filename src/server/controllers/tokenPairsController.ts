@@ -1,14 +1,17 @@
 import { inject, injectable } from "inversify";
 import { Controller, Example, FieldErrors, Get, Query, Response, Route, SuccessResponse, ValidateError } from "tsoa";
-import { TokenPairsService, TYPES } from "../../app";
+import { TokenPairsService, TYPES, ValidationService } from "../../app";
 import { TokenPairTradeInfo } from "../../app/models";
-import { ErrorModel } from "../middleware/errorHandler";
+import { ParameterValidator } from "../../server/controllers/parameterValidator";
+import { ErrorCode, ErrorModel, ValidationErrorCode } from "../middleware/errorHandler";
 
 @Route("token_pairs")
 @injectable()
 export class TokenPairsController extends Controller {
 
-    constructor( @inject(TYPES.TokenPairsService) private tokenPairsService: TokenPairsService) {
+    constructor(
+        @inject(TYPES.TokenPairsService) private tokenPairsService: TokenPairsService,
+        @inject(TYPES.ValidationService) private validationService: ValidationService) {
         super();
     }
 
@@ -35,13 +38,28 @@ export class TokenPairsController extends Controller {
         },
     })
     @Response<ErrorModel>("400", "A parameter is not informed correctly.", {
-        message: "some string",
+        code: ErrorCode.ValidationFailed,
+        reason: "some string",
+        validationErrors: [{
+            code: ValidationErrorCode.RequiredField​​,
+            field: "field name",
+            reason: "some string",
+        }],
     })
     @Response<ErrorModel>("500", "An unknown error occurred.", {
-        message: "some string",
+        code: ErrorCode.UnknownError,
+        reason: "some string",
+        validationErrors: null,
     })
     @Get()
     public async listPairs( @Query() tokenA?: string, @Query() tokenB?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<TokenPairTradeInfo[]> {
+        const validator = new ParameterValidator(this.validationService);
+        validator.addPageParameters(page, perPage);
+        validator.validate();
         return await this.tokenPairsService.listPairs(tokenA, tokenB, page, perPage);
+    }
+
+    public getAddressParameters(): string[] {
+        return ["tokenA", "tokenB"];
     }
 }

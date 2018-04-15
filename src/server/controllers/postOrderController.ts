@@ -1,10 +1,10 @@
 import { BigNumber } from "bignumber.js";
 import { inject, injectable } from "inversify";
 import * as moment from "moment";
-import { Body, Controller, Example, FieldErrors, Post, Response, Route, ValidateError } from "tsoa";
+import { Body, Controller, Example, FieldErrors, Post, Response, Route, SuccessResponse, ValidateError } from "tsoa";
 import { CryptographyService, PostOrderService, TYPES, ValidationService } from "../../app";
 import { SignedOrder } from "../../app/models";
-import { ErrorModel } from "../middleware/errorHandler";
+import { ErrorCode, ErrorModel, ValidationErrorCode } from "../middleware/errorHandler";
 
 @Route("order")
 @injectable()
@@ -44,15 +44,28 @@ export class PostOrderController extends Controller {
         takerTokenAmount: "1000000000000000000",
     })
     @Response<ErrorModel>("400", "A parameter is not informed correctly.", {
-        message: "some string",
+        code: ErrorCode.ValidationFailed,
+        reason: "some string",
+        validationErrors: [{
+            code: ValidationErrorCode.RequiredField​​,
+            field: "field name",
+            reason: "some string",
+        }],
     })
     @Response<ErrorModel>("500", "An unknown error occurred.", {
-        message: "some string",
+        code: ErrorCode.UnknownError,
+        reason: "some string",
+        validationErrors: null,
     })
+    @SuccessResponse("201", "Order submitted and filled")
     @Post()
     public async postOrder(@Body() signedOrder?: SignedOrder ): Promise<void> {
         await this.validateSignedOrder(signedOrder);
         return await this.postOrderService.postOrder(signedOrder);
+    }
+
+    public getStatus(): number {
+        return 201;
     }
 
     private async validateSignedOrder(signedOrder: SignedOrder): Promise<void> {

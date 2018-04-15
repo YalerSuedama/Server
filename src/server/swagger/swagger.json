@@ -83,14 +83,66 @@
 			],
 			"type": "object"
 		},
-		"ErrorModel": {
+		"ErrorCode": {
+			"enum": [
+				"100",
+				"101",
+				"102",
+				"103",
+				"500"
+			],
+			"type": "string"
+		},
+		"ValidationErrorCode": {
+			"enum": [
+				"1000",
+				"1001",
+				"1002",
+				"1003",
+				"1004",
+				"1005",
+				"1006"
+			],
+			"type": "string"
+		},
+		"ValidationErrorModel": {
 			"properties": {
-				"message": {
+				"code": {
+					"$ref": "#/definitions/ValidationErrorCode"
+				},
+				"field": {
+					"type": "string"
+				},
+				"reason": {
 					"type": "string"
 				}
 			},
 			"required": [
-				"message"
+				"code",
+				"field",
+				"reason"
+			],
+			"type": "object"
+		},
+		"ErrorModel": {
+			"properties": {
+				"code": {
+					"$ref": "#/definitions/ErrorCode"
+				},
+				"reason": {
+					"type": "string"
+				},
+				"validationErrors": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ValidationErrorModel"
+					}
+				}
+			},
+			"required": [
+				"code",
+				"reason",
+				"validationErrors"
 			],
 			"type": "object"
 		},
@@ -432,14 +484,6 @@
 									"type": "string",
 									"description": "Will validate this taker address to calculate fee, and it has to be the relayer address."
 								},
-								"makerTokenAmount": {
-									"type": "string",
-									"description": "Will calculate convertion price based on this maker token amount, and will use it to calculate fee."
-								},
-								"takerTokenAmount": {
-									"type": "string",
-									"description": "Will calculate convertion price based on this taker token amount, and will use it to calculate fee."
-								},
 								"expirationUnixTimestampSec": {
 									"type": "string",
 									"description": "Will validate the expiration time to calculate fee."
@@ -447,6 +491,15 @@
 								"salt": {
 									"type": "string",
 									"description": "Will validate this unique number to calculate fee."
+								},
+								"makerTokenAmount": {
+									"type": "number",
+									"format": "double",
+									"description": "Will calculate convertion price based on this maker token amount, and will use it to calculate fee."
+								},
+								"takerTokenAmount": {
+									"type": "string",
+									"description": "Will calculate convertion price based on this taker token amount, and will use it to calculate fee."
 								}
 							},
 							"title": "CalculateFeeBody",
@@ -457,8 +510,6 @@
 								"takerTokenAddress",
 								"maker",
 								"taker",
-								"makerTokenAmount",
-								"takerTokenAmount",
 								"expirationUnixTimestampSec",
 								"salt"
 							]
@@ -474,29 +525,8 @@
 					"application/json"
 				],
 				"responses": {
-					"204": {
-						"description": "No content",
-						"examples": {
-							"application/json": {
-								"ecSignature": {
-									"r": "string",
-									"s": "string",
-									"v": 0
-								},
-								"exchangeContractAddress": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-								"expirationUnixTimestampSec": "1511833100",
-								"feeRecipient": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-								"maker": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-								"makerFee": "000000000000000001",
-								"makerTokenAddress": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-								"makerTokenAmount": "1000000000000000000",
-								"salt": "72190258645710948815942036721950834632004444658131970136856055217425783080581",
-								"taker": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-								"takerFee": "000000000000000001",
-								"takerTokenAddress": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-								"takerTokenAmount": "1000000000000000000"
-							}
-						}
+					"201": {
+						"description": "Order submitted and filled"
 					},
 					"400": {
 						"description": "A parameter is not informed correctly.",

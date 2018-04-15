@@ -1,9 +1,10 @@
 import { inject, injectable } from "inversify";
 import * as moment from "moment";
-import { Controller, Example, FieldErrors, Get, Query, Response, Route, ValidateError } from "tsoa";
+import { Controller, Example, Get, Query, Response, Route } from "tsoa";
 import { OrderService, TYPES, ValidationService } from "../../app";
 import { SignedOrder } from "../../app/models";
-import { ErrorModel } from "../middleware/errorHandler";
+import { ParameterValidator } from "../../server/controllers/parameterValidator";
+import { ErrorCode, ErrorModel, ValidationErrorCode, ValidationErrorModel } from "../middleware/errorHandler";
 
 @Route("orders")
 @injectable()
@@ -51,38 +52,28 @@ export class OrderController extends Controller {
         takerTokenAmount: "1000000000000000000",
     })
     @Response<ErrorModel>("400", "A parameter is not informed correctly.", {
-        message: "some string",
+        code: ErrorCode.ValidationFailed,
+        reason: "some string",
+        validationErrors: [{
+            code: ValidationErrorCode.RequiredField​​,
+            field: "field name",
+            reason: "some string",
+        }],
     })
     @Response<ErrorModel>("500", "An unknown error occurred.", {
-        message: "some string",
+        code: ErrorCode.UnknownError,
+        reason: "some string",
+        validationErrors: null,
     })
     @Get()
     public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<SignedOrder[]> {
-        this.validateAddressParameters(
-            {name: "exchangeContractAddress", value: exchangeContractAddress},
-            {name: "tokenAddress", value: tokenAddress},
-            {name: "makerTokenAddress", value: makerTokenAddress},
-            {name: "takerTokenAddress", value: takerTokenAddress},
-            {name: "maker", value: maker},
-            {name: "taker", value: taker},
-            {name: "trader", value: trader},
-            {name: "feeRecipient", value: feeRecipient},
-        );
+        const validator = new ParameterValidator(this.validationService);
+        validator.addPageParameters(page, perPage);
+        validator.validate();
         return await this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, maker, taker, trader, feeRecipient, page, perPage);
     }
 
-    private validateAddressParameters(...addressParams: any[]): void {
-        const fieldErrors: FieldErrors = {};
-        for (const param of addressParams) {
-            if (param.value !== undefined && param.value !== null && !this.validationService.isAddress(param.value)) {
-                fieldErrors[param.name] = {
-                    message: `The parameter ${param.name} is not a valid address`,
-                    value: param.value,
-                };
-            }
-        }
-        if (Object.keys(fieldErrors).length > 0) {
-            throw new ValidateError(fieldErrors, "");
-        }
+    public getAddressParameters(): string[] {
+        return ["exchangeContractAddress", "tokenAddress", "makerTokenAddress", "takerTokenAddress", "maker", "taker", "trader", "feeRecipient"];
     }
 }
