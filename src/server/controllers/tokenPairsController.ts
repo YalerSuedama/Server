@@ -2,7 +2,6 @@ import { inject, injectable } from "inversify";
 import { Controller, Example, FieldErrors, Get, Query, Response, Route, SuccessResponse, ValidateError } from "tsoa";
 import { TokenPairsService, TYPES, ValidationService } from "../../app";
 import { TokenPairTradeInfo } from "../../app/models";
-import { ParameterValidator } from "../../server/controllers/parameterValidator";
 import { ErrorCode, ErrorModel, ValidationErrorCode } from "../middleware/errorHandler";
 
 @Route("token_pairs")
@@ -12,7 +11,20 @@ export class TokenPairsController extends Controller {
     constructor(
         @inject(TYPES.TokenPairsService) private tokenPairsService: TokenPairsService,
         @inject(TYPES.ValidationService) private validationService: ValidationService) {
-        super();
+            super();
+        }
+
+    /**
+     * @param {number} page m
+     * @isInt page
+     * @minimum page 1
+     * @isInt perPage
+     * @minimum perPage 1
+     * @maximum perPage 100
+     */
+    @Get()
+    public async listPairs( @Query() tokenA?: string, @Query() tokenB?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<TokenPairTradeInfo[]> {
+        return await this.tokenPairsService.listPairs(tokenA, tokenB, page, perPage);
     }
 
     /**
@@ -41,7 +53,7 @@ export class TokenPairsController extends Controller {
         code: ErrorCode.ValidationFailed,
         reason: "some string",
         validationErrors: [{
-            code: ValidationErrorCode.RequiredField​​,
+            code: ValidationErrorCode.RequiredField,
             field: "field name",
             reason: "some string",
         }],
@@ -51,15 +63,9 @@ export class TokenPairsController extends Controller {
         reason: "some string",
         validationErrors: null,
     })
-    @Get()
-    public async listPairs( @Query() tokenA?: string, @Query() tokenB?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<TokenPairTradeInfo[]> {
-        const validator = new ParameterValidator(this.validationService);
-        validator.addPageParameters(page, perPage);
-        validator.validate();
-        return await this.tokenPairsService.listPairs(tokenA, tokenB, page, perPage);
-    }
 
-    public getAddressParameters(): string[] {
-        return ["tokenA", "tokenB"];
-    }
+   public getAddressParameters(): string[] {
+       return ["tokenA", "tokenB"];
+   }
+
 }

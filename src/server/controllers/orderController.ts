@@ -3,7 +3,6 @@ import * as moment from "moment";
 import { Controller, Example, Get, Query, Response, Route } from "tsoa";
 import { OrderService, TYPES, ValidationService } from "../../app";
 import { SignedOrder } from "../../app/models";
-import { ParameterValidator } from "../../server/controllers/parameterValidator";
 import { ErrorCode, ErrorModel, ValidationErrorCode, ValidationErrorModel } from "../middleware/errorHandler";
 
 @Route("orders")
@@ -15,6 +14,19 @@ export class OrderController extends Controller {
         @inject(TYPES.ValidationService) private validationService: ValidationService,
     ) {
         super();
+    }
+
+    /**
+     * @param {number} page m
+     * @isInt page
+     * @minimum page 1
+     * @isInt perPage
+     * @minimum perPage 1
+     * @maximum perPage 100
+     */
+    @Get()
+    public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<SignedOrder[]> {
+        return await this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, maker, taker, trader, feeRecipient, page, perPage);
     }
 
     /**
@@ -55,7 +67,7 @@ export class OrderController extends Controller {
         code: ErrorCode.ValidationFailed,
         reason: "some string",
         validationErrors: [{
-            code: ValidationErrorCode.RequiredField​​,
+            code: ValidationErrorCode.RequiredField,
             field: "field name",
             reason: "some string",
         }],
@@ -65,15 +77,16 @@ export class OrderController extends Controller {
         reason: "some string",
         validationErrors: null,
     })
-    @Get()
-    public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<SignedOrder[]> {
-        const validator = new ParameterValidator(this.validationService);
-        validator.addPageParameters(page, perPage);
-        validator.validate();
-        return await this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, maker, taker, trader, feeRecipient, page, perPage);
-    }
 
     public getAddressParameters(): string[] {
         return ["exchangeContractAddress", "tokenAddress", "makerTokenAddress", "takerTokenAddress", "maker", "taker", "trader", "feeRecipient"];
+    }
+
+    public getPageParameter(): string {
+        return "page";
+    }
+
+    public getPerPageParameter(): string {
+        return "per_page";
     }
 }

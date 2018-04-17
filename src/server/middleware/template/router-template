@@ -134,42 +134,43 @@ export function RegisterRoutes(app: any) {
         const validationErrors: ValidationErrorModel[] = [];
         const validationService = iocContainer.get<ValidationService>(TYPES.ValidationService);
         let ok = true;
+        let value: any;
+        let parent: string;
         const values = Object.keys(args).map((key) => {
             const name = args[key].name;
             switch (args[key].in) {
                 case 'request':
                     return request;
                 case 'query':
-                    ok = ParameterValidator.validateRequired(name, request.query[name], args[key].dataType, args[key].required, validationErrors);
-                    ok = ParameterValidator.validateAdressParameters(name, request.query[name], args[key].dataType, addressFields, validationService, validationErrors) && ok;
-                    if (!ok) {
-                        return;
-                    }
-                    return ValidateParam(args[key], request.query[name], models, name, fieldErrors);
+                    parent = null;
+                    value = request.query[name];
+                    break;
                 case 'path':
-                    ok = ParameterValidator.validateRequired(name, request.params[name], args[key].dataType, args[key].required, validationErrors);
-                    ok = ParameterValidator.validateAdressParameters(name, request.params[name], args[key].dataType, addressFields, validationService, validationErrors) && ok;
-                    if (!ok) {
-                        return;
-                    }
-                    return ValidateParam(args[key], request.params[name], models, name, fieldErrors);
+                    parent = null;
+                    value = request.params[name];
+                    break;
                 case 'header':
-                    ok = ParameterValidator.validateRequired(name, request.header(name), args[key].dataType, args[key].required, validationErrors);
-                    ok = ParameterValidator.validateAdressParameters(name, request.header(name), args[key].dataType, addressFields, validationService, validationErrors) && ok;
-                    if (!ok) {
-                        return;
-                    }
-                    return ValidateParam(args[key], request.header(name), models, name, fieldErrors);
+                    parent = null;
+                    value = request.header[name];
+                    break;
                 case 'body':
-                    return ValidateParam(args[key], request.body, models, name, fieldErrors, name + '.');
+                    parent = name + '.';
+                    value = request.body;
+                    break;
                 case 'body-prop':
-                    ok = ParameterValidator.validateRequired(name, request.body[name], args[key].dataType, args[key].required, validationErrors);
-                    ok = ParameterValidator.validateAdressParameters(name, request.body[name], args[key].dataType, addressFields, validationService, validationErrors) && ok;
-                    if (!ok) {
-                        return;
-                    }
-                    return ValidateParam(args[key], request.body[name], models, name, fieldErrors, 'body.');
+                    parent = 'body.';
+                    value = request.body[name];
+                    break;
+                default:
+                    return;
             }
+            ok = ParameterValidator.validateRequired(name, value, args[key].dataType, args[key].required, validationErrors);
+            ok = ParameterValidator.validateAdressParameters(name, value, args[key].dataType, addressFields, validationService, validationErrors) && ok;
+            ok = ParameterValidator.validateIntParameters(name, value, args[key].dataType, args[key].validators, validationService, validationErrors) && ok;
+            if (!ok) {
+                return;
+            }
+            return ValidateParam(args[key], value, models, name, fieldErrors, parent);
         });
 
         if (validationErrors.length > 0) {

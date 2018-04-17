@@ -3,6 +3,7 @@ import { ParameterException } from "../../domain/exception";
 import { ErrorCode, ValidationErrorCode, ValidationErrorModel } from "../middleware/errorHandler";
 
 export class ParameterValidator {
+
     public static validateRequired(name: string, value: any, type: string, required: boolean, fieldErrors: ValidationErrorModel[]): boolean {
         if (required && (value === undefined || value === null || (type === "string" && value === ""))) {
             fieldErrors.push({
@@ -29,28 +30,42 @@ export class ParameterValidator {
         return true;
     }
 
+    public static validateIntParameters(name: string, value: any, type: string, validators: any, validationService: ValidationService, fieldErrors: ValidationErrorModel[]): boolean {
+        if (validationService && type === "integer" && value !== undefined && value !== null && value !== "") {
+            const int = /^(?:[-+]?(?:0|[1-9][0-9]*))$/;
+            if (!int.test(value + "")) {
+                fieldErrors.push({
+                    code: ValidationErrorCode.IncorrectFormat,
+                    reason: `The parameter ${name} is not a valid integer`,
+                    field: name,
+                });
+                return false;
+            }
+            if (validators && validators.minimum && validators.minimum.value && parseInt(value, 10) < validators.minimum.value) {
+                fieldErrors.push({
+                    code: ValidationErrorCode.ValueOutOfRange,
+                    reason: `The parameter ${name} must be greather than or equal to ${validators.minimum.value}`,
+                    field: name,
+                });
+                return false;
+            }
+            if (validators && validators.maximum && validators.maximum.value && parseInt(value, 10) > validators.maximum.value) {
+                fieldErrors.push({
+                    code: ValidationErrorCode.ValueOutOfRange,
+                    reason: `The parameter ${name} must be lesser than or equal to ${validators.maximum.value}`,
+                    field: name,
+                });
+                return false;
+            }
+        }
+        return true;
+    }
+
     private fieldErrors: ValidationErrorModel[] = [];
 
     constructor(
         private validationService: ValidationService,
     ) {
-    }
-
-    public addPageParameters(page: number, perPage: number): void {
-        if (page && page < 1) {
-            this.fieldErrors.push({
-                code: ValidationErrorCode.ValueOutOfRange,
-                reason: "The parameter page must be greather than 1",
-                field: "page",
-            });
-        }
-        if (perPage && (perPage < 1 || perPage > 100)) {
-            this.fieldErrors.push({
-                code: ValidationErrorCode.ValueOutOfRange,
-                reason: "The parameter perPage must be greather than 1 and lesser than or equal to 100",
-                field: "perPage",
-            });
-        }
     }
 
     public async addExchangeAddress(exchangeContractAddress: string): Promise<void> {

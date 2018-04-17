@@ -35,26 +35,6 @@ const models: TsoaRoute.Models = {
             "expirationUnixTimestampSec": { "dataType": "string", "required": true },
         },
     },
-    "ErrorCode": {
-        "enums": ["100", "101", "102", "103", "500"],
-    },
-    "ValidationErrorCode": {
-        "enums": ["1000", "1001", "1002", "1003", "1004", "1005", "1006"],
-    },
-    "ValidationErrorModel": {
-        "properties": {
-            "code": { "ref": "ValidationErrorCode", "required": true },
-            "field": { "dataType": "string", "required": true },
-            "reason": { "dataType": "string", "required": true },
-        },
-    },
-    "ErrorModel": {
-        "properties": {
-            "code": { "ref": "ErrorCode", "required": true },
-            "reason": { "dataType": "string", "required": true },
-            "validationErrors": { "dataType": "array", "array": { "ref": "ValidationErrorModel" }, "required": true },
-        },
-    },
     "TokenTradeInfo": {
         "properties": {
             "address": { "dataType": "string", "required": true },
@@ -76,6 +56,26 @@ const models: TsoaRoute.Models = {
             "takerFee": { "dataType": "string", "required": true },
         },
     },
+    "ErrorCode": {
+        "enums": ["100", "101", "102", "103", "500"],
+    },
+    "ValidationErrorCode": {
+        "enums": ["1000", "1001", "1002", "1003", "1004", "1005", "1006"],
+    },
+    "ValidationErrorModel": {
+        "properties": {
+            "code": { "ref": "ValidationErrorCode", "required": true },
+            "field": { "dataType": "string", "required": true },
+            "reason": { "dataType": "string", "required": true },
+        },
+    },
+    "ErrorModel": {
+        "properties": {
+            "code": { "ref": "ErrorCode", "required": true },
+            "reason": { "dataType": "string", "required": true },
+            "validationErrors": { "dataType": "array", "array": { "ref": "ValidationErrorModel" }, "required": true },
+        },
+    },
 };
 
 export function RegisterRoutes(app: any) {
@@ -90,8 +90,8 @@ export function RegisterRoutes(app: any) {
                 taker: { "in": "query", "name": "taker", "dataType": "string" },
                 trader: { "in": "query", "name": "trader", "dataType": "string" },
                 feeRecipient: { "in": "query", "name": "feeRecipient", "dataType": "string" },
-                page: { "in": "query", "name": "page", "dataType": "double" },
-                perPage: { "in": "query", "name": "per_page", "dataType": "double" },
+                page: { "in": "query", "name": "page", "dataType": "integer", "validators": { "isInt": { "errorMsg": "page" }, "minimum": { "value": 1 } } },
+                perPage: { "in": "query", "name": "per_page", "dataType": "integer", "validators": { "isInt": { "errorMsg": "perPage" }, "minimum": { "value": 1 }, "maximum": { "value": 100 } } },
             };
 
             const controller = iocContainer.get<OrderController>(OrderController);
@@ -116,8 +116,8 @@ export function RegisterRoutes(app: any) {
             const args = {
                 tokenA: { "in": "query", "name": "tokenA", "dataType": "string" },
                 tokenB: { "in": "query", "name": "tokenB", "dataType": "string" },
-                page: { "in": "query", "name": "page", "dataType": "double" },
-                perPage: { "in": "query", "name": "per_page", "dataType": "double" },
+                page: { "in": "query", "name": "page", "dataType": "integer", "validators": { "isInt": { "errorMsg": "page" }, "minimum": { "value": 1 } } },
+                perPage: { "in": "query", "name": "per_page", "dataType": "integer", "validators": { "isInt": { "errorMsg": "perPage" }, "minimum": { "value": 1 }, "maximum": { "value": 100 } } },
             };
 
             const controller = iocContainer.get<TokenPairsController>(TokenPairsController);
@@ -222,42 +222,43 @@ export function RegisterRoutes(app: any) {
         const validationErrors: ValidationErrorModel[] = [];
         const validationService = iocContainer.get<ValidationService>(TYPES.ValidationService);
         let ok = true;
+        let value: any;
+        let parent: string;
         const values = Object.keys(args).map((key) => {
             const name = args[key].name;
             switch (args[key].in) {
                 case 'request':
                     return request;
                 case 'query':
-                    ok = ParameterValidator.validateRequired(name, request.query[name], args[key].dataType, args[key].required, validationErrors);
-                    ok = ParameterValidator.validateAdressParameters(name, request.query[name], args[key].dataType, addressFields, validationService, validationErrors) && ok;
-                    if (!ok) {
-                        return;
-                    }
-                    return ValidateParam(args[key], request.query[name], models, name, fieldErrors);
+                    parent = null;
+                    value = request.query[name];
+                    break;
                 case 'path':
-                    ok = ParameterValidator.validateRequired(name, request.params[name], args[key].dataType, args[key].required, validationErrors);
-                    ok = ParameterValidator.validateAdressParameters(name, request.params[name], args[key].dataType, addressFields, validationService, validationErrors) && ok;
-                    if (!ok) {
-                        return;
-                    }
-                    return ValidateParam(args[key], request.params[name], models, name, fieldErrors);
+                    parent = null;
+                    value = request.params[name];
+                    break;
                 case 'header':
-                    ok = ParameterValidator.validateRequired(name, request.header(name), args[key].dataType, args[key].required, validationErrors);
-                    ok = ParameterValidator.validateAdressParameters(name, request.header(name), args[key].dataType, addressFields, validationService, validationErrors) && ok;
-                    if (!ok) {
-                        return;
-                    }
-                    return ValidateParam(args[key], request.header(name), models, name, fieldErrors);
+                    parent = null;
+                    value = request.header[name];
+                    break;
                 case 'body':
-                    return ValidateParam(args[key], request.body, models, name, fieldErrors, name + '.');
+                    parent = name + '.';
+                    value = request.body;
+                    break;
                 case 'body-prop':
-                    ok = ParameterValidator.validateRequired(name, request.body[name], args[key].dataType, args[key].required, validationErrors);
-                    ok = ParameterValidator.validateAdressParameters(name, request.body[name], args[key].dataType, addressFields, validationService, validationErrors) && ok;
-                    if (!ok) {
-                        return;
-                    }
-                    return ValidateParam(args[key], request.body[name], models, name, fieldErrors, 'body.');
+                    parent = 'body.';
+                    value = request.body[name];
+                    break;
+                default:
+                    return;
             }
+            ok = ParameterValidator.validateRequired(name, value, args[key].dataType, args[key].required, validationErrors);
+            ok = ParameterValidator.validateAdressParameters(name, value, args[key].dataType, addressFields, validationService, validationErrors) && ok;
+            ok = ParameterValidator.validateIntParameters(name, value, args[key].dataType, args[key].validators, validationService, validationErrors) && ok;
+            if (!ok) {
+                return;
+            }
+            return ValidateParam(args[key], value, models, name, fieldErrors, parent);
         });
 
         if (validationErrors.length > 0) {
