@@ -36,7 +36,7 @@ export class ZeroExSchemaBasedValidationService implements ValidationService {
         const makerToken = await this.tokenService.getTokenByAddress(makerTokenAddress);
         const takerToken = await this.tokenService.getTokenByAddress(takerTokenAddress);
         const ticker = await this.tickerService.getTicker(makerToken, takerToken);
-        const orderPrice = makerTokenAmount.dividedBy(takerTokenAmount);
+        const orderPrice = takerTokenAmount.dividedBy(makerTokenAmount);
         return ticker.price.greaterThan(orderPrice);
     }
 
