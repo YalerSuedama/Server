@@ -10,6 +10,7 @@ export const TYPES = {
     OrderFactory: Symbol("OrderFactory"),
     OrderRelayerUrl: Symbol("OrderRelayerUrl"),
     OrderService: Symbol("OrderService"),
+    PostOrderService: Symbol("PostOrderService"),
     RequestLimitService: Symbol("RequestLimitService"),
     SaltService: Symbol("SaltService"),
     TickerFactory: Symbol("TickerFactory"),

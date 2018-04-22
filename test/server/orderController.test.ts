@@ -1,3 +1,4 @@
+import { BigNumber } from "bignumber.js";
 import { expect, use } from "chai";
 import { Container } from "inversify";
 import "reflect-metadata";
@@ -15,6 +16,12 @@ let shouldValidateFalse = false;
 
 const validationServiceStub: ValidationService = {
     isAddress: (address: string) => !shouldValidateFalse,
+    validateMainAddress: (address: string) => !shouldValidateFalse,
+    validateFee: (makerTokenAddress: string, makerFee: BigNumber) => Promise.resolve(!shouldValidateFalse),
+    validatePrice: (makerTokenAddress: string, takerTokenAddress: string, makerTokenAmount: BigNumber, takerTokenAmount: BigNumber) => Promise.resolve(!shouldValidateFalse),
+    validateCurrentContractAddress: (address: string) => Promise.resolve(!shouldValidateFalse),
+    tokenPairIsSupported: (makerTokenAddress: string, takerTokenAddress: string) => Promise.resolve(!shouldValidateFalse),
+    validateTakerTokenAmount: (makerTokenAddress: string, takerTokenAddress: string, takerTokenAmount: BigNumber) => Promise.resolve(!shouldValidateFalse),
 };
 
 describe("OrderController", () => {

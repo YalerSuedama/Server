@@ -1,15 +1,15 @@
 {
     "amadeus": {
         "0x": {
-            "etherTokenContractAddress": "0xd0a1e359811322d97991e03f863a0c30c2cf029c"
+            "networkId": 42
         },
         "fee": {
-            "maker": 0,
+            "maker": 0.001,
             "taker": 0.001
         },
         "liquidityPercentage": 0.02,
-        "decimalPlaces": 6,
-        "minimun": 10000000000000,
+        "decimalPlaces": 8,
+        "minimun": 100000000000,
         "orders": {
             "cache": {
                 "ttl": {

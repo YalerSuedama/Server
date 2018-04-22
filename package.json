@@ -73,10 +73,10 @@
         "webpack-node-externals": "^1.6.0"
     },
     "dependencies": {
-        "0x.js": "^0.22.4",
-        "@0xproject/connect": "^0.5.5",
-        "@0xproject/json-schemas": "^0.7.6",
-        "@0xproject/types": "^0.1.9",
+        "0x.js": "^0.33.6",
+        "@0xproject/connect": "^0.6.6",
+        "@0xproject/json-schemas": "^0.7.17",
+        "@0xproject/types": "^0.4.1",
         "bignumber.js": "^4.1.0",
         "body-parser": "^1.18.2",
         "config": "^1.27.0",
