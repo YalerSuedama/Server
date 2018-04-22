@@ -39,8 +39,9 @@ export class ParameterValidator {
                                 reason: "Invalid exchange contract address",
                                 field: name,
                             });
+                            return false;
                         }
-                        return false;
+                        break;
                     case ValidationAddressType.RELAYER:
                         if (!await validationService.validateMainAddress(value, false)) {
                             fieldErrors.push({
@@ -48,8 +49,9 @@ export class ParameterValidator {
                                 reason: `Invalid ${name} address`,
                                 field: name,
                             });
+                            return false;
                         }
-                        return false;
+                        break;
                     case ValidationAddressType.RELAYER_OR_ZERO:
                         if (!await validationService.validateMainAddress(value, true)) {
                             fieldErrors.push({
@@ -57,8 +59,9 @@ export class ParameterValidator {
                                 reason: `Invalid ${name} address`,
                                 field: name,
                             });
+                            return false;
                         }
-                        return false;
+                        break;
                     default:
                         break;
                 }

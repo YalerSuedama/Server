@@ -131,7 +131,9 @@ export function RegisterRoutes(app: any) {
         let ok = true;
         let value: any;
         let parent: string;
-        const values = Object.keys(args).map(async function (key) {
+        const values: any[] = [];
+        for (var i in Object.keys(args)) {
+            const key = Object.keys(args)[i];
             const name = args[key].name;
             switch (args[key].in) {
                 case 'request':
@@ -157,16 +159,18 @@ export function RegisterRoutes(app: any) {
                     value = request.body[name];
                     break;
                 default:
-                    return;
+                    values.push(null);
+                    continue;
             }
-            ok = ParameterValidator.validateRequired(name, value, args[key].dataType, args[key].required, validationErrors);
-            ok = ParameterValidator.validateIntParameters(name, value, args[key].dataType, args[key].validators, validationService, validationErrors) && ok;
-            ok = await ParameterValidator.validateAdressParameters(name, value, args[key].dataType, addressParameters, validationService, validationErrors) && ok;
-            if (!ok) {
-                return;
+            const okRequired = ParameterValidator.validateRequired(name, value, args[key].dataType, args[key].required, validationErrors);
+            const okInt = ParameterValidator.validateIntParameters(name, value, args[key].dataType, args[key].validators, validationService, validationErrors);
+            const okAddress = await ParameterValidator.validateAdressParameters(name, value, args[key].dataType, addressParameters, validationService, validationErrors);
+            if (!okRequired || !okInt || !okAddress) {
+                values.push(null);
+                continue;
             }
-            return ValidateParam(args[key], value, models, name, fieldErrors, parent);
-        });
+            values.push(ValidateParam(args[key], value, models, name, fieldErrors, parent));
+        }
 
         if (validationErrors.length > 0) {
             const exception = new ParameterException();
