@@ -9,7 +9,6 @@ import { TokenPairsController } from "../../src/server/controllers/tokenPairsCon
 use(sinonChai);
 
 const tokenPairsServiceStub: TokenPairsService = {
-    getPair: (tokenA: string, tokenB: string) => Promise.resolve(null),
     listPairs: (tokenA?: string, tokenB?: string) => Promise.resolve(null),
 };
 

@@ -24,7 +24,7 @@
     "routes": {
         "basePath": "/api/v0",
         "entryFile": "./src/index.ts",
-        "middlewareTemplate": "./src/server/middleware/template/router-template",
+        "middleware": "express",
         "routesDir": "./src/server/middleware/routes",
         "iocModule": "./src/server/middleware/iocContainer"
     },

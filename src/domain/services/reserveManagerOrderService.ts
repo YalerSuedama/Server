@@ -17,7 +17,7 @@ export class ReserveManagerOrderService implements OrderService {
         @inject(TYPES.ExchangeService)
         private exchangeService: ExchangeService,
 
-        @inject(TYPES.FeeService) @named("ConstantReserveManager")
+        @inject(TYPES.FeeService) @named("Constant")
         private feeService: FeeService,
 
         @inject(TYPES.SaltService)
@@ -103,9 +103,9 @@ export class ReserveManagerOrderService implements OrderService {
             expirationUnixTimestampSec: this.timeService.getExpirationTimestamp(),
             feeRecipient,
             maker,
-            makerFee: (await this.feeService.getMakerFee(ticker.from, new BigNumber(pair.tokenA.maxAmount))).toString(),
+            makerFee: (await this.feeService.getMakerFee(ticker.from)).toString(),
             makerTokenAddress: ticker.from.address,
-            makerTokenAmount: pair.tokenA.maxAmount,
+            makerTokenAmount: pair.tokenA.maxAmount.toString(),
             salt: await this.saltService.getSalt(),
             taker: taker || Utils.ZERO_ADDRESS,
             takerFee: (await this.feeService.getTakerFee(ticker.to, takerTokenAmount)).toString(),
@@ -123,9 +123,9 @@ export class ReserveManagerOrderService implements OrderService {
             expirationUnixTimestampSec: this.timeService.getExpirationTimestamp(),
             feeRecipient,
             maker,
-            makerFee: (await feeService.getMakerFee(ticker.from, new BigNumber(pair.tokenA.maxAmount))).toString(),
+            makerFee: (await feeService.getMakerFee(ticker.from)).toString(),
             makerTokenAddress: ticker.from.address,
-            makerTokenAmount: pair.tokenA.maxAmount,
+            makerTokenAmount: pair.tokenA.maxAmount.toString(),
             salt: await this.saltService.getSalt(),
             taker: taker || Utils.ZERO_ADDRESS,
             takerFee: (await feeService.getTakerFee(ticker.to, takerTokenAmount)).toString(),

@@ -1,4 +1,4 @@
-import { HttpClient, OrdersRequestOpts, SignedOrder } from "@0xproject/connect";
+import { HttpClient, OrdersRequest, SignedOrder } from "@0xproject/connect";
 import { BigNumber } from "bignumber.js";
 import * as config from "config";
 import { inject, injectable } from "inversify";
@@ -51,7 +51,7 @@ export class FromRelayerTickerService implements TickerService {
                 return null;
             }
 
-            const ordersRequest: OrdersRequestOpts = {
+            const ordersRequest: OrdersRequest = {
                 makerTokenAddress: this.getTokenAddress(tokenFrom),
                 takerTokenAddress: this.getTokenAddress(tokenTo),
             };

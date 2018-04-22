@@ -1,10 +1,9 @@
-import { Container } from "inversify";
 import { TokenPairsService, TYPES } from "../../src/app/index";
 import { TokenPairTradeInfo } from "../../src/app/models/index";
+import { Container } from "inversify";
 import { createToken, TOKENS } from "./util";
 
 const stub: TokenPairsService = {
-    getPair: (tokenA: string, tokenB: string) => Promise.resolve(null),
     listPairs: (tokenA?: string, tokenB?: string) => {
         const tokens = TOKENS.map((token) => createToken(token));
         let pairs: TokenPairTradeInfo[] = [];
@@ -14,14 +13,14 @@ const stub: TokenPairsService = {
                     pairs.push({
                         tokenA: {
                             address: token.address,
-                            maxAmount: "100000000000000",
                             minAmount: "10000000000000",
+                            maxAmount: "100000000000000",
                             precision: 5,
                         },
                         tokenB: {
                             address: tokenTo.address,
-                            maxAmount: "200000000000000",
                             minAmount: "20000000000000",
+                            maxAmount: "200000000000000",
                             precision: 5,
                         },
                     });

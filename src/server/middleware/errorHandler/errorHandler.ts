@@ -1,42 +1,36 @@
 import * as express from "express";
-import { BusinessException, ParameterException } from "../../../domain/exception";
-import { ErrorCode } from "./errorCode";
+import { ValidateError } from "tsoa";
 import { ErrorModel } from "./errorModel";
-import { SimpleErrorModel } from "./simpleErrorModel";
 
-function handleError(res: express.Response, statusCode: number, error: any) {
+function handleError(res: express.Response, statusCode: number, error: ErrorModel) {
     res.status(statusCode);
     res.json(error);
 }
 
-function createGenericError(error: any): SimpleErrorModel {
+function createErrorFromValidateError(validateError: ValidateError): ErrorModel {
+    const errors: string[] = [];
+    const errorFields = validateError.fields;
+    for (const field in errorFields) {
+        if (errorFields.hasOwnProperty(field)) {
+            errors.push(`${field}: ${validateError.fields[field].message}`);
+        }
+    }
+
+    return {
+        message: `Invalid parameters: [ ${errors.join(", ")} ]`,
+    };
+}
+
+function createGenericError(error: any): ErrorModel {
     const message: string = error.message || `Error executing the operation: ${JSON.stringify(error)}`;
     return {
-        code: ErrorCode​​.UnknownError,
-        reason: message,
-    };
-}
-
-function createFromParameterException(error: ParameterException): ErrorModel {
-    return {
-        code: error.code,
-        reason: error.message,
-        validationErrors: error.validationErrors,
-    };
-}
-
-function createFromBusinessException(error: BusinessException): SimpleErrorModel {
-    return {
-        code: error.code,
-        reason: error.message,
+        message,
     };
 }
 
 export function errorHandler(error: any, req: express.Request, res: express.Response, next: express.NextFunction): void {
-    if (error instanceof ParameterException) {
-        handleError(res, 400, createFromParameterException(error));
-    } else if (error instanceof BusinessException) {
-        handleError(res, 400, createFromBusinessException(error));
+    if (error instanceof ValidateError) {
+        handleError(res, 400, createErrorFromValidateError(error));
     } else {
         handleError(res, 500, createGenericError(error));
     }
