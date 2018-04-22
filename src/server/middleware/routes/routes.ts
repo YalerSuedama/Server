@@ -5,6 +5,11 @@ import { OrderController } from './../../controllers/orderController';
 import { TokenPairsController } from './../../controllers/tokenPairsController';
 import { FeeController } from './../../controllers/feeController';
 import { PostOrderController } from './../../controllers/postOrderController';
+import { ParameterValidator } from '../validator/parameterValidator';
+import { ValidationAddressParam } from '../validator/validationAddressParam';
+import { ValidationErrorModel, ErrorCode } from '../../../server/middleware/errorHandler';
+import { ParameterException } from '../../../domain/exception';
+import { ValidationService, TYPES } from '../../../app';
 
 const models: TsoaRoute.Models = {
     "ECSignature": {
@@ -31,9 +36,30 @@ const models: TsoaRoute.Models = {
             "expirationUnixTimestampSec": { "dataType": "string", "required": true },
         },
     },
+    "ErrorCode": {
+        "enums": ["100", "101", "102", "103", "500"],
+    },
+    "ValidationErrorCode": {
+        "enums": ["1000", "1001", "1002", "1003", "1004", "1005", "1006"],
+    },
+    "ValidationErrorModel": {
+        "properties": {
+            "code": { "ref": "ValidationErrorCode", "required": true },
+            "field": { "dataType": "string", "required": true },
+            "reason": { "dataType": "string", "required": true },
+        },
+    },
     "ErrorModel": {
         "properties": {
-            "message": { "dataType": "string", "required": true },
+            "code": { "ref": "ErrorCode", "required": true },
+            "reason": { "dataType": "string", "required": true },
+            "validationErrors": { "dataType": "array", "array": { "ref": "ValidationErrorModel" }, "required": true },
+        },
+    },
+    "SimpleErrorModel": {
+        "properties": {
+            "code": { "ref": "ErrorCode", "required": true },
+            "reason": { "dataType": "string", "required": true },
         },
     },
     "TokenTradeInfo": {
@@ -71,44 +97,40 @@ export function RegisterRoutes(app: any) {
                 taker: { "in": "query", "name": "taker", "dataType": "string" },
                 trader: { "in": "query", "name": "trader", "dataType": "string" },
                 feeRecipient: { "in": "query", "name": "feeRecipient", "dataType": "string" },
-                page: { "in": "query", "name": "page", "dataType": "double" },
-                perPage: { "in": "query", "name": "per_page", "dataType": "double" },
+                page: { "in": "query", "name": "page", "dataType": "integer", "validators": { "isInt": { "errorMsg": "page" }, "minimum": { "value": 1 } } },
+                perPage: { "in": "query", "name": "per_page", "dataType": "integer", "validators": { "isInt": { "errorMsg": "perPage" }, "minimum": { "value": 1 }, "maximum": { "value": 100 } } },
             };
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request);
-            } catch (err) {
-                return next(err);
-            }
 
             const controller = iocContainer.get<OrderController>(OrderController);
 
+            getValidatedArgs(args, request, controller).then((validatedArgs) => {
+                if (typeof controller['setStatus'] === 'function') {
+                    (<any>controller).setStatus(undefined);
+                }
 
-            const promise = controller.listOrders.apply(controller, validatedArgs);
-            promiseHandler(controller, promise, response, next);
+                const promise = controller.listOrders.apply(controller, validatedArgs);
+                promiseHandler(controller, promise, response, next);
+            }).catch((error: any) => next(error));
         });
     app.get('/api/v0/token_pairs',
         function(request: any, response: any, next: any) {
             const args = {
                 tokenA: { "in": "query", "name": "tokenA", "dataType": "string" },
                 tokenB: { "in": "query", "name": "tokenB", "dataType": "string" },
-                page: { "in": "query", "name": "page", "dataType": "double" },
-                perPage: { "in": "query", "name": "per_page", "dataType": "double" },
+                page: { "in": "query", "name": "page", "dataType": "integer", "validators": { "isInt": { "errorMsg": "page" }, "minimum": { "value": 1 } } },
+                perPage: { "in": "query", "name": "per_page", "dataType": "integer", "validators": { "isInt": { "errorMsg": "perPage" }, "minimum": { "value": 1 }, "maximum": { "value": 100 } } },
             };
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request);
-            } catch (err) {
-                return next(err);
-            }
 
             const controller = iocContainer.get<TokenPairsController>(TokenPairsController);
 
+            getValidatedArgs(args, request, controller).then((validatedArgs) => {
+                if (typeof controller['setStatus'] === 'function') {
+                    (<any>controller).setStatus(undefined);
+                }
 
-            const promise = controller.listPairs.apply(controller, validatedArgs);
-            promiseHandler(controller, promise, response, next);
+                const promise = controller.listPairs.apply(controller, validatedArgs);
+                promiseHandler(controller, promise, response, next);
+            }).catch((error: any) => next(error));
         });
     app.post('/api/v0/fees',
         function(request: any, response: any, next: any) {
@@ -116,45 +138,53 @@ export function RegisterRoutes(app: any) {
                 exchangeContractAddress: { "in": "body-prop", "name": "exchangeContractAddress", "required": true, "dataType": "string" },
                 makerTokenAddress: { "in": "body-prop", "name": "makerTokenAddress", "required": true, "dataType": "string" },
                 takerTokenAddress: { "in": "body-prop", "name": "takerTokenAddress", "required": true, "dataType": "string" },
-                maker: { "in": "body-prop", "name": "maker", "required": true, "dataType": "string" },
-                taker: { "in": "body-prop", "name": "taker", "required": true, "dataType": "string" },
-                makerTokenAmount: { "in": "body-prop", "name": "makerTokenAmount", "required": true, "dataType": "string" },
-                takerTokenAmount: { "in": "body-prop", "name": "takerTokenAmount", "required": true, "dataType": "string" },
-                expirationUnixTimestampSec: { "in": "body-prop", "name": "expirationUnixTimestampSec", "required": true, "dataType": "string" },
-                salt: { "in": "body-prop", "name": "salt", "required": true, "dataType": "string" },
+                maker: { "in": "body-prop", "name": "maker", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "makerTokenAmount" } } },
+                taker: { "in": "body-prop", "name": "taker", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "takerTokenAmount" } } },
+                expirationUnixTimestampSec: { "in": "body-prop", "name": "expirationUnixTimestampSec", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "expirationUnixTimestampSec" } } },
+                salt: { "in": "body-prop", "name": "salt", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "salt" } } },
+                makerTokenAmount: { "in": "body-prop", "name": "makerTokenAmount", "dataType": "string", "validators": { "isInt": { "errorMsg": "makerTokenAmount" } } },
+                takerTokenAmount: { "in": "body-prop", "name": "takerTokenAmount", "dataType": "string", "validators": { "isInt": { "errorMsg": "takerTokenAmount" } } },
             };
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request);
-            } catch (err) {
-                return next(err);
-            }
 
             const controller = iocContainer.get<FeeController>(FeeController);
 
+            getValidatedArgs(args, request, controller).then((validatedArgs) => {
+                if (typeof controller['setStatus'] === 'function') {
+                    (<any>controller).setStatus(undefined);
+                }
 
-            const promise = controller.calculateFee.apply(controller, validatedArgs);
-            promiseHandler(controller, promise, response, next);
+                const promise = controller.calculateFee.apply(controller, validatedArgs);
+                promiseHandler(controller, promise, response, next);
+            }).catch((error: any) => next(error));
         });
     app.post('/api/v0/order',
         function(request: any, response: any, next: any) {
             const args = {
-                signedOrder: { "in": "body", "name": "signedOrder", "ref": "SignedOrder" },
+                ecSignature: { "in": "body-prop", "name": "ecSignature", "required": true, "ref": "ECSignature" },
+                maker: { "in": "body-prop", "name": "maker", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "makerTokenAmount" } } },
+                taker: { "in": "body-prop", "name": "taker", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "takerTokenAmount" } } },
+                makerFee: { "in": "body-prop", "name": "makerFee", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "makerFee" } } },
+                takerFee: { "in": "body-prop", "name": "takerFee", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "takerFee" } } },
+                makerTokenAmount: { "in": "body-prop", "name": "makerTokenAmount", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "makerTokenAmount" } } },
+                takerTokenAmount: { "in": "body-prop", "name": "takerTokenAmount", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "takerTokenAmount" } } },
+                makerTokenAddress: { "in": "body-prop", "name": "makerTokenAddress", "required": true, "dataType": "string" },
+                takerTokenAddress: { "in": "body-prop", "name": "takerTokenAddress", "required": true, "dataType": "string" },
+                salt: { "in": "body-prop", "name": "salt", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "salt" } } },
+                exchangeContractAddress: { "in": "body-prop", "name": "exchangeContractAddress", "required": true, "dataType": "string" },
+                feeRecipient: { "in": "body-prop", "name": "feeRecipient", "required": true, "dataType": "string" },
+                expirationUnixTimestampSec: { "in": "body-prop", "name": "expirationUnixTimestampSec", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "expirationUnixTimestampSec" } } },
             };
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request);
-            } catch (err) {
-                return next(err);
-            }
 
             const controller = iocContainer.get<PostOrderController>(PostOrderController);
 
+            getValidatedArgs(args, request, controller).then((validatedArgs) => {
+                if (typeof controller['setStatus'] === 'function') {
+                    (<any>controller).setStatus(undefined);
+                }
 
-            const promise = controller.postOrder.apply(controller, validatedArgs);
-            promiseHandler(controller, promise, response, next);
+                const promise = controller.postOrder.apply(controller, validatedArgs);
+                promiseHandler(controller, promise, response, next);
+            }).catch((error: any) => next(error));
         });
 
 
@@ -181,25 +211,64 @@ export function RegisterRoutes(app: any) {
             .catch((error: any) => next(error));
     }
 
-    function getValidatedArgs(args: any, request: any): any[] {
+    async function getValidatedArgs(args: any, request: any, controller: any): Promise<any[]> {
         const fieldErrors: FieldErrors = {};
-        const values = Object.keys(args).map((key) => {
+        const addressParameters: ValidationAddressParam[] = controller.getAddressParameters ? controller.getAddressParameters() : [];
+        const validationErrors: ValidationErrorModel[] = [];
+        const validationService = iocContainer.get<ValidationService>(TYPES.ValidationService);
+        let ok = true;
+        let value: any;
+        let parent: string;
+        const values: any[] = [];
+        for (var i in Object.keys(args)) {
+            const key = Object.keys(args)[i];
             const name = args[key].name;
             switch (args[key].in) {
                 case 'request':
                     return request;
                 case 'query':
-                    return ValidateParam(args[key], request.query[name], models, name, fieldErrors);
+                    parent = null;
+                    value = request.query[name];
+                    break;
                 case 'path':
-                    return ValidateParam(args[key], request.params[name], models, name, fieldErrors);
+                    parent = null;
+                    value = request.params[name];
+                    break;
                 case 'header':
-                    return ValidateParam(args[key], request.header(name), models, name, fieldErrors);
+                    parent = null;
+                    value = request.header[name];
+                    break;
                 case 'body':
-                    return ValidateParam(args[key], request.body, models, name, fieldErrors, name + '.');
+                    parent = name + '.';
+                    value = request.body;
+                    break;
                 case 'body-prop':
-                    return ValidateParam(args[key], request.body[name], models, name, fieldErrors, 'body.');
+                    parent = 'body.';
+                    value = request.body[name];
+                    break;
+                default:
+                    values.push(null);
+                    continue;
             }
-        });
+            const okRequired = ParameterValidator.validateRequired(name, value, args[key].dataType, args[key].required, validationErrors);
+            const okInt = ParameterValidator.validateIntParameters(name, value, args[key].dataType, args[key].validators, validationService, validationErrors);
+            const okAddress = await ParameterValidator.validateAdressParameters(name, value, args[key].dataType, addressParameters, validationService, validationErrors);
+            if (!okRequired || !okInt || !okAddress) {
+                values.push(null);
+                continue;
+            }
+            values.push(ValidateParam(args[key], value, models, name, fieldErrors, parent));
+        }
+
+        if (validationErrors.length > 0) {
+            const exception = new ParameterException();
+            exception.code = ErrorCode.ValidationFailed;
+            exception.message = "Invalid parameters";
+            exception.name = "Invalid parameters";
+            exception.validationErrors = validationErrors;
+            throw exception;
+        }
+
         if (Object.keys(fieldErrors).length > 0) {
             throw new ValidateError(fieldErrors, '');
         }

@@ -83,14 +83,81 @@
 			],
 			"type": "object"
 		},
-		"ErrorModel": {
+		"ErrorCode": {
+			"enum": [
+				"100",
+				"101",
+				"102",
+				"103",
+				"500"
+			],
+			"type": "string"
+		},
+		"ValidationErrorCode": {
+			"enum": [
+				"1000",
+				"1001",
+				"1002",
+				"1003",
+				"1004",
+				"1005",
+				"1006"
+			],
+			"type": "string"
+		},
+		"ValidationErrorModel": {
 			"properties": {
-				"message": {
+				"code": {
+					"$ref": "#/definitions/ValidationErrorCode"
+				},
+				"field": {
+					"type": "string"
+				},
+				"reason": {
 					"type": "string"
 				}
 			},
 			"required": [
-				"message"
+				"code",
+				"field",
+				"reason"
+			],
+			"type": "object"
+		},
+		"ErrorModel": {
+			"properties": {
+				"code": {
+					"$ref": "#/definitions/ErrorCode"
+				},
+				"reason": {
+					"type": "string"
+				},
+				"validationErrors": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ValidationErrorModel"
+					}
+				}
+			},
+			"required": [
+				"code",
+				"reason",
+				"validationErrors"
+			],
+			"type": "object"
+		},
+		"SimpleErrorModel": {
+			"properties": {
+				"code": {
+					"$ref": "#/definitions/ErrorCode"
+				},
+				"reason": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"code",
+				"reason"
 			],
 			"type": "object"
 		},
@@ -205,7 +272,7 @@
 					"500": {
 						"description": "An unknown error occurred.",
 						"schema": {
-							"$ref": "#/definitions/ErrorModel"
+							"$ref": "#/definitions/SimpleErrorModel"
 						}
 					}
 				},
@@ -274,16 +341,19 @@
 						"in": "query",
 						"name": "page",
 						"required": false,
-						"format": "double",
-						"type": "number"
+						"format": "int32",
+						"type": "integer",
+						"minimum": 1
 					},
 					{
 						"description": "Number of orders that should be returned on each page. If this parameter is not informed, then it will take the default value of the total number of orders found.",
 						"in": "query",
 						"name": "per_page",
 						"required": false,
-						"format": "double",
-						"type": "number"
+						"format": "int32",
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 100
 					}
 				]
 			}
@@ -329,7 +399,7 @@
 					"500": {
 						"description": "An unknown error occurred.",
 						"schema": {
-							"$ref": "#/definitions/ErrorModel"
+							"$ref": "#/definitions/SimpleErrorModel"
 						}
 					}
 				},
@@ -356,16 +426,19 @@
 						"in": "query",
 						"name": "page",
 						"required": false,
-						"format": "double",
-						"type": "number"
+						"format": "int32",
+						"type": "integer",
+						"minimum": 1
 					},
 					{
 						"description": "Number of token pairs that should be returned on each page. If this parameter is not informed, then it will take the default value of the total number of token pairs found.",
 						"in": "query",
 						"name": "per_page",
 						"required": false,
-						"format": "double",
-						"type": "number"
+						"format": "int32",
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 100
 					}
 				]
 			}
@@ -399,7 +472,7 @@
 					"500": {
 						"description": "An unknown error occurred.",
 						"schema": {
-							"$ref": "#/definitions/ErrorModel"
+							"$ref": "#/definitions/SimpleErrorModel"
 						}
 					}
 				},
@@ -432,14 +505,6 @@
 									"type": "string",
 									"description": "Will validate this taker address to calculate fee, and it has to be the relayer address."
 								},
-								"makerTokenAmount": {
-									"type": "string",
-									"description": "Will calculate convertion price based on this maker token amount, and will use it to calculate fee."
-								},
-								"takerTokenAmount": {
-									"type": "string",
-									"description": "Will calculate convertion price based on this taker token amount, and will use it to calculate fee."
-								},
 								"expirationUnixTimestampSec": {
 									"type": "string",
 									"description": "Will validate the expiration time to calculate fee."
@@ -447,6 +512,14 @@
 								"salt": {
 									"type": "string",
 									"description": "Will validate this unique number to calculate fee."
+								},
+								"makerTokenAmount": {
+									"type": "string",
+									"description": "Will calculate convertion price based on this maker token amount, and will use it to calculate fee."
+								},
+								"takerTokenAmount": {
+									"type": "string",
+									"description": "Will calculate convertion price based on this taker token amount, and will use it to calculate fee."
 								}
 							},
 							"title": "CalculateFeeBody",
@@ -457,8 +530,6 @@
 								"takerTokenAddress",
 								"maker",
 								"taker",
-								"makerTokenAmount",
-								"takerTokenAmount",
 								"expirationUnixTimestampSec",
 								"salt"
 							]
@@ -474,29 +545,8 @@
 					"application/json"
 				],
 				"responses": {
-					"204": {
-						"description": "No content",
-						"examples": {
-							"application/json": {
-								"ecSignature": {
-									"r": "string",
-									"s": "string",
-									"v": 0
-								},
-								"exchangeContractAddress": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-								"expirationUnixTimestampSec": "1511833100",
-								"feeRecipient": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-								"maker": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-								"makerFee": "000000000000000001",
-								"makerTokenAddress": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-								"makerTokenAmount": "1000000000000000000",
-								"salt": "72190258645710948815942036721950834632004444658131970136856055217425783080581",
-								"taker": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-								"takerFee": "000000000000000001",
-								"takerTokenAddress": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-								"takerTokenAmount": "1000000000000000000"
-							}
-						}
+					"201": {
+						"description": "Order submitted and filled"
 					},
 					"400": {
 						"description": "A parameter is not informed correctly.",
@@ -507,7 +557,7 @@
 					"500": {
 						"description": "An unknown error occurred.",
 						"schema": {
-							"$ref": "#/definitions/ErrorModel"
+							"$ref": "#/definitions/SimpleErrorModel"
 						}
 					}
 				},
@@ -517,10 +567,79 @@
 				"parameters": [
 					{
 						"in": "body",
-						"name": "signedOrder",
-						"required": false,
+						"name": "body",
 						"schema": {
-							"$ref": "#/definitions/SignedOrder"
+							"properties": {
+								"ecSignature": {
+									"$ref": "#/definitions/ECSignature",
+									"description": "The order signature, signed with the maker private key."
+								},
+								"maker": {
+									"type": "string",
+									"description": "Your wallet address."
+								},
+								"taker": {
+									"type": "string",
+									"description": "The wallet address of who will fill ypur order or a zero address."
+								},
+								"makerFee": {
+									"type": "string",
+									"description": "The fee amount you will pay, in ZRX."
+								},
+								"takerFee": {
+									"type": "string",
+									"description": "The fee amount the taker will pay, in ZRX."
+								},
+								"makerTokenAmount": {
+									"type": "string",
+									"description": "The amount you desire to sell."
+								},
+								"takerTokenAmount": {
+									"type": "string",
+									"description": "The amount you desire to buy."
+								},
+								"makerTokenAddress": {
+									"type": "string",
+									"description": "The token addres you desire to sell."
+								},
+								"takerTokenAddress": {
+									"type": "string",
+									"description": "The token addres you desire to buy."
+								},
+								"salt": {
+									"type": "string",
+									"description": "A unique number (a random number)."
+								},
+								"exchangeContractAddress": {
+									"type": "string",
+									"description": "The exchange contract address."
+								},
+								"feeRecipient": {
+									"type": "string",
+									"description": "The address of fee recipient (e.g.: relayer address)."
+								},
+								"expirationUnixTimestampSec": {
+									"type": "string",
+									"description": "The order expiration time in seconds."
+								}
+							},
+							"title": "PostOrderBody",
+							"type": "object",
+							"required": [
+								"ecSignature",
+								"maker",
+								"taker",
+								"makerFee",
+								"takerFee",
+								"makerTokenAmount",
+								"takerTokenAmount",
+								"makerTokenAddress",
+								"takerTokenAddress",
+								"salt",
+								"exchangeContractAddress",
+								"feeRecipient",
+								"expirationUnixTimestampSec"
+							]
 						}
 					}
 				]

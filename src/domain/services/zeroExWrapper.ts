@@ -64,7 +64,14 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
             expirationUnixTimestampSec: new BigNumber(signedOrder.expirationUnixTimestampSec),
             ecSignature: signedOrder.ecSignature,
         });
-        return ZeroEx.isValidOrderHash(hash) && ZeroEx.isValidSignature(hash, signedOrder.ecSignature, signedOrder.maker);
+        if (!ZeroEx.isValidOrderHash(hash)) {
+            return false;
+        }
+        try {
+            return ZeroEx.isValidSignature(hash, signedOrder.ecSignature, signedOrder.maker);
+        } catch (error) {
+            return false;
+        }
     }
 
     /** ExchangeService */

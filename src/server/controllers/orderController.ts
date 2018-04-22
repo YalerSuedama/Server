@@ -1,9 +1,11 @@
 import { inject, injectable } from "inversify";
 import * as moment from "moment";
-import { Controller, Example, FieldErrors, Get, Query, Response, Route, ValidateError } from "tsoa";
+import { Controller, Example, Get, Query, Response, Route } from "tsoa";
 import { OrderService, TYPES, ValidationService } from "../../app";
 import { SignedOrder } from "../../app/models";
-import { ErrorModel } from "../middleware/errorHandler";
+import { ErrorCode, ErrorModel, SimpleErrorModel, ValidationErrorCode, ValidationErrorModel } from "../middleware/errorHandler";
+import { ValidationAddressParam } from "../middleware/validator/validationAddressParam";
+import { ValidationAddressType } from "../middleware/validator/validationAddressType";
 
 @Route("orders")
 @injectable()
@@ -30,6 +32,11 @@ export class OrderController extends Controller {
      * @param {string} feeRecipient Will return all orders where feeRecipient is the same address of this parameter.
      * @param {number} page Which page should be returned. If this parameter is not informed, then it will take the default value of 1. Page numbers start at 1.
      * @param {number} perPage Number of orders that should be returned on each page. If this parameter is not informed, then it will take the default value of the total number of orders found.
+     * @isInt page
+     * @minimum page 1
+     * @isInt perPage
+     * @minimum perPage 1
+     * @maximum perPage 100
      */
     @Example<SignedOrder>({
         ecSignature: {
@@ -51,38 +58,41 @@ export class OrderController extends Controller {
         takerTokenAmount: "1000000000000000000",
     })
     @Response<ErrorModel>("400", "A parameter is not informed correctly.", {
-        message: "some string",
+        code: ErrorCode.ValidationFailed,
+        reason: "some string",
+        validationErrors: [{
+            code: ValidationErrorCode.RequiredField,
+            field: "field name",
+            reason: "some string",
+        }],
     })
-    @Response<ErrorModel>("500", "An unknown error occurred.", {
-        message: "some string",
+    @Response<SimpleErrorModel>("500", "An unknown error occurred.", {
+        code: ErrorCode.UnknownError,
+        reason: "some string",
     })
     @Get()
     public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<SignedOrder[]> {
-        this.validateAddressParameters(
-            {name: "exchangeContractAddress", value: exchangeContractAddress},
-            {name: "tokenAddress", value: tokenAddress},
-            {name: "makerTokenAddress", value: makerTokenAddress},
-            {name: "takerTokenAddress", value: takerTokenAddress},
-            {name: "maker", value: maker},
-            {name: "taker", value: taker},
-            {name: "trader", value: trader},
-            {name: "feeRecipient", value: feeRecipient},
-        );
         return await this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, maker, taker, trader, feeRecipient, page, perPage);
     }
 
-    private validateAddressParameters(...addressParams: any[]): void {
-        const fieldErrors: FieldErrors = {};
-        for (const param of addressParams) {
-            if (param.value !== undefined && param.value !== null && !this.validationService.isAddress(param.value)) {
-                fieldErrors[param.name] = {
-                    message: `The parameter ${param.name} is not a valid address`,
-                    value: param.value,
-                };
-            }
-        }
-        if (Object.keys(fieldErrors).length > 0) {
-            throw new ValidateError(fieldErrors, "");
-        }
+    public getAddressParameters(): ValidationAddressParam[] {
+        return [
+            {param: "exchangeContractAddress", type: ValidationAddressType.ANY },
+            {param: "tokenAddress", type: ValidationAddressType.ANY },
+            {param: "makerTokenAddress", type: ValidationAddressType.ANY },
+            {param: "takerTokenAddress", type: ValidationAddressType.ANY },
+            {param: "maker", type: ValidationAddressType.ANY },
+            {param: "taker", type: ValidationAddressType.ANY },
+            {param: "trader", type: ValidationAddressType.ANY },
+            {param: "feeRecipient", type: ValidationAddressType.ANY },
+        ];
+    }
+
+    public getPageParameter(): string {
+        return "page";
+    }
+
+    public getPerPageParameter(): string {
+        return "per_page";
     }
 }
