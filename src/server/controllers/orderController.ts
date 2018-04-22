@@ -3,7 +3,9 @@ import * as moment from "moment";
 import { Controller, Example, Get, Query, Response, Route } from "tsoa";
 import { OrderService, TYPES, ValidationService } from "../../app";
 import { SignedOrder } from "../../app/models";
-import { ErrorCode, ErrorModel, ValidationErrorCode, ValidationErrorModel } from "../middleware/errorHandler";
+import { ErrorCode, ErrorModel, SimpleErrorModel, ValidationErrorCode, ValidationErrorModel } from "../middleware/errorHandler";
+import { ValidationAddressParam } from "../middleware/validator/validationAddressParam";
+import { ValidationAddressType } from "../middleware/validator/validationAddressType";
 
 @Route("orders")
 @injectable()
@@ -14,19 +16,6 @@ export class OrderController extends Controller {
         @inject(TYPES.ValidationService) private validationService: ValidationService,
     ) {
         super();
-    }
-
-    /**
-     * @param {number} page m
-     * @isInt page
-     * @minimum page 1
-     * @isInt perPage
-     * @minimum perPage 1
-     * @maximum perPage 100
-     */
-    @Get()
-    public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<SignedOrder[]> {
-        return await this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, maker, taker, trader, feeRecipient, page, perPage);
     }
 
     /**
@@ -43,6 +32,11 @@ export class OrderController extends Controller {
      * @param {string} feeRecipient Will return all orders where feeRecipient is the same address of this parameter.
      * @param {number} page Which page should be returned. If this parameter is not informed, then it will take the default value of 1. Page numbers start at 1.
      * @param {number} perPage Number of orders that should be returned on each page. If this parameter is not informed, then it will take the default value of the total number of orders found.
+     * @isInt page
+     * @minimum page 1
+     * @isInt perPage
+     * @minimum perPage 1
+     * @maximum perPage 100
      */
     @Example<SignedOrder>({
         ecSignature: {
@@ -72,14 +66,26 @@ export class OrderController extends Controller {
             reason: "some string",
         }],
     })
-    @Response<ErrorModel>("500", "An unknown error occurred.", {
+    @Response<SimpleErrorModel>("500", "An unknown error occurred.", {
         code: ErrorCode.UnknownError,
         reason: "some string",
-        validationErrors: null,
     })
+    @Get()
+    public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<SignedOrder[]> {
+        return await this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, maker, taker, trader, feeRecipient, page, perPage);
+    }
 
-    public getAddressParameters(): string[] {
-        return ["exchangeContractAddress", "tokenAddress", "makerTokenAddress", "takerTokenAddress", "maker", "taker", "trader", "feeRecipient"];
+    public getAddressParameters(): ValidationAddressParam[] {
+        return [
+            {param: "exchangeContractAddress", type: ValidationAddressType.ANY },
+            {param: "tokenAddress", type: ValidationAddressType.ANY },
+            {param: "makerTokenAddress", type: ValidationAddressType.ANY },
+            {param: "takerTokenAddress", type: ValidationAddressType.ANY },
+            {param: "maker", type: ValidationAddressType.ANY },
+            {param: "taker", type: ValidationAddressType.ANY },
+            {param: "trader", type: ValidationAddressType.ANY },
+            {param: "feeRecipient", type: ValidationAddressType.ANY },
+        ];
     }
 
     public getPageParameter(): string {

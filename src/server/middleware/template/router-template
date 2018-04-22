@@ -13,7 +13,8 @@ import { {{name}} } from '{{modulePath}}';
 {{#if authenticationModule}}
 import { expressAuthentication } from '{{authenticationModule}}';
 {{/if}}
-import { ParameterValidator } from '../../../server/controllers/parameterValidator';
+import { ParameterValidator } from '../validator/parameterValidator';
+import { ValidationAddressParam } from '../validator/validationAddressParam';
 import { ValidationErrorModel, ErrorCode } from '../../../server/middleware/errorHandler';
 import { ParameterException } from '../../../domain/exception';
 import { ValidationService, TYPES } from '../../../app';
@@ -58,22 +59,16 @@ export function RegisterRoutes(app: any) {
             const controller = new {{../name}}();
             {{/if}}
 
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, controller);
-            } catch (err) {
-                return next(err);
-            }
+            getValidatedArgs(args, request, controller).then((validatedArgs) => {
+                {{#if ../../iocModule}}
+                if (typeof controller['setStatus'] === 'function') {
+                    (<any>controller).setStatus(undefined);
+                }
+                {{/if}}
 
-            {{#if ../../iocModule}}
-            if (typeof controller['setStatus'] === 'function') {
-                (<any>controller).setStatus(undefined);
-            }
-            {{/if}}
-
-
-            const promise = controller.{{name}}.apply(controller, validatedArgs);
-            promiseHandler(controller, promise, response, next);
+                const promise = controller.{{name}}.apply(controller, validatedArgs);
+                promiseHandler(controller, promise, response, next);
+            }).catch((error: any) => next(error));
         });
     {{/each}}
     {{/each}}
@@ -128,15 +123,15 @@ export function RegisterRoutes(app: any) {
             .catch((error: any) => next(error));
     }
 
-    function getValidatedArgs(args: any, request: any, controller: any): any[] {
+    async function getValidatedArgs(args: any, request: any, controller: any): Promise<any[]> {
         const fieldErrors: FieldErrors  = {};
-        const addressFields: string[] = controller.getAddressParameters ? controller.getAddressParameters() : [];
+        const addressParameters: ValidationAddressParam[] = controller.getAddressParameters ? controller.getAddressParameters() : [];
         const validationErrors: ValidationErrorModel[] = [];
         const validationService = iocContainer.get<ValidationService>(TYPES.ValidationService);
         let ok = true;
         let value: any;
         let parent: string;
-        const values = Object.keys(args).map((key) => {
+        const values = Object.keys(args).map(async function (key) {
             const name = args[key].name;
             switch (args[key].in) {
                 case 'request':
@@ -165,8 +160,8 @@ export function RegisterRoutes(app: any) {
                     return;
             }
             ok = ParameterValidator.validateRequired(name, value, args[key].dataType, args[key].required, validationErrors);
-            ok = ParameterValidator.validateAdressParameters(name, value, args[key].dataType, addressFields, validationService, validationErrors) && ok;
             ok = ParameterValidator.validateIntParameters(name, value, args[key].dataType, args[key].validators, validationService, validationErrors) && ok;
+            ok = await ParameterValidator.validateAdressParameters(name, value, args[key].dataType, addressParameters, validationService, validationErrors) && ok;
             if (!ok) {
                 return;
             }

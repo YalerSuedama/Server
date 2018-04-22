@@ -52,6 +52,11 @@ export class ZeroExSchemaBasedValidationService implements ValidationService {
 
     public async validateTakerTokenAmount(makerTokenAddress: string, takerTokenAddress: string, takerTokenAmount: BigNumber): Promise<boolean> {
         const pair: TokenPairTradeInfo = await this.tokenPairsService.getPair(makerTokenAddress, takerTokenAddress);
-        return !takerTokenAmount || takerTokenAmount.lessThanOrEqualTo(new BigNumber(pair.tokenB.maxAmount));
+        return !takerTokenAmount || (takerTokenAmount.lessThanOrEqualTo(new BigNumber(pair.tokenB.maxAmount)) && takerTokenAmount.greaterThanOrEqualTo(new BigNumber(pair.tokenB.minAmount)));
+    }
+
+    public async validateMakerTokenAmount(makerTokenAddress: string, takerTokenAddress: string, makerTokenAmount: BigNumber): Promise<boolean> {
+        const pair: TokenPairTradeInfo = await this.tokenPairsService.getPair(makerTokenAddress, takerTokenAddress);
+        return !makerTokenAmount || (makerTokenAmount.lessThanOrEqualTo(new BigNumber(pair.tokenA.maxAmount)) && makerTokenAmount.greaterThanOrEqualTo(new BigNumber(pair.tokenA.minAmount)));
     }
 }

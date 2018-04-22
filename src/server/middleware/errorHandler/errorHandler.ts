@@ -2,18 +2,18 @@ import * as express from "express";
 import { BusinessException, ParameterException } from "../../../domain/exception";
 import { ErrorCode } from "./errorCode";
 import { ErrorModel } from "./errorModel";
+import { SimpleErrorModel } from "./simpleErrorModel";
 
-function handleError(res: express.Response, statusCode: number, error: ErrorModel) {
+function handleError(res: express.Response, statusCode: number, error: any) {
     res.status(statusCode);
     res.json(error);
 }
 
-function createGenericError(error: any): ErrorModel {
+function createGenericError(error: any): SimpleErrorModel {
     const message: string = error.message || `Error executing the operation: ${JSON.stringify(error)}`;
     return {
         code: ErrorCode​​.UnknownError,
         reason: message,
-        validationErrors: null,
     };
 }
 
@@ -25,11 +25,10 @@ function createFromParameterException(error: ParameterException): ErrorModel {
     };
 }
 
-function createFromBusinessException(error: BusinessException): ErrorModel {
+function createFromBusinessException(error: BusinessException): SimpleErrorModel {
     return {
         code: error.code,
         reason: error.message,
-        validationErrors: null,
     };
 }
 

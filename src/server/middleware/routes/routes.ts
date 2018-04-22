@@ -5,7 +5,8 @@ import { OrderController } from './../../controllers/orderController';
 import { TokenPairsController } from './../../controllers/tokenPairsController';
 import { FeeController } from './../../controllers/feeController';
 import { PostOrderController } from './../../controllers/postOrderController';
-import { ParameterValidator } from '../../../server/controllers/parameterValidator';
+import { ParameterValidator } from '../validator/parameterValidator';
+import { ValidationAddressParam } from '../validator/validationAddressParam';
 import { ValidationErrorModel, ErrorCode } from '../../../server/middleware/errorHandler';
 import { ParameterException } from '../../../domain/exception';
 import { ValidationService, TYPES } from '../../../app';
@@ -35,6 +36,32 @@ const models: TsoaRoute.Models = {
             "expirationUnixTimestampSec": { "dataType": "string", "required": true },
         },
     },
+    "ErrorCode": {
+        "enums": ["100", "101", "102", "103", "500"],
+    },
+    "ValidationErrorCode": {
+        "enums": ["1000", "1001", "1002", "1003", "1004", "1005", "1006"],
+    },
+    "ValidationErrorModel": {
+        "properties": {
+            "code": { "ref": "ValidationErrorCode", "required": true },
+            "field": { "dataType": "string", "required": true },
+            "reason": { "dataType": "string", "required": true },
+        },
+    },
+    "ErrorModel": {
+        "properties": {
+            "code": { "ref": "ErrorCode", "required": true },
+            "reason": { "dataType": "string", "required": true },
+            "validationErrors": { "dataType": "array", "array": { "ref": "ValidationErrorModel" }, "required": true },
+        },
+    },
+    "SimpleErrorModel": {
+        "properties": {
+            "code": { "ref": "ErrorCode", "required": true },
+            "reason": { "dataType": "string", "required": true },
+        },
+    },
     "TokenTradeInfo": {
         "properties": {
             "address": { "dataType": "string", "required": true },
@@ -54,26 +81,6 @@ const models: TsoaRoute.Models = {
             "feeRecipient": { "dataType": "string", "required": true },
             "makerFee": { "dataType": "string", "required": true },
             "takerFee": { "dataType": "string", "required": true },
-        },
-    },
-    "ErrorCode": {
-        "enums": ["100", "101", "102", "103", "500"],
-    },
-    "ValidationErrorCode": {
-        "enums": ["1000", "1001", "1002", "1003", "1004", "1005", "1006"],
-    },
-    "ValidationErrorModel": {
-        "properties": {
-            "code": { "ref": "ValidationErrorCode", "required": true },
-            "field": { "dataType": "string", "required": true },
-            "reason": { "dataType": "string", "required": true },
-        },
-    },
-    "ErrorModel": {
-        "properties": {
-            "code": { "ref": "ErrorCode", "required": true },
-            "reason": { "dataType": "string", "required": true },
-            "validationErrors": { "dataType": "array", "array": { "ref": "ValidationErrorModel" }, "required": true },
         },
     },
 };
@@ -96,20 +103,14 @@ export function RegisterRoutes(app: any) {
 
             const controller = iocContainer.get<OrderController>(OrderController);
 
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, controller);
-            } catch (err) {
-                return next(err);
-            }
+            getValidatedArgs(args, request, controller).then((validatedArgs) => {
+                if (typeof controller['setStatus'] === 'function') {
+                    (<any>controller).setStatus(undefined);
+                }
 
-            if (typeof controller['setStatus'] === 'function') {
-                (<any>controller).setStatus(undefined);
-            }
-
-
-            const promise = controller.listOrders.apply(controller, validatedArgs);
-            promiseHandler(controller, promise, response, next);
+                const promise = controller.listOrders.apply(controller, validatedArgs);
+                promiseHandler(controller, promise, response, next);
+            }).catch((error: any) => next(error));
         });
     app.get('/api/v0/token_pairs',
         function(request: any, response: any, next: any) {
@@ -122,20 +123,14 @@ export function RegisterRoutes(app: any) {
 
             const controller = iocContainer.get<TokenPairsController>(TokenPairsController);
 
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, controller);
-            } catch (err) {
-                return next(err);
-            }
+            getValidatedArgs(args, request, controller).then((validatedArgs) => {
+                if (typeof controller['setStatus'] === 'function') {
+                    (<any>controller).setStatus(undefined);
+                }
 
-            if (typeof controller['setStatus'] === 'function') {
-                (<any>controller).setStatus(undefined);
-            }
-
-
-            const promise = controller.listPairs.apply(controller, validatedArgs);
-            promiseHandler(controller, promise, response, next);
+                const promise = controller.listPairs.apply(controller, validatedArgs);
+                promiseHandler(controller, promise, response, next);
+            }).catch((error: any) => next(error));
         });
     app.post('/api/v0/fees',
         function(request: any, response: any, next: any) {
@@ -143,53 +138,53 @@ export function RegisterRoutes(app: any) {
                 exchangeContractAddress: { "in": "body-prop", "name": "exchangeContractAddress", "required": true, "dataType": "string" },
                 makerTokenAddress: { "in": "body-prop", "name": "makerTokenAddress", "required": true, "dataType": "string" },
                 takerTokenAddress: { "in": "body-prop", "name": "takerTokenAddress", "required": true, "dataType": "string" },
-                maker: { "in": "body-prop", "name": "maker", "required": true, "dataType": "string" },
-                taker: { "in": "body-prop", "name": "taker", "required": true, "dataType": "string" },
-                expirationUnixTimestampSec: { "in": "body-prop", "name": "expirationUnixTimestampSec", "required": true, "dataType": "string" },
-                salt: { "in": "body-prop", "name": "salt", "required": true, "dataType": "string" },
-                makerTokenAmount: { "in": "body-prop", "name": "makerTokenAmount", "dataType": "double" },
-                takerTokenAmount: { "in": "body-prop", "name": "takerTokenAmount", "dataType": "string" },
+                maker: { "in": "body-prop", "name": "maker", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "makerTokenAmount" } } },
+                taker: { "in": "body-prop", "name": "taker", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "takerTokenAmount" } } },
+                expirationUnixTimestampSec: { "in": "body-prop", "name": "expirationUnixTimestampSec", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "expirationUnixTimestampSec" } } },
+                salt: { "in": "body-prop", "name": "salt", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "salt" } } },
+                makerTokenAmount: { "in": "body-prop", "name": "makerTokenAmount", "dataType": "string", "validators": { "isInt": { "errorMsg": "makerTokenAmount" } } },
+                takerTokenAmount: { "in": "body-prop", "name": "takerTokenAmount", "dataType": "string", "validators": { "isInt": { "errorMsg": "takerTokenAmount" } } },
             };
 
             const controller = iocContainer.get<FeeController>(FeeController);
 
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, controller);
-            } catch (err) {
-                return next(err);
-            }
+            getValidatedArgs(args, request, controller).then((validatedArgs) => {
+                if (typeof controller['setStatus'] === 'function') {
+                    (<any>controller).setStatus(undefined);
+                }
 
-            if (typeof controller['setStatus'] === 'function') {
-                (<any>controller).setStatus(undefined);
-            }
-
-
-            const promise = controller.calculateFee.apply(controller, validatedArgs);
-            promiseHandler(controller, promise, response, next);
+                const promise = controller.calculateFee.apply(controller, validatedArgs);
+                promiseHandler(controller, promise, response, next);
+            }).catch((error: any) => next(error));
         });
     app.post('/api/v0/order',
         function(request: any, response: any, next: any) {
             const args = {
-                signedOrder: { "in": "body", "name": "signedOrder", "ref": "SignedOrder" },
+                ecSignature: { "in": "body-prop", "name": "ecSignature", "required": true, "ref": "ECSignature" },
+                maker: { "in": "body-prop", "name": "maker", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "makerTokenAmount" } } },
+                taker: { "in": "body-prop", "name": "taker", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "takerTokenAmount" } } },
+                makerFee: { "in": "body-prop", "name": "makerFee", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "makerFee" } } },
+                takerFee: { "in": "body-prop", "name": "takerFee", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "takerFee" } } },
+                makerTokenAmount: { "in": "body-prop", "name": "makerTokenAmount", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "makerTokenAmount" } } },
+                takerTokenAmount: { "in": "body-prop", "name": "takerTokenAmount", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "takerTokenAmount" } } },
+                makerTokenAddress: { "in": "body-prop", "name": "makerTokenAddress", "required": true, "dataType": "string" },
+                takerTokenAddress: { "in": "body-prop", "name": "takerTokenAddress", "required": true, "dataType": "string" },
+                salt: { "in": "body-prop", "name": "salt", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "salt" } } },
+                exchangeContractAddress: { "in": "body-prop", "name": "exchangeContractAddress", "required": true, "dataType": "string" },
+                feeRecipient: { "in": "body-prop", "name": "feeRecipient", "required": true, "dataType": "string" },
+                expirationUnixTimestampSec: { "in": "body-prop", "name": "expirationUnixTimestampSec", "required": true, "dataType": "string", "validators": { "isInt": { "errorMsg": "expirationUnixTimestampSec" } } },
             };
 
             const controller = iocContainer.get<PostOrderController>(PostOrderController);
 
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, controller);
-            } catch (err) {
-                return next(err);
-            }
+            getValidatedArgs(args, request, controller).then((validatedArgs) => {
+                if (typeof controller['setStatus'] === 'function') {
+                    (<any>controller).setStatus(undefined);
+                }
 
-            if (typeof controller['setStatus'] === 'function') {
-                (<any>controller).setStatus(undefined);
-            }
-
-
-            const promise = controller.postOrder.apply(controller, validatedArgs);
-            promiseHandler(controller, promise, response, next);
+                const promise = controller.postOrder.apply(controller, validatedArgs);
+                promiseHandler(controller, promise, response, next);
+            }).catch((error: any) => next(error));
         });
 
 
@@ -216,15 +211,15 @@ export function RegisterRoutes(app: any) {
             .catch((error: any) => next(error));
     }
 
-    function getValidatedArgs(args: any, request: any, controller: any): any[] {
+    async function getValidatedArgs(args: any, request: any, controller: any): Promise<any[]> {
         const fieldErrors: FieldErrors = {};
-        const addressFields: string[] = controller.getAddressParameters ? controller.getAddressParameters() : [];
+        const addressParameters: ValidationAddressParam[] = controller.getAddressParameters ? controller.getAddressParameters() : [];
         const validationErrors: ValidationErrorModel[] = [];
         const validationService = iocContainer.get<ValidationService>(TYPES.ValidationService);
         let ok = true;
         let value: any;
         let parent: string;
-        const values = Object.keys(args).map((key) => {
+        const values = Object.keys(args).map(async function(key) {
             const name = args[key].name;
             switch (args[key].in) {
                 case 'request':
@@ -253,8 +248,8 @@ export function RegisterRoutes(app: any) {
                     return;
             }
             ok = ParameterValidator.validateRequired(name, value, args[key].dataType, args[key].required, validationErrors);
-            ok = ParameterValidator.validateAdressParameters(name, value, args[key].dataType, addressFields, validationService, validationErrors) && ok;
             ok = ParameterValidator.validateIntParameters(name, value, args[key].dataType, args[key].validators, validationService, validationErrors) && ok;
+            ok = await ParameterValidator.validateAdressParameters(name, value, args[key].dataType, addressParameters, validationService, validationErrors) && ok;
             if (!ok) {
                 return;
             }
