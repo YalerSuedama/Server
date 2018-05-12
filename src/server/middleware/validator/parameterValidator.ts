@@ -10,8 +10,8 @@ export class ParameterValidator {
         if (required && (value === undefined || value === null || (type === "string" && value === ""))) {
             fieldErrors.push({
                 code: ValidationErrorCode.RequiredField,
-                reason: `The parameter ${name} is required`,
                 field: name,
+                reason: `The parameter ${name} is required`,
             });
             return false;
         }
@@ -25,8 +25,8 @@ export class ParameterValidator {
                 if (!validationService.isAddress(value)) {
                     fieldErrors.push({
                         code: ValidationErrorCode.InvalidAddress,
-                        reason: `The parameter ${name} is not a valid address`,
                         field: name,
+                        reason: `The parameter ${name} is not a valid address`,
                     });
                     return false;
                 }
@@ -36,8 +36,8 @@ export class ParameterValidator {
                         if (!await validationService.validateCurrentContractAddress(value)) {
                             fieldErrors.push({
                                 code: ValidationErrorCode.AddressNotSupported,
-                                reason: "Invalid exchange contract address",
                                 field: name,
+                                reason: "Invalid exchange contract address",
                             });
                             return false;
                         }
@@ -46,8 +46,8 @@ export class ParameterValidator {
                         if (!await validationService.validateMainAddress(value, false)) {
                             fieldErrors.push({
                                 code: ValidationErrorCode.AddressNotSupported,
-                                reason: `Invalid ${name} address`,
                                 field: name,
+                                reason: `Invalid ${name} address`,
                             });
                             return false;
                         }
@@ -56,8 +56,8 @@ export class ParameterValidator {
                         if (!await validationService.validateMainAddress(value, true)) {
                             fieldErrors.push({
                                 code: ValidationErrorCode.AddressNotSupported,
-                                reason: `Invalid ${name} address`,
                                 field: name,
+                                reason: `Invalid ${name} address`,
                             });
                             return false;
                         }
@@ -76,24 +76,24 @@ export class ParameterValidator {
             if (!int.test(value + "")) {
                 fieldErrors.push({
                     code: ValidationErrorCode.IncorrectFormat,
-                    reason: `The parameter ${name} is not a valid integer`,
                     field: name,
+                    reason: `The parameter ${name} is not a valid integer`,
                 });
                 return false;
             }
             if (validators && validators.minimum && validators.minimum.value && parseInt(value, 10) < validators.minimum.value) {
                 fieldErrors.push({
                     code: ValidationErrorCode.ValueOutOfRange,
-                    reason: `The parameter ${name} must be greather than or equal to ${validators.minimum.value}`,
                     field: name,
+                    reason: `The parameter ${name} must be greather than or equal to ${validators.minimum.value}`,
                 });
                 return false;
             }
             if (validators && validators.maximum && validators.maximum.value && parseInt(value, 10) > validators.maximum.value) {
                 fieldErrors.push({
                     code: ValidationErrorCode.ValueOutOfRange,
-                    reason: `The parameter ${name} must be lesser than or equal to ${validators.maximum.value}`,
                     field: name,
+                    reason: `The parameter ${name} must be lesser than or equal to ${validators.maximum.value}`,
                 });
                 return false;
             }

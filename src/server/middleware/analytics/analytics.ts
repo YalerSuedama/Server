@@ -10,9 +10,9 @@ export function analytics(request: express.Request, response: express.Response, 
         if (analyticsConfig.enabled) {
             const req = http.request({
                 hostname: analyticsConfig.hostname,
-                port: analyticsConfig.port,
-                path: `${analyticsConfig.url}?${analyticsConfig.payload}${request.originalUrl}`,
                 method: analyticsConfig.method,
+                path: `${analyticsConfig.url}?${analyticsConfig.payload}${request.originalUrl}`,
+                port: analyticsConfig.port,
             });
             req.end();
         }

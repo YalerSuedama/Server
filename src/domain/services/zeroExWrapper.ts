@@ -31,18 +31,18 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
 
     public async signOrder(order: Order): Promise<SignedOrder> {
         const hash = ZeroEx.getOrderHashHex({
-            maker: order.maker,
-            taker: order.taker,
-            makerFee: new BigNumber(order.makerFee),
-            takerFee: new BigNumber(order.takerFee),
-            makerTokenAmount: new BigNumber(order.makerTokenAmount),
-            takerTokenAmount: new BigNumber(order.takerTokenAmount),
-            makerTokenAddress: order.makerTokenAddress,
-            takerTokenAddress: order.takerTokenAddress,
-            salt: new BigNumber(order.salt),
             exchangeContractAddress: order.exchangeContractAddress,
-            feeRecipient: order.feeRecipient,
             expirationUnixTimestampSec: new BigNumber(order.expirationUnixTimestampSec),
+            feeRecipient: order.feeRecipient,
+            maker: order.maker,
+            makerFee: new BigNumber(order.makerFee),
+            makerTokenAddress: order.makerTokenAddress,
+            makerTokenAmount: new BigNumber(order.makerTokenAmount),
+            salt: new BigNumber(order.salt),
+            taker: order.taker,
+            takerFee: new BigNumber(order.takerFee),
+            takerTokenAddress: order.takerTokenAddress,
+            takerTokenAmount: new BigNumber(order.takerTokenAmount),
         });
         const signature = await this.zeroEx.signOrderHashAsync(hash, await this.web3.eth.getCoinbase(), false);
         return Object.assign({}, order, { ecSignature: signature });
