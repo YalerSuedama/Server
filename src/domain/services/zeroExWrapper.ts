@@ -14,7 +14,7 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     private static readonly TRADABLE_TOKENS_KEY = "amadeus.tokens";
     private static readonly DEFAULT_TOKENS = ["WETH", "ZRX", "GNT"];
     private static readonly privateKey = config.get("amadeus.wallet.privateKey") as string;
-    private web3: Web3JS;
+    private web3: any;
     private zeroEx: ZeroEx;
 
     constructor( @inject(TYPES.LoggerService) private loggerService: LoggerService) {
@@ -50,19 +50,19 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
 
     public async isValidSignedOrder(signedOrder: SignedOrder): Promise<boolean> {
         const hash = ZeroEx.getOrderHashHex({
-            maker: signedOrder.maker,
-            taker: signedOrder.taker,
-            makerFee: new BigNumber(signedOrder.makerFee),
-            takerFee: new BigNumber(signedOrder.takerFee),
-            makerTokenAmount: new BigNumber(signedOrder.makerTokenAmount),
-            takerTokenAmount: new BigNumber(signedOrder.takerTokenAmount),
-            makerTokenAddress: signedOrder.makerTokenAddress,
-            takerTokenAddress: signedOrder.takerTokenAddress,
-            salt: new BigNumber(signedOrder.salt),
-            exchangeContractAddress: signedOrder.exchangeContractAddress,
-            feeRecipient: signedOrder.feeRecipient,
-            expirationUnixTimestampSec: new BigNumber(signedOrder.expirationUnixTimestampSec),
             ecSignature: signedOrder.ecSignature,
+            exchangeContractAddress: signedOrder.exchangeContractAddress,
+            expirationUnixTimestampSec: new BigNumber(signedOrder.expirationUnixTimestampSec),
+            feeRecipient: signedOrder.feeRecipient,
+            maker: signedOrder.maker,
+            makerFee: new BigNumber(signedOrder.makerFee),
+            makerTokenAddress: signedOrder.makerTokenAddress,
+            makerTokenAmount: new BigNumber(signedOrder.makerTokenAmount),
+            salt: new BigNumber(signedOrder.salt),
+            taker: signedOrder.taker,
+            takerFee: new BigNumber(signedOrder.takerFee),
+            takerTokenAddress: signedOrder.takerTokenAddress,
+            takerTokenAmount: new BigNumber(signedOrder.takerTokenAmount),
         });
         if (!ZeroEx.isValidOrderHash(hash)) {
             return false;

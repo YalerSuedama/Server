@@ -21,7 +21,6 @@ const models: TsoaRoute.Models = {
     },
     "SignedOrder": {
         "properties": {
-            "ecSignature": { "ref": "ECSignature", "required": true },
             "maker": { "dataType": "string", "required": true },
             "taker": { "dataType": "string", "required": true },
             "makerFee": { "dataType": "string", "required": true },
@@ -34,6 +33,7 @@ const models: TsoaRoute.Models = {
             "exchangeContractAddress": { "dataType": "string", "required": true },
             "feeRecipient": { "dataType": "string", "required": true },
             "expirationUnixTimestampSec": { "dataType": "string", "required": true },
+            "ecSignature": { "ref": "ECSignature", "required": true },
         },
     },
     "ErrorCode": {
