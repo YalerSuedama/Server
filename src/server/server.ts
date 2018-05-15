@@ -1,3 +1,4 @@
+import * as DataStore from "@google-cloud/datastore";
 import * as bodyParser from "body-parser";
 import * as config from "config";
 import * as cors from "cors";
@@ -79,6 +80,19 @@ export class Server {
         this.express.use(requestLimit);
         this.express.use("/swagger.json", express.static(__dirname + "/swagger.json"));
         this.express.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJSON));
+        this.express.use("/test-datastore", async (req, res, next) => {
+            const keyFilename = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+            this.logger.log(`env: ${keyFilename}`);
+            const datastore = new DataStore({ projectId: "amadeusrelay-201914" });
+            const key = datastore.key(["Configuration", "default"]);
+            const objDireto = await datastore.get(key);
+            let responseBody = "Direto: " + JSON.stringify(objDireto);
+            const ret = await datastore.runQuery(datastore.createQuery("Configuration").filter("whitelist", "0xDf7b8AD1621ca48fbBd52803A750018F7150976B"));
+            responseBody += "\r\nQuery: " + JSON.stringify(ret);
+            res.status(200);
+            res.type(".txt");
+            res.send(responseBody);
+        });
     }
 
     protected configureDnsValidator() {

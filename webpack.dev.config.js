@@ -13,6 +13,7 @@ module.exports = merge(baseConfig, {
     plugins: [
         new NodemonPlugin({ nodeArgs: ['--inspect=5858'] }),
         new webpack.DefinePlugin({
+            'process.env.GOOGLE_APPLICATION_CREDENTIALS': JSON.stringify(__dirname + "/config/datastore-key.json"),
             'process.env.NODE_ENV': JSON.stringify('development'),
         })
     ]
