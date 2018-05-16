@@ -76,21 +76,21 @@ export class FeeController extends Controller {
     private async validateUnsignedOrder(exchangeContractAddress: string, makerTokenAddress: string, takerTokenAddress: string, taker: string, makerTokenAmount?: string, takerTokenAmount?: string) {
         const validationErrors: ValidationErrorModel[] = [];
 
-        if (!await this.validationService.tokenPairIsSupported(makerTokenAddress, takerTokenAddress)) {
+        if (!await this.validationService.tokenPairIsSupported(takerTokenAddress, makerTokenAddress)) {
             validationErrors.push({
                 code: ValidationErrorCode.UnsupportedOption,
                 field: "makerTokenAddress/takerTokenAddress",
                 reason: "Invalid token combination",
             });
         } else {
-            if (makerTokenAmount && !await this.validationService.validateMakerTokenAmount(makerTokenAddress, takerTokenAddress, new BigNumber(makerTokenAmount))) {
+            if (makerTokenAmount && !await this.validationService.validateTokenSoldAmount(makerTokenAddress, takerTokenAddress, new BigNumber(makerTokenAmount))) {
                 validationErrors.push({
                     code: ValidationErrorCode.ValueOutOfRange,
                     field: "makerTokenAmount",
                     reason: "Invalid maker token amount",
                 });
             }
-            if (takerTokenAmount && !await this.validationService.validateTakerTokenAmount(makerTokenAddress, takerTokenAddress, new BigNumber(takerTokenAmount))) {
+            if (takerTokenAmount && !await this.validationService.validateTokenBoughtAmount(takerTokenAddress, makerTokenAddress, new BigNumber(takerTokenAmount))) {
                 validationErrors.push({
                     code: ValidationErrorCode.ValueOutOfRange,
                     field: "takerTokenAmount",

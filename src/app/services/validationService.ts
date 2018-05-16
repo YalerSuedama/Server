@@ -6,7 +6,7 @@ export interface ValidationService {
     validateFee(makerTokenAddress: string, makerFee: BigNumber, makerTokenAmount: BigNumber): Promise<boolean>;
     validatePrice(makerTokenAddress: string, takerTokenAddress: string, makerTokenAmount: BigNumber, takerTokenAmount: BigNumber): Promise<boolean>;
     validateCurrentContractAddress(address: string): Promise<boolean>;
-    tokenPairIsSupported(makerTokenAddress: string, takerTokenAddress: string): Promise<boolean>;
-    validateMakerTokenAmount(makerTokenAddress: string, takerTokenAddress: string, makerTokenAmount: BigNumber): Promise<boolean>;
-    validateTakerTokenAmount(makerTokenAddress: string, takerTokenAddress: string, takerTokenAmount: BigNumber): Promise<boolean>;
+    tokenPairIsSupported(tokenBoughtAddress: string, tokenSoldAddress: string): Promise<boolean>;
+    validateTokenSoldAmount(tokenSoldAddress: string, tokenBoughtAddress: string, tokenSoldAmount: BigNumber): Promise<boolean>;
+    validateTokenBoughtAmount(tokenBoughtAddress: string, tokenSoldAddress: string, tokenBoughtAmount: BigNumber): Promise<boolean>;
 }

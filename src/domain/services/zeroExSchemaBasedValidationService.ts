@@ -45,18 +45,18 @@ export class ZeroExSchemaBasedValidationService implements ValidationService {
         return !address || address === currentContractAddress;
     }
 
-    public async tokenPairIsSupported(makerTokenAddress: string, takerTokenAddress: string): Promise<boolean> {
-        const pair: TokenPairTradeInfo = await this.tokenPairsService.getPair(makerTokenAddress, takerTokenAddress);
+    public async tokenPairIsSupported(tokenBoughtAddress: string, tokenSoldAddress: string): Promise<boolean> {
+        const pair: TokenPairTradeInfo = await this.tokenPairsService.getPair(tokenBoughtAddress, tokenSoldAddress);
         return pair !== undefined;
     }
 
-    public async validateTakerTokenAmount(makerTokenAddress: string, takerTokenAddress: string, takerTokenAmount: BigNumber): Promise<boolean> {
-        const pair: TokenPairTradeInfo = await this.tokenPairsService.getPair(makerTokenAddress, takerTokenAddress);
-        return !takerTokenAmount || (takerTokenAmount.lessThanOrEqualTo(new BigNumber(pair.tokenB.maxAmount)) && takerTokenAmount.greaterThanOrEqualTo(new BigNumber(pair.tokenB.minAmount)));
+    public async validateTokenBoughtAmount(tokenBoughtAddress: string, tokenSoldAddress: string, tokenBoughtAmount: BigNumber): Promise<boolean> {
+        const pair: TokenPairTradeInfo = await this.tokenPairsService.getPair(tokenBoughtAddress, tokenSoldAddress);
+        return !tokenBoughtAmount || (tokenBoughtAmount.lessThanOrEqualTo(new BigNumber(pair.tokenA.maxAmount)) && tokenBoughtAmount.greaterThanOrEqualTo(new BigNumber(pair.tokenA.minAmount)));
     }
 
-    public async validateMakerTokenAmount(makerTokenAddress: string, takerTokenAddress: string, makerTokenAmount: BigNumber): Promise<boolean> {
-        const pair: TokenPairTradeInfo = await this.tokenPairsService.getPair(makerTokenAddress, takerTokenAddress);
-        return !makerTokenAmount || (makerTokenAmount.lessThanOrEqualTo(new BigNumber(pair.tokenA.maxAmount)) && makerTokenAmount.greaterThanOrEqualTo(new BigNumber(pair.tokenA.minAmount)));
+    public async validateTokenSoldAmount(tokenSoldAddress: string, tokenBoughtAddress: string, tokenSoldAmount: BigNumber): Promise<boolean> {
+        const pair: TokenPairTradeInfo = await this.tokenPairsService.getPair(tokenBoughtAddress, tokenSoldAddress);
+        return !tokenSoldAmount || (tokenSoldAmount.lessThanOrEqualTo(new BigNumber(pair.tokenB.maxAmount)) && tokenSoldAmount.greaterThanOrEqualTo(new BigNumber(pair.tokenB.minAmount)));
     }
 }
