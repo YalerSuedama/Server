@@ -3,24 +3,30 @@ import { BigNumber } from "bignumber.js";
 import { inject, injectable, named } from "inversify";
 import { AmadeusService, ExchangeService, FeeService, TickerService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../app";
 import { TokenPairTradeInfo } from "../../app/models";
+import { WhitelistRepository } from "../../app/services/repository/whitelistRepository";
 import { ZERO_ADDRESS } from "../util";
 
 @injectable()
 export class ZeroExSchemaBasedValidationService implements ValidationService {
 
     private validator = new SchemaValidator();
+
     constructor( @inject(TYPES.AmadeusService) private amadeusService: AmadeusService,
                  @inject(TYPES.FeeService) @named("ConstantQuote") private feeService: FeeService,
                  @inject(TYPES.TokenService) private tokenService: TokenService,
                  @inject(TYPES.TickerService) @named("Repository") private tickerService: TickerService,
                  @inject(TYPES.ExchangeService) protected exchangeService: ExchangeService,
                  @inject(TYPES.TokenPairsService) protected tokenPairsService: TokenPairsService,
-                ) {
-    }
+                 @inject(TYPES.WhitelistRepository) private whitelistRepository: WhitelistRepository,
+    ) { }
 
     public isAddress(address: string): boolean {
         const validatorResult: ValidatorResult = this.validator.validate(address, schemas.addressSchema);
         return validatorResult.valid;
+    }
+
+    public async isWhitelistedAddress(address: string, activeOnly?: boolean): Promise<boolean> {
+        return await this.whitelistRepository.exists(address, activeOnly);
     }
 
     public validateMainAddress(address: string): boolean {

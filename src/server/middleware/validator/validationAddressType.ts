@@ -3,4 +3,5 @@ export enum ValidationAddressType {
     EXCHANGE_CONTRACT,
     RELAYER,
     RELAYER_OR_ZERO,
+    WHITELISTED_ADDRESS,
 }
