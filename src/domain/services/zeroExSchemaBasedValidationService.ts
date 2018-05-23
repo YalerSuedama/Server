@@ -37,7 +37,8 @@ export class ZeroExSchemaBasedValidationService implements ValidationService {
         const takerToken = await this.tokenService.getTokenByAddress(takerTokenAddress);
         const ticker = await this.tickerService.getTicker(makerToken, takerToken);
         const orderPrice = takerTokenAmount.dividedBy(makerTokenAmount);
-        return ticker.price.greaterThan(orderPrice);
+        const valid = ticker.price.sub(orderPrice).abs().lessThanOrEqualTo(ticker.price.times(0.01));
+        return valid;
     }
 
     public async validateCurrentContractAddress(address: string): Promise<boolean> {
