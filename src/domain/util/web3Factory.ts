@@ -20,9 +20,9 @@ export class Web3Factory {
 
         const engine = new ProviderEngine();
         engine.addProvider(new FixtureProvider({
-            net_listening: true,
             eth_hashrate: "0x00",
             eth_mining: false,
+            net_listening: true,
         }));
         engine.addProvider(new CacheSubprovider());
         engine.addProvider(new FilterSubprovider());

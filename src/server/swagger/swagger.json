@@ -83,14 +83,81 @@
 			],
 			"type": "object"
 		},
-		"ErrorModel": {
+		"ErrorCode": {
+			"enum": [
+				"100",
+				"101",
+				"102",
+				"103",
+				"500"
+			],
+			"type": "string"
+		},
+		"ValidationErrorCode": {
+			"enum": [
+				"1000",
+				"1001",
+				"1002",
+				"1003",
+				"1004",
+				"1005",
+				"1006"
+			],
+			"type": "string"
+		},
+		"ValidationErrorModel": {
 			"properties": {
-				"message": {
+				"code": {
+					"$ref": "#/definitions/ValidationErrorCode"
+				},
+				"field": {
+					"type": "string"
+				},
+				"reason": {
 					"type": "string"
 				}
 			},
 			"required": [
-				"message"
+				"code",
+				"field",
+				"reason"
+			],
+			"type": "object"
+		},
+		"ErrorModel": {
+			"properties": {
+				"code": {
+					"$ref": "#/definitions/ErrorCode"
+				},
+				"reason": {
+					"type": "string"
+				},
+				"validationErrors": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ValidationErrorModel"
+					}
+				}
+			},
+			"required": [
+				"code",
+				"reason",
+				"validationErrors"
+			],
+			"type": "object"
+		},
+		"SimpleErrorModel": {
+			"properties": {
+				"code": {
+					"$ref": "#/definitions/ErrorCode"
+				},
+				"reason": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"code",
+				"reason"
 			],
 			"type": "object"
 		},
@@ -132,11 +199,30 @@
 				"tokenB"
 			],
 			"type": "object"
+		},
+		"Fee": {
+			"properties": {
+				"feeRecipient": {
+					"type": "string"
+				},
+				"makerFee": {
+					"type": "string"
+				},
+				"takerFee": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"feeRecipient",
+				"makerFee",
+				"takerFee"
+			],
+			"type": "object"
 		}
 	},
 	"info": {
 		"title": "Amadeus Relay",
-		"version": "0.1.0-alpha",
+		"version": "1.0.0-beta",
 		"description": "The Amadeus Relay is a relayer working on top of 0x Project (https://0xproject.com). It expects to offer dApps a simple, fast and trustworthy source to use 0x to seamlessly exchange ERC20 tokens. It focus mostly on: provide the most accurate and liquidable market values of assets to dApps willing to use it; and to adhere to the Standard Relayer API (https://github.com/0xProject/standard-relayer-api) so that dApps have a common and knowable interface to work with."
 	},
 	"paths": {
@@ -186,7 +272,7 @@
 					"500": {
 						"description": "An unknown error occurred.",
 						"schema": {
-							"$ref": "#/definitions/ErrorModel"
+							"$ref": "#/definitions/SimpleErrorModel"
 						}
 					}
 				},
@@ -255,16 +341,19 @@
 						"in": "query",
 						"name": "page",
 						"required": false,
-						"format": "double",
-						"type": "number"
+						"format": "int32",
+						"type": "integer",
+						"minimum": 1
 					},
 					{
 						"description": "Number of orders that should be returned on each page. If this parameter is not informed, then it will take the default value of the total number of orders found.",
 						"in": "query",
 						"name": "per_page",
 						"required": false,
-						"format": "double",
-						"type": "number"
+						"format": "int32",
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 100
 					}
 				]
 			}
@@ -310,7 +399,7 @@
 					"500": {
 						"description": "An unknown error occurred.",
 						"schema": {
-							"$ref": "#/definitions/ErrorModel"
+							"$ref": "#/definitions/SimpleErrorModel"
 						}
 					}
 				},
@@ -337,16 +426,221 @@
 						"in": "query",
 						"name": "page",
 						"required": false,
-						"format": "double",
-						"type": "number"
+						"format": "int32",
+						"type": "integer",
+						"minimum": 1
 					},
 					{
 						"description": "Number of token pairs that should be returned on each page. If this parameter is not informed, then it will take the default value of the total number of token pairs found.",
 						"in": "query",
 						"name": "per_page",
 						"required": false,
-						"format": "double",
-						"type": "number"
+						"format": "int32",
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 100
+					}
+				]
+			}
+		},
+		"/fees": {
+			"post": {
+				"operationId": "CalculateFee",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/Fee"
+						},
+						"examples": {
+							"application/json": {
+								"feeRecipient": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"makerFee": "000000000000000001",
+								"takerFee": "000000000000000001"
+							}
+						}
+					},
+					"400": {
+						"description": "A parameter is not informed correctly.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
+					},
+					"500": {
+						"description": "An unknown error occurred.",
+						"schema": {
+							"$ref": "#/definitions/SimpleErrorModel"
+						}
+					}
+				},
+				"description": "This method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).",
+				"summary": "Given an unsigned order without the fee-related properties, returns the required feeRecipient, makerFee, and takerFee of that order.",
+				"security": [],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"schema": {
+							"properties": {
+								"exchangeContractAddress": {
+									"type": "string",
+									"description": "Will validate this contract address to calculate fee."
+								},
+								"makerTokenAddress": {
+									"type": "string",
+									"description": "Will calculate maker fee based on this maker token address price."
+								},
+								"takerTokenAddress": {
+									"type": "string",
+									"description": "Will calculate taker fee based on this taker token address price."
+								},
+								"maker": {
+									"type": "string",
+									"description": "Will validate this maker address to calculate fee."
+								},
+								"taker": {
+									"type": "string",
+									"description": "Will validate this taker address to calculate fee, and it has to be the relayer address."
+								},
+								"expirationUnixTimestampSec": {
+									"type": "string",
+									"description": "Will validate the expiration time to calculate fee."
+								},
+								"salt": {
+									"type": "string",
+									"description": "Will validate this unique number to calculate fee."
+								},
+								"makerTokenAmount": {
+									"type": "string",
+									"description": "Will calculate convertion price based on this maker token amount, and will use it to calculate fee."
+								},
+								"takerTokenAmount": {
+									"type": "string",
+									"description": "Will calculate convertion price based on this taker token amount, and will use it to calculate fee."
+								}
+							},
+							"title": "CalculateFeeBody",
+							"type": "object",
+							"required": [
+								"exchangeContractAddress",
+								"makerTokenAddress",
+								"takerTokenAddress",
+								"maker",
+								"taker",
+								"expirationUnixTimestampSec",
+								"salt"
+							]
+						}
+					}
+				]
+			}
+		},
+		"/order": {
+			"post": {
+				"operationId": "PostOrder",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"201": {
+						"description": "Order submitted and filled"
+					},
+					"400": {
+						"description": "A parameter is not informed correctly.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
+					},
+					"500": {
+						"description": "An unknown error occurred.",
+						"schema": {
+							"$ref": "#/definitions/SimpleErrorModel"
+						}
+					}
+				},
+				"description": "This method allows signed orders to be submited to our relayer so they can be filled by Amadeus Relayer.\r\nThis method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).",
+				"summary": "Submit a signed order to our relayer.",
+				"security": [],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"schema": {
+							"properties": {
+								"ecSignature": {
+									"$ref": "#/definitions/ECSignature",
+									"description": "The order signature, signed with the maker private key."
+								},
+								"maker": {
+									"type": "string",
+									"description": "Your wallet address."
+								},
+								"taker": {
+									"type": "string",
+									"description": "The wallet address of who will fill ypur order or a zero address."
+								},
+								"makerFee": {
+									"type": "string",
+									"description": "The fee amount you will pay, in ZRX."
+								},
+								"takerFee": {
+									"type": "string",
+									"description": "The fee amount the taker will pay, in ZRX."
+								},
+								"makerTokenAmount": {
+									"type": "string",
+									"description": "The amount you desire to sell."
+								},
+								"takerTokenAmount": {
+									"type": "string",
+									"description": "The amount you desire to buy."
+								},
+								"makerTokenAddress": {
+									"type": "string",
+									"description": "The token addres you desire to sell."
+								},
+								"takerTokenAddress": {
+									"type": "string",
+									"description": "The token addres you desire to buy."
+								},
+								"salt": {
+									"type": "string",
+									"description": "A unique number (a random number)."
+								},
+								"exchangeContractAddress": {
+									"type": "string",
+									"description": "The exchange contract address."
+								},
+								"feeRecipient": {
+									"type": "string",
+									"description": "The address of fee recipient (e.g.: relayer address)."
+								},
+								"expirationUnixTimestampSec": {
+									"type": "string",
+									"description": "The order expiration time in seconds."
+								}
+							},
+							"title": "PostOrderBody",
+							"type": "object",
+							"required": [
+								"ecSignature",
+								"maker",
+								"taker",
+								"makerFee",
+								"takerFee",
+								"makerTokenAmount",
+								"takerTokenAmount",
+								"makerTokenAddress",
+								"takerTokenAddress",
+								"salt",
+								"exchangeContractAddress",
+								"feeRecipient",
+								"expirationUnixTimestampSec"
+							]
+						}
 					}
 				]
 			}

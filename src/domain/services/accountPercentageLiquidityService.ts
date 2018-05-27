@@ -24,10 +24,10 @@ export class AccountPercentageLiquidityService implements LiquidityService {
         const minimun = new BigNumber(config.get("amadeus.minimun") || "10000000000000");
         const availableAmount = Utils.getRoundAmount(totalAmount.times(this.getAvailablePercentage()).dividedToIntegerBy(1));
         return {
-            token,
             maximumAmount: availableAmount.greaterThan(minimun) ? availableAmount : new BigNumber(0),
             minimumAmount: availableAmount.greaterThan(minimun) ? minimun : new BigNumber(0),
             precision: config.get("amadeus.decimalPlaces") || 6,
+            token,
         };
     }
 

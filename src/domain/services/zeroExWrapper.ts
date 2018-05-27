@@ -7,14 +7,14 @@ import Web3JS = require("web3");
 import { CryptographyService, ExchangeService, LoggerService, SaltService, TokenService, TYPES } from "../../app";
 import { Order, SignedOrder, Token as Token } from "../../app/models";
 import * as Utils from "../util";
-import { Web3Factory } from "../util";
+import { fromAmadeusSignedOrders, Web3Factory } from "../util";
 
 @injectable()
 export class ZeroExWrapper implements CryptographyService, ExchangeService, SaltService, TokenService {
     private static readonly TRADABLE_TOKENS_KEY = "amadeus.tokens";
     private static readonly DEFAULT_TOKENS = ["WETH", "ZRX", "GNT"];
     private static readonly privateKey = config.get("amadeus.wallet.privateKey") as string;
-    private web3: Web3JS;
+    private web3: any;
     private zeroEx: ZeroEx;
 
     constructor( @inject(TYPES.LoggerService) private loggerService: LoggerService) {
@@ -24,42 +24,78 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
 
     public init() {
         this.web3 = new Web3Factory().createWeb3(ZeroExWrapper.privateKey, this.loggerService.clone());
-        if (config.has("amadeus.0x")) {
-            this.zeroEx = new ZeroEx(this.web3.currentProvider, config.get("amadeus.0x"));
-        } else {
-            this.zeroEx = new ZeroEx(this.web3.currentProvider);
-        }
+        this.zeroEx = new ZeroEx(this.web3.currentProvider, config.get("amadeus.0x"));
     }
 
     /** CryptographyService */
 
     public async signOrder(order: Order): Promise<SignedOrder> {
         const hash = ZeroEx.getOrderHashHex({
-            maker: order.maker,
-            taker: order.taker,
-            makerFee: new BigNumber(order.makerFee),
-            takerFee: new BigNumber(order.takerFee),
-            makerTokenAmount: new BigNumber(order.makerTokenAmount),
-            takerTokenAmount: new BigNumber(order.takerTokenAmount),
-            makerTokenAddress: order.makerTokenAddress,
-            takerTokenAddress: order.takerTokenAddress,
-            salt: new BigNumber(order.salt),
             exchangeContractAddress: order.exchangeContractAddress,
-            feeRecipient: order.feeRecipient,
             expirationUnixTimestampSec: new BigNumber(order.expirationUnixTimestampSec),
+            feeRecipient: order.feeRecipient,
+            maker: order.maker,
+            makerFee: new BigNumber(order.makerFee),
+            makerTokenAddress: order.makerTokenAddress,
+            makerTokenAmount: new BigNumber(order.makerTokenAmount),
+            salt: new BigNumber(order.salt),
+            taker: order.taker,
+            takerFee: new BigNumber(order.takerFee),
+            takerTokenAddress: order.takerTokenAddress,
+            takerTokenAmount: new BigNumber(order.takerTokenAmount),
         });
-        const signature = await this.zeroEx.signOrderHashAsync(hash, await this.web3.eth.getCoinbase());
+        const signature = await this.zeroEx.signOrderHashAsync(hash, await this.web3.eth.getCoinbase(), false);
         return Object.assign({}, order, { ecSignature: signature });
+    }
+
+    public async isValidSignedOrder(signedOrder: SignedOrder): Promise<boolean> {
+        const hash = ZeroEx.getOrderHashHex({
+            ecSignature: signedOrder.ecSignature,
+            exchangeContractAddress: signedOrder.exchangeContractAddress,
+            expirationUnixTimestampSec: new BigNumber(signedOrder.expirationUnixTimestampSec),
+            feeRecipient: signedOrder.feeRecipient,
+            maker: signedOrder.maker,
+            makerFee: new BigNumber(signedOrder.makerFee),
+            makerTokenAddress: signedOrder.makerTokenAddress,
+            makerTokenAmount: new BigNumber(signedOrder.makerTokenAmount),
+            salt: new BigNumber(signedOrder.salt),
+            taker: signedOrder.taker,
+            takerFee: new BigNumber(signedOrder.takerFee),
+            takerTokenAddress: signedOrder.takerTokenAddress,
+            takerTokenAmount: new BigNumber(signedOrder.takerTokenAmount),
+        });
+        if (!ZeroEx.isValidOrderHash(hash)) {
+            return false;
+        }
+        try {
+            return ZeroEx.isValidSignature(hash, signedOrder.ecSignature, signedOrder.maker);
+        } catch (error) {
+            return false;
+        }
     }
 
     /** ExchangeService */
 
     public async get0xContractAddress(): Promise<string> {
-        return this.zeroEx.exchange.getContractAddressAsync();
+        return this.zeroEx.exchange.getContractAddress();
     }
 
     public async getBalance(address: string, token?: Token): Promise<BigNumber> {
         return this.zeroEx.token.getBalanceAsync(token.address, address);
+    }
+
+    public async ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string): Promise<void> {
+        const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, spenderAddress);
+        if (alowancedValue.comparedTo(amount) < 0) {
+            const tx = await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(tokenAddress, spenderAddress);
+            await this.zeroEx.awaitTransactionMinedAsync(tx);
+        }
+    }
+
+    public async fillOrder(order: SignedOrder, fillerAddress?: string): Promise<void> {
+        const zeroExSignedOrder = fromAmadeusSignedOrders([order])[0];
+        const tx = await this.zeroEx.exchange.fillOrderAsync(zeroExSignedOrder, zeroExSignedOrder.takerTokenAmount, false, fillerAddress || zeroExSignedOrder.taker);
+        await this.zeroEx.awaitTransactionMinedAsync(tx);
     }
 
     /** SaltService */
@@ -83,14 +119,6 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
         return tokens.filter((token) => token);
     }
 
-    public async ensureAllowance(amount: BigNumber, tokenAddress: string, spenderAddress: string): Promise<void> {
-        const alowancedValue = await this.zeroEx.token.getProxyAllowanceAsync(tokenAddress, spenderAddress);
-        if (alowancedValue.comparedTo(amount) < 0) {
-            const tx = await this.zeroEx.token.setUnlimitedProxyAllowanceAsync(tokenAddress, spenderAddress);
-            await this.zeroEx.awaitTransactionMinedAsync(tx);
-        }
-    }
-
     /** Private methods */
 
     private getTradableTokens(): string[] {
@@ -101,14 +129,14 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
     }
 
     private async isWETHAddress(address: string): Promise<boolean> {
-        return (await this.zeroEx.etherToken.getContractAddressAsync()) === address;
+        return this.zeroEx.etherToken.getContractAddressIfExists() === address;
     }
 
     private async wrapETH(amount: string, address: string): Promise<void> {
         const amountAsBigNumber = new BigNumber(amount);
-        const balance = await this.zeroEx.token.getBalanceAsync(await this.zeroEx.etherToken.getContractAddressAsync(), address);
+        const balance = await this.zeroEx.token.getBalanceAsync(this.zeroEx.etherToken.getContractAddressIfExists(), address);
         if (balance.lessThan(amountAsBigNumber)) {
-            const tx = await this.zeroEx.etherToken.depositAsync(amountAsBigNumber.minus(balance), address);
+            const tx = await this.zeroEx.etherToken.depositAsync(this.zeroEx.etherToken.getContractAddressIfExists(), amountAsBigNumber.minus(balance), address);
             await this.zeroEx.awaitTransactionMinedAsync(tx);
         }
     }

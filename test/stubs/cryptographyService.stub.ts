@@ -1,13 +1,14 @@
 import { Container } from "inversify";
 import { CryptographyService, TYPES } from "../../src/app";
-import { Order } from "../../src/app/models";
+import { Order, SignedOrder } from "../../src/app/models";
 
 const stub: CryptographyService = {
+    isValidSignedOrder: (signedOrder: SignedOrder) => Promise.resolve(true),
     signOrder: (order: Order) => Promise.resolve(Object.assign({
         ecSignature: {
-            v: 1,
             r: "",
             s: "",
+            v: 1,
         },
     }, order)),
 };

@@ -51,17 +51,17 @@ export class CachedRequestLimitService implements RequestLimitService {
         }
 
         return Promise.resolve({
+            currentLimitExpiration: request.expirationTime.unix(),
             isLimitReached: false,
             limitPerHour: this.maximumAllowedCalls,
             remainingLimit: this.maximumAllowedCalls - request.numberOfCalls,
-            currentLimitExpiration: request.expirationTime.unix(),
         });
     }
 
     private createRequest(ip: string): RequestCache {
         const request = {
-            numberOfCalls: 1,
             expirationTime: moment().utc().add(this.expirationTimeWindow),
+            numberOfCalls: 1,
         };
         const duration = moment.duration(request.expirationTime.diff(moment().utc()));
         this.requestCache.setItem(ip, request, { ttl: duration.asSeconds() });

@@ -49,10 +49,11 @@ export class Server {
         }
 
         const application = this.useHttps ? https.createServer({
-            key  : fs.readFileSync("ssl/backend.key"),
+            ca : [ fs.readFileSync("ssl/backendca.crt") ],
             cert : fs.readFileSync("ssl/backend.crt"),
-            ca : [ fs.readFileSync("ssl/backendca.crt") ]},
-            this.express) : this.express;
+            key  : fs.readFileSync("ssl/backend.key"),
+        },
+        this.express) : this.express;
 
         const server = application.listen(port, hostname, (err: any) => {
             if (err) {
