@@ -14,6 +14,7 @@ export * from "./order/managerOrderService";
 export * from "./ticker/fromManagerTickerService";
 export * from "./ticker/fromRelayerTickerService";
 export * from "./fromConfigAmadeusService";
+export * from "./price/fromTickerPriceService";
 export * from "./loggerDebug";
 export * from "./quoteProviderOrderService";
 export * from "./reserveManagerOrderService";

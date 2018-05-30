@@ -218,6 +218,41 @@
 				"takerFee"
 			],
 			"type": "object"
+		},
+		"Price": {
+			"properties": {
+				"tokenFrom": {
+					"type": "string"
+				},
+				"tokenTo": {
+					"type": "string"
+				},
+				"price": {
+					"type": "string"
+				},
+				"maxAmountFrom": {
+					"type": "string"
+				},
+				"maxAmountTo": {
+					"type": "string"
+				},
+				"minAmountFrom": {
+					"type": "string"
+				},
+				"minAmountTo": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"tokenFrom",
+				"tokenTo",
+				"price",
+				"maxAmountFrom",
+				"maxAmountTo",
+				"minAmountFrom",
+				"minAmountTo"
+			],
+			"type": "object"
 		}
 	},
 	"info": {
@@ -641,6 +676,70 @@
 								"expirationUnixTimestampSec"
 							]
 						}
+					}
+				]
+			}
+		},
+		"/prices": {
+			"get": {
+				"operationId": "CalculatePrice",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/Price"
+						},
+						"examples": {
+							"application/json": {
+								"tokenFrom": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"tokenTo": "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+								"price": "00000089890000001",
+								"maxAmountFrom": "000000000000020000",
+								"maxAmountTo": "000000000000020000",
+								"minAmountFrom": "000000000000000001",
+								"minAmountTo": "000000000000000001"
+							}
+						}
+					},
+					"400": {
+						"description": "A parameter is not informed correctly.",
+						"schema": {
+							"$ref": "#/definitions/ErrorModel"
+						}
+					},
+					"500": {
+						"description": "An unknown error occurred.",
+						"schema": {
+							"$ref": "#/definitions/SimpleErrorModel"
+						}
+					}
+				},
+				"summary": "Given the tokens addresses of the trade and the trader address, returns the price e the max amounts.",
+				"security": [],
+				"parameters": [
+					{
+						"description": "Will calculate price based on this token address price.",
+						"in": "query",
+						"name": "tokenFrom",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"description": "Will calculate price based on this token address price.",
+						"in": "query",
+						"name": "tokenTo",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"description": "Will validate this trader address to calculate price.",
+						"in": "query",
+						"name": "trader",
+						"required": true,
+						"type": "string"
 					}
 				]
 			}

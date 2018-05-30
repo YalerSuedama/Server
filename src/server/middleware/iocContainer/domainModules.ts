@@ -1,11 +1,12 @@
 import * as config from "config";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
 import { Controller } from "tsoa";
-import { AmadeusService, CryptographyService, ExchangeService, FeeService, JobRunner, JobTask, LiquidityService, LoggerService, OrderService, PaginationService, PostOrderService, RequestLimitService, SaltService, TickerRepository, TickerService, TimeService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../../app";
-import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantQuoteFeeService, ConstantReserveManagerFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromManagerTickerService, FromRelayerOrderService, FromRelayerTickerService, FromZeroExTickerService, LoggerDebug, ManagerOrderService, QuoteProviderOrderService, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExFeeService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
+import { AmadeusService, CryptographyService, ExchangeService, FeeService, JobRunner, JobTask, LiquidityService, LoggerService, OrderService, PaginationService, PostOrderService, PriceService, RequestLimitService, SaltService, TickerRepository, TickerService, TimeService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../../app";
+import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantQuoteFeeService, ConstantReserveManagerFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromManagerTickerService, FromRelayerOrderService, FromRelayerTickerService, FromTickerPriceService, FromZeroExTickerService, LoggerDebug, ManagerOrderService, QuoteProviderOrderService, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, ZeroExFeeService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
 import { FeeController } from "../../controllers/feeController";
 import { OrderController } from "../../controllers/orderController";
 import { PostOrderController } from "../../controllers/postOrderController";
+import { PriceController } from "../../controllers/priceController";
 import { TokenPairsController } from "../../controllers/tokenPairsController";
 
 export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
@@ -14,6 +15,7 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<TokenPairsController>(TokenPairsController).toSelf();
     bind<PostOrderController>(PostOrderController).toSelf();
     bind<FeeController>(FeeController).toSelf();
+    bind<PriceController>(PriceController).toSelf();
 
     // Services
     bind<AmadeusService>(TYPES.AmadeusService).to(FromConfigAmadeusService);
@@ -38,6 +40,7 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     });
     bind(PaginationService).toSelf();
     bind<PostOrderService>(TYPES.PostOrderService).to(QuoteProviderOrderService);
+    bind<PriceService>(TYPES.PriceService).to(FromTickerPriceService);
     bind<RequestLimitService>(TYPES.RequestLimitService).to(CachedRequestLimitService).inSingletonScope();
     bind<SaltService>(TYPES.SaltService).to(ZeroExWrapper).inSingletonScope();
     bind<TickerRepository>(TYPES.TickerRepository).to(FromCacheTickerService);

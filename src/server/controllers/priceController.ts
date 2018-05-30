@@ -31,7 +31,7 @@ export class PriceController extends Controller {
         maxAmountFrom: "000000000000020000",
         maxAmountTo: "000000000000020000",
         minAmountFrom: "000000000000000001",
-        minAmountTo: "000000000000000001"
+        minAmountTo: "000000000000000001",
     })
     @Response<ErrorModel>("400", "A parameter is not informed correctly.", {
         code: ErrorCode.ValidationFailed,
@@ -46,15 +46,17 @@ export class PriceController extends Controller {
         code: ErrorCode.UnknownError,
         reason: "some string",
     })
-    @Post()
-    public async calculatePrice(@BodyProp() tokenFrom: string, @BodyProp() tokenTo: string, @BodyProp() trader: string): Promise<Price> {
+    @Get()
+    public async calculatePrice(@Query() tokenFrom: string, @Query() tokenTo: string, @Query() trader: string): Promise<Price> {
         await this.validateCalculatePriceRequest(tokenFrom, tokenTo, trader);
         return await this.priceService.calculatePrice(tokenFrom, tokenTo, trader);
     }
 
     public getAddressParameters(): ValidationAddressParam[] {
         return [
-            {param: "trader", type: ValidationAddressType.ANY }
+            {param: "tokenFrom", type: ValidationAddressType.ANY },
+            {param: "tokenTo", type: ValidationAddressType.ANY },
+            {param: "trader", type: ValidationAddressType.ANY },
          ];
     }
 
