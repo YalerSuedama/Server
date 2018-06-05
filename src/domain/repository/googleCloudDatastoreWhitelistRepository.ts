@@ -5,6 +5,12 @@ import { GoogleCloudDatastoreBaseRepository } from "./googleCloudDatastoreBaseRe
 @injectable()
 export class GoogleCloudDatastoreWhitelistRepository extends GoogleCloudDatastoreBaseRepository implements WhitelistRepository {
     public async exists(address: string, activeOnly?: boolean): Promise<boolean> {
+        const configuration: any = await this.datastore.get(this.datastore.key(["Configuration", "default"]));
+        const whitelistEnabled = configuration[0] && configuration[0].whitelistEnabled;
+        if (!whitelistEnabled) {
+            return true;
+        }
+
         let query = this.datastore.createQuery("Whitelist").filter("address", address);
         if (activeOnly) {
             query = query.filter("active", activeOnly);
