@@ -276,10 +276,17 @@
 						}
 					}
 				},
-				"description": "Calling this method will return signed orders that can be filled through 0x project's fillOrder to exchange user's takerToken for this relayer's makerToken.\r\nThis method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).",
+				"description": "Calling this method will return signed orders that can be filled through 0x project's fillOrder to exchange user's takerToken for this relayer's makerToken.\r\nThis method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).\r\nRight now, the taker parameter is mandatory, and Amadeus will only accept whitelisted addressess.",
 				"summary": "List all orders available through our relayer, given the searched parameters.",
 				"security": [],
 				"parameters": [
+					{
+						"description": "Will return all orders where takerAddress is the same address of this parameter.",
+						"in": "query",
+						"name": "taker",
+						"required": true,
+						"type": "string"
+					},
 					{
 						"description": "Will return all orders created to this contract address.",
 						"in": "query",
@@ -312,13 +319,6 @@
 						"description": "Will return all orders where makerAddress is the same address of this parameter.",
 						"in": "query",
 						"name": "maker",
-						"required": false,
-						"type": "string"
-					},
-					{
-						"description": "Will return all orders where takerAddress is the same address of this parameter.",
-						"in": "query",
-						"name": "taker",
 						"required": false,
 						"type": "string"
 					},
@@ -561,7 +561,7 @@
 						}
 					}
 				},
-				"description": "This method allows signed orders to be submited to our relayer so they can be filled by Amadeus Relayer.\r\nThis method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).",
+				"description": "This method allows signed orders to be submited to our relayer so they can be filled by Amadeus Relayer.\nThis method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).\nRight now, the maker parameter is mandatory, and Amadeus will only accept whitelisted addressess.",
 				"summary": "Submit a signed order to our relayer.",
 				"security": [],
 				"parameters": [

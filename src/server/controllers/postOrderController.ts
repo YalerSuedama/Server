@@ -24,6 +24,7 @@ export class PostOrderController extends Controller {
     /**
      * This method allows signed orders to be submited to our relayer so they can be filled by Amadeus Relayer.
      * This method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).
+     * Right now, the maker parameter is mandatory, and Amadeus will only accept whitelisted addressess.
      * @summary Submit a signed order to our relayer.
      * @param {ECSignature} ecSignature The order signature, signed with the maker private key.
      * @param {string} exchangeContractAddress The exchange contract address.
@@ -110,7 +111,7 @@ export class PostOrderController extends Controller {
             {param: "exchangeContractAddress", type: ValidationAddressType.EXCHANGE_CONTRACT },
             {param: "makerTokenAddress", type: ValidationAddressType.ANY },
             {param: "takerTokenAddress", type: ValidationAddressType.ANY },
-            {param: "maker", type: ValidationAddressType.ANY },
+            {param: "maker", type: ValidationAddressType.WHITELISTED_ADDRESS },
             {param: "taker", type: ValidationAddressType.RELAYER_OR_ZERO },
             {param: "feeRecipient", type: ValidationAddressType.RELAYER },
         ];

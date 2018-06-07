@@ -17,3 +17,4 @@ export { TimeService } from "./timeService";
 export { TokenPairsService } from "./tokenPairsService";
 export { TokenService } from "./tokenService";
 export { ValidationService } from "./validationService";
+export { WhitelistRepository } from "./repository/whitelistRepository";

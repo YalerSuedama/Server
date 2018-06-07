@@ -21,13 +21,14 @@ export class OrderController extends Controller {
     /**
      * Calling this method will return signed orders that can be filled through 0x project's fillOrder to exchange user's takerToken for this relayer's makerToken.
      * This method follows the specifications of the Standard Relayer API v0 as proposed by the 0x Projext team (https://github.com/0xProject/standard-relayer-api).
+     * Right now, the taker parameter is mandatory, and Amadeus will only accept whitelisted addressess.
      * @summary List all orders available through our relayer, given the searched parameters.
+     * @param {string} taker Will return all orders where takerAddress is the same address of this parameter.
      * @param {string} exchangeContractAddress Will return all orders created to this contract address.
      * @param {string} tokenAddress Will return all orders where makerTokenAddress or takerTokenAddress is token address.
      * @param {string} makerTokenAddress Will return all orders where makerTokenAddress is the same address of this parameter.
      * @param {string} takerTokenAddress Will return all orders where takerTokenAddress is the same address of this parameter.
      * @param {string} maker Will return all orders where makerAddress is the same address of this parameter.
-     * @param {string} taker Will return all orders where takerAddress is the same address of this parameter.
      * @param {string} trader Will return all orders where makerAddress or takerAddress is the same address of this parameter.
      * @param {string} feeRecipient Will return all orders where feeRecipient is the same address of this parameter.
      * @param {number} page Which page should be returned. If this parameter is not informed, then it will take the default value of 1. Page numbers start at 1.
@@ -71,7 +72,7 @@ export class OrderController extends Controller {
         reason: "some string",
     })
     @Get()
-    public async listOrders( @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() maker?: string, @Query() taker?: string, @Query() trader?: string, @Query() feeRecipient?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<SignedOrder[]> {
+    public async listOrders(@Query() taker: string, @Query() exchangeContractAddress?: string, @Query() tokenAddress?: string, @Query() makerTokenAddress?: string, @Query() takerTokenAddress?: string, @Query() maker?: string, @Query() trader?: string, @Query() feeRecipient?: string, @Query() page?: number, @Query("per_page") perPage?: number): Promise<SignedOrder[]> {
         return await this.orderService.listOrders(exchangeContractAddress, tokenAddress, makerTokenAddress, takerTokenAddress, maker, taker, trader, feeRecipient, page, perPage);
     }
 
@@ -82,7 +83,7 @@ export class OrderController extends Controller {
             {param: "makerTokenAddress", type: ValidationAddressType.ANY },
             {param: "takerTokenAddress", type: ValidationAddressType.ANY },
             {param: "maker", type: ValidationAddressType.ANY },
-            {param: "taker", type: ValidationAddressType.ANY },
+            {param: "taker", type: ValidationAddressType.WHITELISTED_ADDRESS },
             {param: "trader", type: ValidationAddressType.ANY },
             {param: "feeRecipient", type: ValidationAddressType.ANY },
         ];
