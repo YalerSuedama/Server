@@ -128,21 +128,21 @@ export class PostOrderController extends Controller {
             });
         }
 
-        if (!await this.validationService.tokenPairIsSupported(signedOrder.makerTokenAddress, signedOrder.takerTokenAddress)) {
+        if (!await this.validationService.tokenPairIsSupported(signedOrder.takerTokenAddress, signedOrder.makerTokenAddress)) {
             validationErrors.push({
                 code: ValidationErrorCode.UnsupportedOption,
                 field: "makerTokenAddress/takerTokenAddress",
                 reason: "Invalid token combination",
             });
         } else {
-            if (!await this.validationService.validateMakerTokenAmount(signedOrder.makerTokenAddress, signedOrder.takerTokenAddress, new BigNumber(signedOrder.makerTokenAmount))) {
+            if (!await this.validationService.validateTokenSoldAmount(signedOrder.makerTokenAddress, signedOrder.takerTokenAddress, new BigNumber(signedOrder.makerTokenAmount))) {
                 validationErrors.push({
                     code: ValidationErrorCode.ValueOutOfRange,
                     field: "makerTokenAmount",
                     reason: "Invalid maker token amount",
                 });
             }
-            if (!await this.validationService.validateTakerTokenAmount(signedOrder.makerTokenAddress, signedOrder.takerTokenAddress, new BigNumber(signedOrder.takerTokenAmount))) {
+            if (!await this.validationService.validateTokenBoughtAmount(signedOrder.takerTokenAddress, signedOrder.makerTokenAddress, new BigNumber(signedOrder.takerTokenAmount))) {
                 validationErrors.push({
                     code: ValidationErrorCode.ValueOutOfRange,
                     field: "takerTokenAmount",

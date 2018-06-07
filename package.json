@@ -1,6 +1,6 @@
 {
     "name": "amadeusrelayserver",
-    "version": "0.1.0-alpha",
+    "version": "1.0.0-beta",
     "description": "Amadeus Relay Server",
     "main": "index.ts",
     "scripts": {

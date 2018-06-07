@@ -39,9 +39,9 @@ export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
         return pairs;
     }
 
-    public async getPair(tokenA: string, tokenB: string): Promise<TokenPairTradeInfo> {
-        let pairs: TokenPairTradeInfo[] = await this.listPairs(tokenA, tokenB);
-        pairs = pairs.filter((pair) => pair.tokenA.address === tokenA && pair.tokenB.address === tokenB);
+    public async getPair(tokenBought: string, tokenSold: string): Promise<TokenPairTradeInfo> {
+        let pairs: TokenPairTradeInfo[] = await this.listPairs(tokenBought, tokenSold);
+        pairs = pairs.filter((pair) => pair.tokenA.address === tokenBought && pair.tokenB.address === tokenSold);
 
         return pairs && pairs[0];
     }

@@ -24,9 +24,9 @@ export class ConstantQuoteFeeService extends ConstantFeeService implements FeeSe
 
     public async calculateFee(exchangeContractAddress: string, makerTokenAddress: string, takerTokenAddress: string, maker: string, taker: string, makerTokenAmount: string, takerTokenAmount: string, expirationUnixTimestampSec: string, salt: string): Promise<Fee> {
         if (!makerTokenAmount || !takerTokenAmount) {
-            const pair: TokenPairTradeInfo = await this.tokenPairsService.getPair(makerTokenAddress, takerTokenAddress);
-            makerTokenAmount = makerTokenAmount || pair.tokenA.maxAmount;
-            takerTokenAmount = takerTokenAmount || pair.tokenB.maxAmount;
+            const pair: TokenPairTradeInfo = await this.tokenPairsService.getPair(takerTokenAddress, makerTokenAddress);
+            makerTokenAmount = makerTokenAmount || pair.tokenB.maxAmount;
+            takerTokenAmount = takerTokenAmount || pair.tokenA.maxAmount;
         }
 
         const makerFee = await this.getMakerFee(await this.tokenService.getTokenByAddress(makerTokenAddress), new BigNumber(makerTokenAmount));

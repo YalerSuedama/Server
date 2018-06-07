@@ -26,6 +26,9 @@
 		},
 		"SignedOrder": {
 			"properties": {
+				"ecSignature": {
+					"$ref": "#/definitions/ECSignature"
+				},
 				"maker": {
 					"type": "string"
 				},
@@ -61,12 +64,10 @@
 				},
 				"expirationUnixTimestampSec": {
 					"type": "string"
-				},
-				"ecSignature": {
-					"$ref": "#/definitions/ECSignature"
 				}
 			},
 			"required": [
+				"ecSignature",
 				"maker",
 				"taker",
 				"makerFee",
@@ -78,8 +79,7 @@
 				"salt",
 				"exchangeContractAddress",
 				"feeRecipient",
-				"expirationUnixTimestampSec",
-				"ecSignature"
+				"expirationUnixTimestampSec"
 			],
 			"type": "object"
 		},
