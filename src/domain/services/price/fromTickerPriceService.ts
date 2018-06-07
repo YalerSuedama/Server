@@ -2,7 +2,7 @@ import { BigNumber } from "bignumber.js";
 import * as config from "config";
 import { inject, injectable, named } from "inversify";
 import { FieldErrors, ValidateError } from "tsoa";
-import { AmadeusService, LoggerService, PriceService, TickerService, TokenService, TYPES, LiquidityService } from "../../../app";
+import { AmadeusService, LiquidityService, LoggerService, PriceService, TickerService, TokenService, TYPES } from "../../../app";
 import { Price, Ticker, Token, TokenPool } from "../../../app/models";
 import * as Utils from "../../util";
 
@@ -39,7 +39,7 @@ export class FromTickerPriceService implements PriceService {
             price = ticker.price.toFormat();
         }
 
-        var tokenPool = await this.liquidityService.getAvailableAmount(tokenFrom);
+        const tokenPool = await this.liquidityService.getAvailableAmount(tokenFrom);
         return {
             tokenFrom: tokenFromAddress,
             tokenTo: tokenToAddress,

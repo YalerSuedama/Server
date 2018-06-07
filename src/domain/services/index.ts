@@ -20,5 +20,6 @@ export * from "./quoteProviderOrderService";
 export * from "./reserveManagerOrderService";
 export * from "./timeServiceImpl";
 export * from "./tokensWithLiquidityTokenPairsService";
+export * from "./tradableTokenPairsService";
 export * from "./zeroExSchemaBasedValidationService";
 export * from "./zeroExWrapper";
