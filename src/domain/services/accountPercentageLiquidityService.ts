@@ -31,6 +31,21 @@ export class AccountPercentageLiquidityService implements LiquidityService {
         };
     }
 
+    public getConvertedAmount(tokenFromAmount: BigNumber, price: BigNumber, tokenFrom: Token, tokenTo: Token): BigNumber {
+        const realTokenFromAmount = tokenFromAmount.dividedBy(new BigNumber(Math.pow(10, tokenFrom.decimals)));
+        const realTokenToAmount = realTokenFromAmount.mul(price);
+        const tokenToAmountToBaseUnit = Utils.toBaseUnit(realTokenToAmount, tokenTo.decimals);
+
+        return tokenToAmountToBaseUnit;
+    }
+
+    public getConvertedPrice(tokenFromAmount: BigNumber, tokenToAmount: BigNumber, tokenFrom: Token, tokenTo: Token): BigNumber {
+        const realTokenFromAmount = tokenFromAmount.dividedBy(tokenFrom.decimals);
+        const realTokenToAmount = tokenToAmount.dividedBy(tokenTo.decimals);
+
+        return realTokenFromAmount.dividedBy(realTokenToAmount);
+    }
+
     private getAvailablePercentage(): BigNumber {
         if (config.has(AccountPercentageLiquidityService.LIQUIDITY_KEY)) {
             return new BigNumber(config.get<number>(AccountPercentageLiquidityService.LIQUIDITY_KEY));

@@ -80,6 +80,7 @@ export class ReserveManagerOrderService implements OrderService {
         this.logger.log("Found orders: %o.", orders);
         if (makerTokenAddress && takerTokenAddress) {
             orders = orders.sort((first, second) => {
+                // TODO: Fernanda - Need analysis to calculate price considering token decimals
                 const firstPrice = new BigNumber(first.takerTokenAmount).dividedBy(first.makerTokenAmount);
                 const secondPrice = new BigNumber(second.takerTokenAmount).dividedBy(second.makerTokenAmount);
                 return firstPrice.minus(secondPrice).toNumber();

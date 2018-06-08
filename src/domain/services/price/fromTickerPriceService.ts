@@ -40,14 +40,18 @@ export class FromTickerPriceService implements PriceService {
         }
 
         var tokenPool = await this.liquidityService.getAvailableAmount(tokenFrom);
+
+        const maxAmountTo = this.liquidityService.getConvertedAmount(tokenPool.maximumAmount, ticker.price, tokenFrom, tokenTo);
+        const minAmountTo = this.liquidityService.getConvertedAmount(tokenPool.minimumAmount, ticker.price, tokenFrom, tokenTo);
+
         return {
             tokenFrom: tokenFromAddress,
             tokenTo: tokenToAddress,
             price: price,
             maxAmountFrom: tokenPool.maximumAmount.toFormat(),
-            maxAmountTo: tokenPool.maximumAmount.mul(ticker.price).toFormat(),
+            maxAmountTo: maxAmountTo.toFormat(),
             minAmountFrom: tokenPool.minimumAmount.toFormat(),
-            minAmountTo: tokenPool.minimumAmount.mul(ticker.price).toFormat(),
+            minAmountTo: minAmountTo.toFormat(),
         };
     }
 }
