@@ -25,13 +25,13 @@ export class PriceController extends Controller {
      * @param {string} trader Will validate this trader address to calculate price.
      */
     @Example<Price>({
-        tokenFrom: "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-        tokenTo: "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
-        price:  "00000089890000001",
         maxAmountFrom: "000000000000020000",
         maxAmountTo: "000000000000020000",
         minAmountFrom: "000000000000000001",
         minAmountTo: "000000000000000001",
+        price:  "00000089890000001",
+        tokenFrom: "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
+        tokenTo: "0x23d4fe8c00ae3b267ea349eed18ed32b71c93f4d",
     })
     @Response<ErrorModel>("400", "A parameter is not informed correctly.", {
         code: ErrorCode.ValidationFailed,
