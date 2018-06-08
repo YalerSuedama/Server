@@ -58,14 +58,14 @@ export class TradableTokenPairsService implements TokenPairsService {
         return {
             tokenA: {
                 address: tokenFrom.address,
-                maxAmount: "9999999",
-                minAmount: "00000",
+                maxAmount: "999999999999999999999",
+                minAmount: "1",
                 precision: 8,
             },
             tokenB: {
                 address: tokenTo.address,
-                maxAmount:  "9999999",
-                minAmount:  "00000",
+                maxAmount:  "999999999999999999999",
+                minAmount:  "1",
                 precision: 8,
             },
         };

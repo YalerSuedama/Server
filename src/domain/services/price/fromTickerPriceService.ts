@@ -36,7 +36,7 @@ export class FromTickerPriceService implements PriceService {
         if (!ticker) {
             price = Utils.toBaseUnit(0).toString();
         } else {
-            price = ticker.price.toFormat();
+            price = ticker.price.toString();
         }
 
         const tokenPool = await this.liquidityService.getAvailableAmount(tokenFrom);
@@ -44,10 +44,10 @@ export class FromTickerPriceService implements PriceService {
             tokenFrom: tokenFromAddress,
             tokenTo: tokenToAddress,
             price: price,
-            maxAmountFrom: tokenPool.maximumAmount.toFormat(),
-            maxAmountTo: tokenPool.maximumAmount.mul(ticker.price).toFormat(),
-            minAmountFrom: tokenPool.minimumAmount.toFormat(),
-            minAmountTo: tokenPool.minimumAmount.mul(ticker.price).toFormat(),
+            maxAmountFrom: tokenPool.maximumAmount.toString(),
+            maxAmountTo: tokenPool.maximumAmount.mul(ticker.price).dividedToIntegerBy(1).toString(),
+            minAmountFrom: tokenPool.minimumAmount.toString(),
+            minAmountTo: tokenPool.minimumAmount.mul(ticker.price).dividedToIntegerBy(1).toString(),
         };
     }
 }
