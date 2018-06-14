@@ -36,7 +36,7 @@ export class FromTickerPriceService implements PriceService {
         if (!ticker) {
             price = Utils.toBaseUnit(0).toString();
         } else {
-            price = ticker.price.toFormat();
+            price = ticker.price.toString();
         }
 
         const tokenPool = await this.liquidityService.getAvailableAmount(tokenFrom);
