@@ -4,7 +4,7 @@ import * as config from "config";
 import { inject, injectable } from "inversify";
 import * as moment from "moment";
 import { ExpirationStrategy, MemoryStorage } from "node-ts-cache";
-import { LoggerService, TickerService, TYPES } from "../../../app";
+import { LiquidityService, LoggerService, TickerService, TYPES } from "../../../app";
 import { Ticker, Token } from "../../../app/models/";
 
 @injectable()
@@ -14,7 +14,16 @@ export class FromRelayerTickerService implements TickerService {
     private httpClient: HttpClient;
     // private url: string = "https://api.radarrelay.com/0x/v0/"; // "https://api.ercdex.com/api/standard/1/v0/"
 
-    constructor(@inject(TYPES.LoggerService) private logger: LoggerService, @inject(TYPES.TickerRelayerUrl) private url: string) {
+    constructor(
+        @inject(TYPES.LoggerService)
+        private logger: LoggerService,
+
+        @inject(TYPES.TickerRelayerUrl)
+        private url: string,
+
+        @inject(TYPES.LiquidityService)
+        private liquidityService: LiquidityService,
+    ) {
         this.logger.setNamespace("fromrelayertickerservice");
         this.httpClient = new HttpClient(this.url);
     }
@@ -58,7 +67,7 @@ export class FromRelayerTickerService implements TickerService {
 
             const orders: SignedOrder[] = await this.httpClient.getOrdersAsync(ordersRequest);
             if (orders != null && orders.length > 0) {
-                return orders[0].takerTokenAmount.dividedBy(orders[0].makerTokenAmount);
+                return this.liquidityService.getConvertedPrice(orders[0].makerTokenAmount, orders[0].takerTokenAmount, tokenFrom, tokenTo);
             }
         } catch (e) {
             this.logger.log("error trying to get ticker %s from relayer: %o", this.getTickerSymbol(tokenFrom, tokenTo), e);

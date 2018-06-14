@@ -1,7 +1,7 @@
 import { schemas, SchemaValidator, ValidatorResult } from "@0xproject/json-schemas";
 import { BigNumber } from "bignumber.js";
 import { inject, injectable, named } from "inversify";
-import { AmadeusService, ExchangeService, FeeService, TickerService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../app";
+import { AmadeusService, ExchangeService, FeeService, LiquidityService, TickerService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../app";
 import { TokenPairTradeInfo } from "../../app/models";
 import { ZERO_ADDRESS } from "../util";
 
@@ -15,6 +15,7 @@ export class ZeroExSchemaBasedValidationService implements ValidationService {
                  @inject(TYPES.TickerService) @named("Repository") private tickerService: TickerService,
                  @inject(TYPES.ExchangeService) protected exchangeService: ExchangeService,
                  @inject(TYPES.TokenPairsService) protected tokenPairsService: TokenPairsService,
+                 @inject(TYPES.LiquidityService) private liquidityService: LiquidityService,
                 ) {
     }
 
@@ -36,7 +37,7 @@ export class ZeroExSchemaBasedValidationService implements ValidationService {
         const makerToken = await this.tokenService.getTokenByAddress(makerTokenAddress);
         const takerToken = await this.tokenService.getTokenByAddress(takerTokenAddress);
         const ticker = await this.tickerService.getTicker(makerToken, takerToken);
-        const orderPrice = takerTokenAmount.dividedBy(makerTokenAmount);
+        const orderPrice = this.liquidityService.getConvertedPrice(makerTokenAmount, takerTokenAmount, makerToken, takerToken);
         const valid = ticker.price.sub(orderPrice).greaterThanOrEqualTo(ticker.price.times(-0.01));
         return valid;
     }

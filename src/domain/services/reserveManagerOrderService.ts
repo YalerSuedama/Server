@@ -1,7 +1,7 @@
 import { BigNumber } from "bignumber.js";
 import { inject, injectable, named } from "inversify";
 import * as _ from "lodash";
-import { AmadeusService, CryptographyService, ExchangeService, FeeService, LoggerService, OrderService, PaginationService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../app";
+import { AmadeusService, CryptographyService, ExchangeService, FeeService, LiquidityService, LoggerService, OrderService, PaginationService, SaltService, TickerService, TimeService, TokenPairsService, TokenService, TYPES } from "../../app";
 import { SignedOrder, Ticker, TokenPairTradeInfo } from "../../app/models";
 import * as Utils from "../util";
 
@@ -37,6 +37,9 @@ export class ReserveManagerOrderService implements OrderService {
 
         @inject(TYPES.LoggerService)
         private logger: LoggerService,
+
+        @inject(TYPES.LiquidityService)
+        private liquidityService: LiquidityService,
 
         private paginationService: PaginationService,
     ) {
@@ -96,8 +99,12 @@ export class ReserveManagerOrderService implements OrderService {
     private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo, exchangeContractAddress: string, maker: string, taker: string, feeRecipient: string): Promise<SignedOrder> {
         this.ensureAllowance(new BigNumber(pair.tokenA.maxAmount), pair.tokenA.address, maker);
 
-        const ticker: Ticker = await this.tickerService.getTicker(await this.tokenService.getTokenByAddress(pair.tokenA.address), await this.tokenService.getTokenByAddress(pair.tokenB.address));
-        const takerTokenAmount: BigNumber = Utils.getRoundAmount(new BigNumber(pair.tokenA.maxAmount).mul(ticker.price));
+        const makerToken = await this.tokenService.getTokenByAddress(pair.tokenA.address);
+        const takerToken = await this.tokenService.getTokenByAddress(pair.tokenB.address);
+        const ticker: Ticker = await this.tickerService.getTicker(makerToken, takerToken);
+
+        let takerTokenAmount: BigNumber = this.liquidityService.getConvertedAmount(new BigNumber(pair.tokenA.maxAmount), ticker.price, makerToken, takerToken);
+        takerTokenAmount = Utils.getRoundAmount(takerTokenAmount, takerToken.decimals);
 
         return await this.cryptographyService.signOrder({
             exchangeContractAddress,
@@ -110,26 +117,6 @@ export class ReserveManagerOrderService implements OrderService {
             salt: await this.saltService.getSalt(),
             taker: taker || Utils.ZERO_ADDRESS,
             takerFee: (await this.feeService.getTakerFee(ticker.to, takerTokenAmount)).toString(),
-            takerTokenAddress: ticker.to.address,
-            takerTokenAmount: takerTokenAmount.toString(),
-        });
-    }
-
-    private async createOrder(pair: TokenPairTradeInfo, exchangeContractAddress: string, feeRecipient: string, maker: string, taker: string, tickerService: TickerService, feeService: FeeService) {
-        const ticker: Ticker = await tickerService.getTicker(await this.tokenService.getTokenByAddress(pair.tokenA.address), await this.tokenService.getTokenByAddress(pair.tokenB.address));
-        const takerTokenAmount: BigNumber = new BigNumber(pair.tokenA.maxAmount).mul(ticker.price).floor();
-
-        return await this.cryptographyService.signOrder({
-            exchangeContractAddress,
-            expirationUnixTimestampSec: this.timeService.getExpirationTimestamp(),
-            feeRecipient,
-            maker,
-            makerFee: (await feeService.getMakerFee(ticker.from, new BigNumber(pair.tokenA.maxAmount))).toString(),
-            makerTokenAddress: ticker.from.address,
-            makerTokenAmount: pair.tokenA.maxAmount,
-            salt: await this.saltService.getSalt(),
-            taker: taker || Utils.ZERO_ADDRESS,
-            takerFee: (await feeService.getTakerFee(ticker.to, takerTokenAmount)).toString(),
             takerTokenAddress: ticker.to.address,
             takerTokenAmount: takerTokenAmount.toString(),
         });
