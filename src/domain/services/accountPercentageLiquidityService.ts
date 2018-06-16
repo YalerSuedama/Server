@@ -22,13 +22,28 @@ export class AccountPercentageLiquidityService implements LiquidityService {
 
         const totalAmount = await this.exchangeService.getBalance(this.amadeusService.getMainAddress(), token);
         const minimun = new BigNumber(config.get("amadeus.minimun") || "10000000000000");
-        const availableAmount = Utils.getRoundAmount(totalAmount.times(this.getAvailablePercentage()).dividedToIntegerBy(1));
+        const availableAmount = Utils.getRoundAmount(totalAmount.times(this.getAvailablePercentage()).dividedToIntegerBy(1), token.decimals);
         return {
             maximumAmount: availableAmount.greaterThan(minimun) ? availableAmount : new BigNumber(0),
             minimumAmount: availableAmount.greaterThan(minimun) ? minimun : new BigNumber(0),
             precision: config.get("amadeus.decimalPlaces") || 6,
             token,
         };
+    }
+
+    public getConvertedAmount(tokenFromAmount: BigNumber, price: BigNumber, tokenFrom: Token, tokenTo: Token): BigNumber {
+        const realTokenFromAmount = tokenFromAmount.dividedBy(new BigNumber(Math.pow(10, tokenFrom.decimals)));
+        const realTokenToAmount = realTokenFromAmount.mul(price);
+        const tokenToAmountToBaseUnit = Utils.toBaseUnit(realTokenToAmount, tokenTo.decimals);
+
+        return tokenToAmountToBaseUnit;
+    }
+
+    public getConvertedPrice(tokenFromAmount: BigNumber, tokenToAmount: BigNumber, tokenFrom: Token, tokenTo: Token): BigNumber {
+        const realTokenFromAmount = tokenFromAmount.dividedBy(tokenFrom.decimals);
+        const realTokenToAmount = tokenToAmount.dividedBy(tokenTo.decimals);
+
+        return realTokenFromAmount.dividedBy(realTokenToAmount);
     }
 
     private getAvailablePercentage(): BigNumber {

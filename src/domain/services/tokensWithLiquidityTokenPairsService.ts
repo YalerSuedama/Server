@@ -65,6 +65,8 @@ export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
         const ticker = await this.tickerService.getTicker(tokenPoolFrom.token, tokenTo);
         if (ticker) {
             if (ticker.price.greaterThan(1)) {
+                const tokenBMaximumAmount = this.liquidityService.getConvertedAmount(tokenPoolFrom.maximumAmount, ticker.price, tokenPoolFrom.token, tokenTo);
+                const tokenBMinimumAmount = this.liquidityService.getConvertedAmount(tokenPoolFrom.minimumAmount, ticker.price, tokenPoolFrom.token, tokenTo);
                 return {
                     tokenA: {
                         address: tokenPoolFrom.token.address,
@@ -74,23 +76,24 @@ export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
                     },
                     tokenB: {
                         address: tokenTo.address,
-                        maxAmount: Utils.getRoundAmount(tokenPoolFrom.maximumAmount.mul(ticker.price)).toString(),
-                        minAmount: Utils.getRoundAmount(tokenPoolFrom.minimumAmount.mul(ticker.price)).toString(),
+                        maxAmount: Utils.getRoundAmount(tokenBMaximumAmount, tokenTo.decimals).toString(),
+                        minAmount: Utils.getRoundAmount(tokenBMinimumAmount, tokenTo.decimals).toString(),
                         precision: tokenPoolFrom.precision,
                     },
                 };
             }
-            if (Utils.getRoundAmount(tokenPoolFrom.minimumAmount.dividedBy(ticker.price)).lessThan(tokenPoolFrom.maximumAmount)) {
+            // TODO: Fernanda - How to change this?
+            if (Utils.getRoundAmount(tokenPoolFrom.minimumAmount.dividedBy(ticker.price), tokenPoolFrom.token.decimals).lessThan(tokenPoolFrom.maximumAmount)) {
                 return {
                     tokenA: {
                         address: tokenPoolFrom.token.address,
                         maxAmount: tokenPoolFrom.maximumAmount.toString(),
-                        minAmount: Utils.getRoundAmount(tokenPoolFrom.minimumAmount.dividedBy(ticker.price)).toString(),
+                        minAmount: Utils.getRoundAmount(tokenPoolFrom.minimumAmount.dividedBy(ticker.price), tokenPoolFrom.token.decimals).toString(),
                         precision: tokenPoolFrom.precision,
                     },
                     tokenB: {
                         address: tokenTo.address,
-                        maxAmount: Utils.getRoundAmount(tokenPoolFrom.maximumAmount.mul(ticker.price)).toString(),
+                        maxAmount: Utils.getRoundAmount(tokenPoolFrom.maximumAmount.mul(ticker.price), tokenTo.decimals).toString(),
                         minAmount: tokenPoolFrom.minimumAmount.toString(),
                         precision: tokenPoolFrom.precision,
                     },

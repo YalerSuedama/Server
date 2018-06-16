@@ -10,11 +10,11 @@ export class ZeroExFeeService implements FeeService {
     }
 
     public async getMakerFee(token?: Token): Promise<BigNumber> {
-        return Utils.toBaseUnit(0);
+        return Utils.toBaseUnit(0, token.decimals);
     }
 
     public async getTakerFee(token?: Token, amount?: BigNumber): Promise<BigNumber> {
-        return Utils.toBaseUnit(0);
+        return Utils.toBaseUnit(0, token.decimals);
     }
 
     public async getFeeRecipient(token?: Token): Promise<string> {

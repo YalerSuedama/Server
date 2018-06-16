@@ -1,4 +1,4 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, named } from "inversify";
 import { Controller, Example, FieldErrors, Get, Query, Response, Route, SuccessResponse, ValidateError } from "tsoa";
 import { TokenPairsService, TYPES, ValidationService } from "../../app";
 import { TokenPairTradeInfo } from "../../app/models";
@@ -11,7 +11,7 @@ import { ValidationAddressType } from "../middleware/validator/validationAddress
 export class TokenPairsController extends Controller {
 
     constructor(
-        @inject(TYPES.TokenPairsService) private tokenPairsService: TokenPairsService,
+        @inject(TYPES.TokenPairsService) @named("Tradable") private tokenPairsService: TokenPairsService,
         @inject(TYPES.ValidationService) private validationService: ValidationService) {
             super();
         }

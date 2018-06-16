@@ -2,6 +2,7 @@ export { ECSignature } from "./ecSignature";
 export { Errors } from "./errors";
 export { Fee } from "./fee";
 export { Order } from "./order";
+export { Price } from "./price";
 export { RequestLimit } from "./requestLimit";
 export { SignedOrder } from "./signedOrder";
 export { Ticker } from "./ticker";

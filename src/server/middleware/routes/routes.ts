@@ -5,6 +5,7 @@ import { OrderController } from './../../controllers/orderController';
 import { TokenPairsController } from './../../controllers/tokenPairsController';
 import { FeeController } from './../../controllers/feeController';
 import { PostOrderController } from './../../controllers/postOrderController';
+import { PriceController } from './../../controllers/priceController';
 import { ParameterValidator } from '../validator/parameterValidator';
 import { ValidationAddressParam } from '../validator/validationAddressParam';
 import { ValidationErrorModel, ErrorCode } from '../../../server/middleware/errorHandler';
@@ -21,7 +22,6 @@ const models: TsoaRoute.Models = {
     },
     "SignedOrder": {
         "properties": {
-            "ecSignature": { "ref": "ECSignature", "required": true },
             "maker": { "dataType": "string", "required": true },
             "taker": { "dataType": "string", "required": true },
             "makerFee": { "dataType": "string", "required": true },
@@ -34,6 +34,7 @@ const models: TsoaRoute.Models = {
             "exchangeContractAddress": { "dataType": "string", "required": true },
             "feeRecipient": { "dataType": "string", "required": true },
             "expirationUnixTimestampSec": { "dataType": "string", "required": true },
+            "ecSignature": { "ref": "ECSignature", "required": true },
         },
     },
     "ErrorCode": {
@@ -81,6 +82,17 @@ const models: TsoaRoute.Models = {
             "feeRecipient": { "dataType": "string", "required": true },
             "makerFee": { "dataType": "string", "required": true },
             "takerFee": { "dataType": "string", "required": true },
+        },
+    },
+    "Price": {
+        "properties": {
+            "tokenFrom": { "dataType": "string", "required": true },
+            "tokenTo": { "dataType": "string", "required": true },
+            "price": { "dataType": "string", "required": true },
+            "maxAmountFrom": { "dataType": "string", "required": true },
+            "maxAmountTo": { "dataType": "string", "required": true },
+            "minAmountFrom": { "dataType": "string", "required": true },
+            "minAmountTo": { "dataType": "string", "required": true },
         },
     },
 };
@@ -183,6 +195,25 @@ export function RegisterRoutes(app: any) {
                 }
 
                 const promise = controller.postOrder.apply(controller, validatedArgs);
+                promiseHandler(controller, promise, response, next);
+            }).catch((error: any) => next(error));
+        });
+    app.get('/api/v0/prices',
+        function(request: any, response: any, next: any) {
+            const args = {
+                tokenFrom: { "in": "query", "name": "tokenFrom", "required": true, "dataType": "string" },
+                tokenTo: { "in": "query", "name": "tokenTo", "required": true, "dataType": "string" },
+                trader: { "in": "query", "name": "trader", "required": true, "dataType": "string" },
+            };
+
+            const controller = iocContainer.get<PriceController>(PriceController);
+
+            getValidatedArgs(args, request, controller).then((validatedArgs) => {
+                if (typeof controller['setStatus'] === 'function') {
+                    (<any>controller).setStatus(undefined);
+                }
+
+                const promise = controller.calculatePrice.apply(controller, validatedArgs);
                 promiseHandler(controller, promise, response, next);
             }).catch((error: any) => next(error));
         });
