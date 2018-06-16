@@ -1,7 +1,7 @@
 import * as config from "config";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
 import { Controller } from "tsoa";
-import { AmadeusService, CryptographyService, ExchangeService, FeeService, JobRunner, JobTask, LiquidityService, LoggerService, OrderService, PaginationService, PostOrderService, PriceService, RequestLimitService, SaltService, TickerRepository, TickerService, TimeService, TokenPairsService, TokenService, TYPES, ValidationService, WhitelistRepository } from "../../../app";
+import { AmadeusService, CryptographyService, ExchangeService, FeeService, GasService, JobRunner, JobTask, LiquidityService, LoggerService, OrderService, PaginationService, PostOrderService, PriceService, RequestLimitService, SaltService, TickerRepository, TickerService, TimeService, TokenPairsService, TokenService, TYPES, ValidationService, WhitelistRepository } from "../../../app";
 import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantQuoteFeeService, ConstantReserveManagerFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromManagerTickerService, FromRelayerOrderService, FromRelayerTickerService, FromTickerPriceService, FromZeroExTickerService, GoogleCloudDatastoreWhitelistRepository, LoggerDebug, ManagerOrderService, QuoteProviderOrderService, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, TradableTokenPairsService, ZeroExFeeService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
 import { FeeController } from "../../controllers/feeController";
 import { OrderController } from "../../controllers/orderController";
@@ -39,6 +39,7 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
         };
     });
     bind(PaginationService).toSelf();
+    bind<GasService>(TYPES.GasService).to(ZeroExWrapper);
     bind<PostOrderService>(TYPES.PostOrderService).to(QuoteProviderOrderService);
     bind<PriceService>(TYPES.PriceService).to(FromTickerPriceService);
     bind<RequestLimitService>(TYPES.RequestLimitService).to(CachedRequestLimitService).inSingletonScope();
