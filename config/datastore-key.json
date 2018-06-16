@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "amadeusrelay-201914",
+  "private_key_id": "203a4097d8e3342b7733670393406b0ddedd72be",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC+gR7VozozFFAa\nOxaWgVwseJlt6/ceRpLhpYHZi40xmaJmRIgah2hbvt0BVUh5YpZHZKGZqruG5Fy7\nWlEWQ+lUPGYfnhdFoeSXVbkxqxix7YNnaDqE93MYneNAqhzny8boBJi9VHaaUFPj\nXrz87+FGcpSxDV61dOvg19YIsAyGIfHZ8gcCO3x6AVx7nPL/icvhQ734A0q8xaLh\n89wv5cTrkTH+RU2qILHQHJwMHtkI0Y0aDpNzs7DSrW5BTMbW1waYbphSPJc1+xUo\nVbSc8O3CoNy328kUnHkEMVCfMBGg1CiUTa9+KO99HIKKgr0HWEXLdivApqqqv/09\ndt8a+CqlAgMBAAECggEAAvtO4f2gyNFh0pNHrnneWTTXA+0sTD1DCcSXJHJGdrcG\nn26lqbKiW8NAPsfYr0uvefUVgWv2bO1QlT8b40sTURXz7D1DdHvM8eBt2lzo8Un8\nI0dymQetdb5s4uN2udsK5TFDOb1jcNVehsHCF/xiLIHZGW9R4umuUnHWYALvYz8I\nV6z1++sfsKPhqAdHOy1Mo7xlw93uPVHIjmofbH+TBuwRnb2RAiyEzwUOMv19eJkx\nt+6fFWTDoI/zU0zIWvetj6obpFEMssD8p8yIyBq/VrSFQNcCEqhGLp6j+UJ2e/pN\nQRqQrW3oX1IkN+iwf3veqSdg32k1oEnQVJgtsZOlkQKBgQDomRkWQ5riy5KvlVV/\nKQny0X3i0MzzFP/FxdWgS83XGwlo8alnkY+TYPrLpRpDEEZOrW6bBoInzb12HUYr\nHSkMV9LgmgxTfeAAAkg+VaCDihGpVRK8YIx14sbA67P0P1F7Sve/AxZPinUNXr2w\nyRbENGqVPD+ROwKOj40Dl89ZNQKBgQDRq9a3f2VcqDzPvM3IdFjV3ujbxgRWuC03\n18CvKemAgJSg+lgzxzL4vShfhXsklHxwnpRcgHLbHCDZ8TXtFhNsCOlCMG9nJS+C\nBCAo8ESjAr/Azdl7GS2Qel7+yUalKeixzWe2tLP2Dlp0WOczQhhKXbIr8IKLDiv2\nuETBTkopsQKBgBf03M6cO/GsAfmvqdSlB29JAGxCETngKc/W5n/SDutez4NNkKMo\nLN+DF5Gt+Zx6qqMj3cZ9zx4GZMMrlLSQFlA9I20asLZQuqeFlKdG7ndd2x/TsVBR\nqWXi65GnNSus8dl/CTFVQhEDM7ci0OrKa1veAjRItkthBoxkYKPEGQkZAoGBAKDl\nH7DSRwMyau/y72r6tUzxcHlt29h8Ht7yZn9ER1X/1Y4ubc7V9qxf44JhmNy6QT/e\nwPS28OxpCmCUNBCKVz8ZG35aUrKxG2LHLbKcpd79dg5LKK/I42kyLoGQDPEjVthS\nSlsvEcYov4r2yfxQpPk0K0yClHqG1n/OaZx5KnoRAoGBAMmt/uLnvFmRs4HMzCRi\nJCkBdEkxD6JnYYR7SY4pgxoy1BnUYumOTYJP+ec+Yjp4YuD+TY8REEvw8En9IjBG\nzD02XhVNwWOFanqLzkjbOIb4WRVr7Fet1a4Uod8/S1YlTRyY/FzINJO43jv+RmPc\nvyqNhFBrp60YJhBOilmtr3BT\n-----END PRIVATE KEY-----\n",
+  "client_email": "datastore-user@amadeusrelay-201914.iam.gserviceaccount.com",
+  "client_id": "106554595590816685687",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/datastore-user%40amadeusrelay-201914.iam.gserviceaccount.com"
+}

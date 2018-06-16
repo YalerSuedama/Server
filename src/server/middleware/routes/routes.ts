@@ -22,7 +22,6 @@ const models: TsoaRoute.Models = {
     },
     "SignedOrder": {
         "properties": {
-            "ecSignature": { "ref": "ECSignature", "required": true },
             "maker": { "dataType": "string", "required": true },
             "taker": { "dataType": "string", "required": true },
             "makerFee": { "dataType": "string", "required": true },
@@ -35,6 +34,7 @@ const models: TsoaRoute.Models = {
             "exchangeContractAddress": { "dataType": "string", "required": true },
             "feeRecipient": { "dataType": "string", "required": true },
             "expirationUnixTimestampSec": { "dataType": "string", "required": true },
+            "ecSignature": { "ref": "ECSignature", "required": true },
         },
     },
     "ErrorCode": {
@@ -101,12 +101,12 @@ export function RegisterRoutes(app: any) {
     app.get('/api/v0/orders',
         function(request: any, response: any, next: any) {
             const args = {
+                taker: { "in": "query", "name": "taker", "required": true, "dataType": "string" },
                 exchangeContractAddress: { "in": "query", "name": "exchangeContractAddress", "dataType": "string" },
                 tokenAddress: { "in": "query", "name": "tokenAddress", "dataType": "string" },
                 makerTokenAddress: { "in": "query", "name": "makerTokenAddress", "dataType": "string" },
                 takerTokenAddress: { "in": "query", "name": "takerTokenAddress", "dataType": "string" },
                 maker: { "in": "query", "name": "maker", "dataType": "string" },
-                taker: { "in": "query", "name": "taker", "dataType": "string" },
                 trader: { "in": "query", "name": "trader", "dataType": "string" },
                 feeRecipient: { "in": "query", "name": "feeRecipient", "dataType": "string" },
                 page: { "in": "query", "name": "page", "dataType": "integer", "validators": { "isInt": { "errorMsg": "page" }, "minimum": { "value": 1 } } },

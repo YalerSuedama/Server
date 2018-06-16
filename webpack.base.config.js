@@ -16,6 +16,7 @@ module.exports = {
     },
     plugins: [
         new webpack.DefinePlugin({
+            'process.env.GOOGLE_APPLICATION_CREDENTIALS': JSON.stringify(__dirname + "/config/datastore-key.json"),
             'process.env.ETHEREUM_NODE': JSON.stringify('localhost'),
             'process.env.DEBUG': '*'
         }),
