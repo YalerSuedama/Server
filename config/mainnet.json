@@ -19,7 +19,7 @@
     },
     "analytics": {
         "enabled": true,
-        "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=994911df-4e73-4fc1-9480-266a2624fa8b&dh=localhost&dt=mainnet&dp="
+        "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=994911df-4e73-4fc1-9480-266a2624fa8b&dh=localhost&cn=mainnet&dp="
     },
     "server": {
         "useHttp": false,
