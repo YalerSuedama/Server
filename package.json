@@ -13,7 +13,7 @@
         "build:cloud": "npm run build:prepare && webpack --config webpack.cloud.config.js",
         "build:dev": "npm run build:prepare && webpack --config webpack.dev.config.js",
         "build:kovan": "npm run build:prepare && webpack --config webpack.kovan.config.js",
-        "start:mainnet": "npm run build:mainnet && node dist/server.js",
+        "start:mainnet": "npm run build:mainnet && cross-env NODE_ENV='production' node dist/server.js",
         "start:cloud": "npm run build:cloud && node dist/server.js",
         "start:dev": "npm run build:dev && cross-env DEBUG=* webpack --watch --config webpack.dev.config.js",
         "start:kovan": "npm run build:kovan && node dist/server.js",
