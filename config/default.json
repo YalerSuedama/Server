@@ -3,6 +3,7 @@
         "0x": {
             "networkId": 42
         },
+        "infuraUrl": "https://kovan.infura.io/LhA6Si4etPyPRaC2QVFF",
         "fee": {
             "maker": 0.001,
             "taker": 0.001
