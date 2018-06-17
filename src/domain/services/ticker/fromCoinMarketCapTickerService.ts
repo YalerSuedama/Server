@@ -58,9 +58,9 @@ export class FromCoinMarketCapTickerService implements TickerService {
     }
 
     private getTokenIdentifier(token: Token): string {
-        const found: any = config.get<any>(`amadeus.tokens.${token.symbol}`);
+        const found: any = config.get<any>(`amadeus.tokensConversion.${token.symbol}`);
         if (found) {
-            return found.identifier;
+            return found.coinMarketCapIdentifier;
         }
         this.logger.log("The token %s does not have an identifier configured. It cannot be searched on Coin Market Cap", token.symbol);
         throw new Error(`The token ${token.symbol} is not configured to be searched on Coin Market Cap`);

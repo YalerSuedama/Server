@@ -137,7 +137,7 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
 
     private getTradableTokens(): string[] {
         if (config.has(ZeroExWrapper.TRADABLE_TOKENS_KEY)) {
-            return Object.keys(config.get(ZeroExWrapper.TRADABLE_TOKENS_KEY));
+            return config.get(ZeroExWrapper.TRADABLE_TOKENS_KEY);
         }
         return ZeroExWrapper.DEFAULT_TOKENS;
     }
