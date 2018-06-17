@@ -10,7 +10,7 @@ module.exports = merge(baseConfig, {
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('production'),
         }),
-        new CopyWebpackPlugin([{ from: './config/production.json', to: './config' }]),
+        new CopyWebpackPlugin([{ from: './config/mainnet.json', to: './config' }]),
         new UglifyJsPlugin({
             uglifyOptions: {
                 compress: {
