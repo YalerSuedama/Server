@@ -1,5 +1,5 @@
 import { BigNumber } from "bignumber.js";
-import { expect, use } from "chai";
+import { assert, expect, use } from "chai";
 import { Container } from "inversify";
 import "reflect-metadata";
 import * as sinon from "sinon";
@@ -21,7 +21,8 @@ const validationServiceStub: ValidationService = {
     validatePrice: (makerTokenAddress: string, takerTokenAddress: string, makerTokenAmount: BigNumber, takerTokenAmount: BigNumber) => Promise.resolve(!shouldValidateFalse),
     validateCurrentContractAddress: (address: string) => Promise.resolve(!shouldValidateFalse),
     tokenPairIsSupported: (makerTokenAddress: string, takerTokenAddress: string) => Promise.resolve(!shouldValidateFalse),
-    validateTakerTokenAmount: (makerTokenAddress: string, takerTokenAddress: string, takerTokenAmount: BigNumber) => Promise.resolve(!shouldValidateFalse),
+    validateTokenSoldAmount: (tokenSoldAddress: string, tokenBoughtAddress: string, tokenSoldAmount: BigNumber)=> Promise.resolve(!shouldValidateFalse),
+    validateTokenBoughtAmount: (tokenBoughtAddress: string, tokenSoldAddress: string, tokenBoughtAmount: BigNumber) => Promise.resolve(!shouldValidateFalse),
 };
 
 describe("OrderController", () => {
@@ -63,17 +64,6 @@ describe("OrderController", () => {
             // tslint:disable-next-line:no-unused-expression
             expect(spy).to.be.calledOnce;
             done();
-        });
-        it("should throw on invalid addresses", async () => {
-            shouldValidateFalse = true;
-            let returned;
-            try {
-                returned = await iocContainer.get<OrderController>(OrderController).listOrders("fsjklasdlkjf");
-            } catch (error) {
-                expect(error).to.be.instanceOf(ValidateError);
-                return;
-            }
-            chai.assert.fail(returned, null, "Expected to have thrown error, but returned.");
         });
         it("should pass exchangeContractAddress as first parameter to orderService.listOrders", (done) => {
             callController(parameter, 0, done);

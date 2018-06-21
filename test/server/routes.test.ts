@@ -54,7 +54,7 @@ class TokenPairsControllerStub extends TokenPairsController {
         return [];
     }
 }
-const tokenPairsControllerStub: TokenPairsController = new TokenPairsControllerStub(null);
+const tokenPairsControllerStub: TokenPairsController = new TokenPairsControllerStub(null, null);
 
 const tests = [
     new RouteTest<OrderController>("/api/v0/orders", RouteMethods.GET, OrderController, orderControllerStub as OrderController, "listOrders"),

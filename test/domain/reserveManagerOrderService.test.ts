@@ -4,7 +4,7 @@ import { Container, interfaces } from "inversify";
 import "reflect-metadata";
 import { AmadeusService, OrderService, TokenPairsService, TYPES } from "../../src/app";
 import { ReserveManagerOrderService } from "../../src/domain/services/reserveManagerOrderService";
-import { stubAmadeusService, stubCryptographyService, stubExchangeService, stubFeeService, stubSaltService, stubTickerService, stubTimeService, stubTokenPairsService, stubTokenService } from "../stubs";
+import { stubAmadeusService, stubCryptographyService, stubExchangeService, stubFeeService, stubLiquidityService, stubSaltService, stubTickerService, stubTimeService, stubTokenPairsService, stubTokenService } from "../stubs";
 import { createContainer, createToken, DEFAULT_ADDRESS, TOKENS } from "../stubs/util";
 
 const chaiSubsetLoader = () => require("chai-subset");
@@ -15,7 +15,7 @@ const should = chai.should();
 const expect = chai.expect;
 
 describe("ReserveManagerOrderService", () => {
-    const iocContainer = createContainer(true, stubAmadeusService, stubCryptographyService, stubExchangeService, stubFeeService, stubTokenPairsService, stubSaltService, stubTickerService, stubTimeService, stubTokenService, (c: Container) => {
+    const iocContainer = createContainer(true, stubAmadeusService, stubCryptographyService, stubExchangeService, stubFeeService, stubLiquidityService, stubTokenPairsService, stubSaltService, stubTickerService, stubTimeService, stubTokenService, (c: Container) => {
         c.bind<OrderService>(TYPES.OrderService).to(ReserveManagerOrderService);
     });
 
@@ -157,6 +157,7 @@ describe("ReserveManagerOrderService", () => {
         });
     });
     context("When makerTokenAddress and takerTokenAddress are informed", () => {
+        // TODO: Fernanda - Test will break with decimals alteration
         it("should return orders sorted by price", async () => {
             const makerTokenSymbol = TOKENS[0];
             const makerTokenAddress = DEFAULT_ADDRESS + makerTokenSymbol;
