@@ -62,6 +62,16 @@ export class ParameterValidator {
                             return false;
                         }
                         break;
+                    case ValidationAddressType.WHITELISTED_ADDRESS:
+                        if (!await validationService.isWhitelistedAddress(value)) {
+                            fieldErrors.push({
+                                code: ValidationErrorCode.AddressNotSupported,
+                                field: name,
+                                reason: `Invalid ${name} address. Only whitelisted addresses can be used`,
+                            });
+                            return false;
+                        }
+                        break;
                     default:
                         break;
                 }

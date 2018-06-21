@@ -22,4 +22,5 @@ export const TYPES = {
     TokenPairsService: Symbol("TokenPairsService"),
     TokenService: Symbol("TokenService"),
     ValidationService: Symbol("ValidationService"),
+    WhitelistRepository: Symbol("WhitelistRepository"),
 };
