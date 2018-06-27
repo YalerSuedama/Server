@@ -1,8 +1,11 @@
 import * as config from "config";
 import { Container, ContainerModule, decorate, injectable, interfaces } from "inversify";
+import { WhitelistService } from "src/app/services/whiteListService";
 import { Controller } from "tsoa";
 import { AmadeusService, CryptographyService, ExchangeService, FeeService, GasService, JobRunner, JobTask, LiquidityService, LoggerService, OrderService, PaginationService, PostOrderService, PriceService, RequestLimitService, SaltService, TickerRepository, TickerService, TimeService, TokenPairsService, TokenService, TYPES, ValidationService, WhitelistRepository } from "../../../app";
 import { AccountPercentageLiquidityService, CachedRequestLimitService, ConstantQuoteFeeService, ConstantReserveManagerFeeService, FillTickerTask, FromCacheTickerService, FromCoinMarketCapTickerService, FromConfigAmadeusService, FromConfigTickerService, FromManagerTickerService, FromRelayerOrderService, FromRelayerTickerService, FromTickerPriceService, FromZeroExTickerService, GoogleCloudDatastoreWhitelistRepository, LoggerDebug, ManagerOrderService, QuoteProviderOrderService, ReserveManagerOrderService, SetIntervalJobRunner, TimeServiceImpl, TokensWithLiquidityTokenPairsService, TradableTokenPairsService, ZeroExFeeService, ZeroExSchemaBasedValidationService, ZeroExWrapper } from "../../../domain";
+import { FromCacheWhiteListRepository } from "../../../domain/repository/fromCacheWhitelistRepository";
+import { FillConfigurationTask } from "../../../domain/services/job/task/fillConfigurationTask";
 import { FeeController } from "../../controllers/feeController";
 import { OrderController } from "../../controllers/orderController";
 import { PostOrderController } from "../../controllers/postOrderController";
@@ -17,14 +20,17 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<FeeController>(FeeController).toSelf();
     bind<PriceController>(PriceController).toSelf();
 
+    // Jobs
+    bind<JobRunner>(TYPES.JobRunner).to(SetIntervalJobRunner).inSingletonScope();
+    bind<JobTask>(TYPES.JobTask).to(FillTickerTask);
+    bind<JobTask>(TYPES.JobTask).to(FillConfigurationTask​​);
+
     // Services
     bind<AmadeusService>(TYPES.AmadeusService).to(FromConfigAmadeusService);
     bind<CryptographyService>(TYPES.CryptographyService).to(ZeroExWrapper).inSingletonScope();
     bind<ExchangeService>(TYPES.ExchangeService).to(ZeroExWrapper).inSingletonScope();
     bind<FeeService>(TYPES.FeeService).to(ConstantReserveManagerFeeService).whenTargetNamed("ConstantReserveManager");
     bind<FeeService>(TYPES.FeeService).to(ConstantQuoteFeeService).whenTargetNamed("ConstantQuote");
-    bind<JobRunner>(TYPES.JobRunner).to(SetIntervalJobRunner).inSingletonScope();
-    bind<JobTask>(TYPES.JobTask).to(FillTickerTask);
     bind<LiquidityService>(TYPES.LiquidityService).to(AccountPercentageLiquidityService);
     bind<LoggerService>(TYPES.LoggerService).to(LoggerDebug);
     // bind<OrderService>(TYPES.OrderService).to(ManagerOrderService).whenTargetIsDefault();
@@ -63,7 +69,9 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     bind<TokenPairsService>(TYPES.TokenPairsService).to(TradableTokenPairsService).whenTargetNamed("Tradable");
     bind<TokenService>(TYPES.TokenService).to(ZeroExWrapper).inSingletonScope();
     bind<ValidationService>(TYPES.ValidationService).to(ZeroExSchemaBasedValidationService);
+    bind<WhitelistService>(TYPES.WhitelistService).to(FromCacheWhiteListRepository);
 
     // Repositories
-    bind<WhitelistRepository>(TYPES.WhitelistRepository).to(GoogleCloudDatastoreWhitelistRepository);
+    bind<WhitelistRepository>(TYPES.WhitelistRepository).to(FromCacheWhiteListRepository).whenTargetNamed("Cache");
+    bind<WhitelistRepository>(TYPES.WhitelistRepository).to(GoogleCloudDatastoreWhitelistRepository).whenTargetNamed("Google");
 });

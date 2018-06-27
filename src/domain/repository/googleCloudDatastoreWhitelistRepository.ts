@@ -1,21 +1,26 @@
 import { injectable } from "inversify";
-import { WhitelistRepository } from "../../app/services/repository/whitelistRepository";
+import { WhitelistRepository } from "src/app";
 import { GoogleCloudDatastoreBaseRepository } from "./googleCloudDatastoreBaseRepository";
 
 @injectable()
 export class GoogleCloudDatastoreWhitelistRepository extends GoogleCloudDatastoreBaseRepository implements WhitelistRepository {
-    public async exists(address: string, activeOnly?: boolean): Promise<boolean> {
-        const configuration: any = await this.datastore.get(this.datastore.key(["Configuration", "default"]));
+
+    public setWhiteList(addresses: string[]): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
+
+    public async getWhiteList(): Promise<string[]> {
+        const configuration: any = await this.getConfigurationDataStore();
         const whitelistEnabled = configuration[0] && configuration[0].whitelistEnabled;
         if (!whitelistEnabled) {
-            return true;
+            return ["all"];
         }
 
-        let query = this.datastore.createQuery("Whitelist").filter("address", address);
-        if (activeOnly) {
-            query = query.filter("active", activeOnly);
-        }
+        const query = this.datastore.createQuery("Whitelist").hasAncestor(this.getConfigurationKey()).filter("active", true);
         const results = await this.datastore.runQuery(query);
-        return results[0] != null && results[0].length > 0;
+        if (!results || results.length === 0) {
+            return [];
+        }
+        return results[0].map((wl) => (wl as any).address);
     }
 }
