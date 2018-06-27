@@ -81,7 +81,7 @@ export class FromRelayerTickerService implements TickerService {
             return token.address;
         }
 
-        const found = config.get<any>(`amadeus.tokens.${token.symbol}`);
+        const found = config.get<any>(`amadeus.tokensConversion.${token.symbol}`);
         return found ? found.defaultAddress : null;
     }
 

@@ -3,6 +3,7 @@
         "0x": {
             "networkId": 42
         },
+        "infuraUrl": "https://kovan.infura.io/LhA6Si4etPyPRaC2QVFF",
         "fee": {
             "maker": 0.001,
             "taker": 0.001
@@ -67,21 +68,22 @@
                 ]
             }
         },
-        "tokens": {
+        "tokens": ["WETH", "GNT", "REP", "ZRX"],
+        "tokensConversion": {
             "WETH": {
-                "identifier": "ethereum",
+                "coinMarketCapIdentifier": "ethereum",
                 "defaultAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
             },
             "GNT": {
-                "identifier": "golem",
+                "coinMarketCapIdentifier": "golem",
                 "defaultAddress": "0xa74476443119a942de498590fe1f2454d7d4ac0d"
             },
             "REP": {
-                "identifier": "augur",
+                "coinMarketCapIdentifier": "augur",
                 "defaultAddress": "0xe94327d07fc17907b4db788e5adf2ed424addff6"
             },
             "ZRX": {
-                "identifier": "0x",
+                "coinMarketCapIdentifier": "0x",
                 "defaultAddress": "0xe41d2489571d322189246dafa5ebde1f4699f498"
             }
         },
@@ -116,5 +118,8 @@
             "path": "/.well-known/acme-challenge/BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU",
             "response": "BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU.kfNcDmRcSJr-5Mrp7MX-dpuy6pIEM0lL1X4dbtcS4uM"
         }
+    },
+    "datastore": {
+        "configurationKey": "default"
     }
 }

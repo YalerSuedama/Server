@@ -1,9 +1,8 @@
 import { schemas, SchemaValidator, ValidatorResult } from "@0xproject/json-schemas";
 import { BigNumber } from "bignumber.js";
 import { inject, injectable, named } from "inversify";
-import { AmadeusService, ExchangeService, FeeService, LiquidityService, TickerService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../app";
+import { AmadeusService, ExchangeService, FeeService, LiquidityService, TickerService, TokenPairsService, TokenService, TYPES, ValidationService, WhitelistService } from "../../app";
 import { TokenPairTradeInfo } from "../../app/models";
-import { WhitelistRepository } from "../../app/services/repository/whitelistRepository";
 import { ZERO_ADDRESS } from "../util";
 
 @injectable()
@@ -17,7 +16,7 @@ export class ZeroExSchemaBasedValidationService implements ValidationService {
                  @inject(TYPES.TickerService) @named("Repository") private tickerService: TickerService,
                  @inject(TYPES.ExchangeService) protected exchangeService: ExchangeService,
                  @inject(TYPES.TokenPairsService) protected tokenPairsService: TokenPairsService,
-                 @inject(TYPES.WhitelistRepository) private whitelistRepository: WhitelistRepository,
+                 @inject(TYPES.WhitelistService) private whitelistService: WhitelistService,
                  @inject(TYPES.LiquidityService) private liquidityService: LiquidityService,
                 ) {
     }
@@ -27,8 +26,8 @@ export class ZeroExSchemaBasedValidationService implements ValidationService {
         return validatorResult.valid;
     }
 
-    public async isWhitelistedAddress(address: string, activeOnly?: boolean): Promise<boolean> {
-        return await this.whitelistRepository.exists(address, activeOnly);
+    public async isWhitelistedAddress(address: string): Promise<boolean> {
+        return await this.whitelistService.exists(address);
     }
 
     public validateMainAddress(address: string): boolean {

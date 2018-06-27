@@ -13,4 +13,13 @@ export abstract class GoogleCloudDatastoreBaseRepository {
 
         this.datastore = new DataStore({ projectId: keyFile.project_id, keyFilename });
     }
+
+    protected async getConfigurationDataStore(): Promise<any> {
+        const configurationKey = this.getConfigurationKey();
+        return await this.datastore.get(configurationKey);
+    }
+
+    protected getConfigurationKey(): any {
+        return this.datastore.key(["Configuration", "default"]);
+    }
 }

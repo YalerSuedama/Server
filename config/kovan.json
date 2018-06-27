@@ -20,5 +20,8 @@
     "analytics": {
         "enabled": true,
         "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=b79c7265-0aaa-43c6-9309-840a02967c00&dh=api.amadeusrelay.org&dp="
+    },
+    "datastore": {
+        "configurationKey": "kovan"
     }
 }

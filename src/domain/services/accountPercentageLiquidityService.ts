@@ -36,7 +36,7 @@ export class AccountPercentageLiquidityService implements LiquidityService {
         const realTokenToAmount = realTokenFromAmount.mul(price);
         const tokenToAmountToBaseUnit = Utils.toBaseUnit(realTokenToAmount, tokenTo.decimals);
 
-        return tokenToAmountToBaseUnit;
+        return tokenToAmountToBaseUnit.dividedToIntegerBy(1);
     }
 
     public getConvertedPrice(tokenFromAmount: BigNumber, tokenToAmount: BigNumber, tokenFrom: Token, tokenTo: Token): BigNumber {

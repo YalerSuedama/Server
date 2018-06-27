@@ -1,0 +1,36 @@
+{
+    "amadeus": {
+        "0x": {
+            "networkId": 1
+        },
+	"infuraUrl": "https://mainnet.infura.io/LhA6Si4etPyPRaC2QVFF",
+        "fee": {
+            "maker": 0.0,
+            "taker": 0.0
+        },
+        "liquidityPercentage": 0.05,
+        "decimalPlaces": 10,
+        "minimun": 100000000000,
+        "tokens": ["WETH", "ZRX"],
+        "wallet": {
+            "address": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "privateKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+    },
+    "analytics": {
+        "enabled": true,
+        "payload": "v=1&t=pageview&tid=UA-108007037-2&cid=994911df-4e73-4fc1-9480-266a2624fa8b&dh=localhost&cn=mainnet&dp="
+    },
+    "server": {
+        "useHttp": false,
+        "useHttps": true,
+        "dnsValidator": {
+            "active": false,
+            "path": "/.well-known/acme-challenge/BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU",
+            "response": "BJ6sivTDWIavb0hpdT2bf80sNTxzlAs-x8N6psO0jjU.kfNcDmRcSJr-5Mrp7MX-dpuy6pIEM0lL1X4dbtcS4uM"
+        }
+    },
+    "datastore": {
+        "configurationKey": "mainnet"
+    }
+}

@@ -1,3 +1,4 @@
 export interface WhitelistRepository {
-    exists(address: string, activeOnly?: boolean): Promise<boolean>;
+    setWhiteList(addresses: string[]): Promise<void>;
+    getWhiteList(): Promise<string[]>;
 }
