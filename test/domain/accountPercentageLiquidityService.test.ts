@@ -6,23 +6,11 @@ import "reflect-metadata";
 import { AmadeusService, ExchangeService, LiquidityService, TYPES } from "../../src/app";
 import { SignedOrder, Token } from "../../src/app/models";
 import { AccountPercentageLiquidityService } from "../../src/domain/services/accountPercentageLiquidityService";
+import { amadeusServiceStub, exchangeServiceStub } from "../stubs";
 import { createContainer, createToken, DEFAULT_ADDRESS } from "../stubs/util";
 import { expect, should } from "../util";
 
 const totalAmount = new BigNumber(10).pow(15);
-
-const amadeusServiceStub: AmadeusService = {
-    getFeeAddress: () => DEFAULT_ADDRESS + "FEE",
-    getMainAddress: () => DEFAULT_ADDRESS + "ADD",
-    getMinimumAmount: () => new BigNumber(1000000),
-    getPrecision: () => 6,
-};
-const exchangeServiceStub: ExchangeService = {
-    ensureAllowance: (amount: BigNumber, tokenAddress: string, spenderAddress: string) => Promise.resolve(),
-    fillOrder: (order: SignedOrder, fillerAddress?: string) => Promise.resolve(),
-    get0xContractAddress: () => Promise.resolve(DEFAULT_ADDRESS + "ZRX"),
-    getBalance: (address: string, token?: Token) => Promise.resolve(totalAmount),
-};
 
 describe("AccountPercentageLiquidityService", () => {
     let liquidityService: LiquidityService;
