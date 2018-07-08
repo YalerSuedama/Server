@@ -4,10 +4,10 @@ import { inject, injectable, named } from "inversify";
 import { AmadeusService, FeeService, TickerService, TokenService, TYPES } from "../../../app";
 import { Fee, Ticker, Token } from "../../../app/models";
 import * as Utils from "../../util";
-import { ConstantFeeService } from "./constantFeeService";
+import { BaseFeeService } from "./baseFeeService";
 
 @injectable()
-export class ConstantReserveManagerFeeService extends ConstantFeeService implements FeeService {
+export class ConstantReserveManagerFeeService extends BaseFeeService implements FeeService {
 
     public async getMakerFee(token?: Token, amount?: BigNumber): Promise<BigNumber> {
         return new BigNumber(0);

@@ -5,10 +5,10 @@ import { FieldErrors, ValidateError } from "tsoa";
 import { AmadeusService, ExchangeService, FeeService, LoggerService, TickerService, TokenPairsService, TokenService, TYPES } from "../../../app";
 import { Fee, Ticker, Token, TokenPairTradeInfo } from "../../../app/models";
 import * as Utils from "../../util";
-import { ConstantFeeService } from "./constantFeeService";
+import { BaseFeeService } from "./baseFeeService";
 
 @injectable()
-export class ConstantQuoteFeeService extends ConstantFeeService implements FeeService {
+export class ConstantQuoteFeeService extends BaseFeeService implements FeeService {
 
     public async getMakerFee(token?: Token, amount?: BigNumber): Promise<BigNumber> {
         return this.getFee(this.constantFee.maker, token, amount);

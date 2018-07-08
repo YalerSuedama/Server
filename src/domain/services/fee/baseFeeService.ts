@@ -7,7 +7,7 @@ import { Fee, Ticker, Token, TokenPairTradeInfo } from "../../../app/models";
 import * as Utils from "../../util";
 
 @injectable()
-export class ConstantFeeService {
+export abstract class BaseFeeService {
     constructor(
         @inject(TYPES.AmadeusService)
         protected amadeusService: AmadeusService,
@@ -27,9 +27,9 @@ export class ConstantFeeService {
         protected readonly constantFee = config.get<any>("amadeus.fee")) {
     }
 
-    public async getFee(constantFee: any, token?: Token, amount?: BigNumber): Promise<BigNumber> {
+    protected async getFee(feeValue: any, token?: Token, amount?: BigNumber): Promise<BigNumber> {
         if (token.symbol === "ZRX") {
-            return amount.mul(constantFee);
+            return amount.mul(feeValue);
         }
 
         const zeroExToken = await this.tokenService.getToken("ZRX");
@@ -40,6 +40,6 @@ export class ConstantFeeService {
         }
         const zrxAmount = this.liquidityService.getConvertedAmount(amount, ticker.price, token, zeroExToken);
 
-        return zrxAmount.mul(constantFee).truncated();
+        return zrxAmount.mul(feeValue).truncated();
     }
 }

@@ -14,7 +14,7 @@ export const liquidityServiceStub: LiquidityService = {
     getConvertedAmount: (tokenFromAmount: BigNumber, price: BigNumber, tokenFrom: Token, tokenTo: Token) => {
         const realTokenFromAmount = tokenFromAmount.dividedBy(new BigNumber(Math.pow(10, tokenFrom.decimals)));
         const realTokenToAmount = realTokenFromAmount.mul(price);
-        const tokenToAmountToBaseUnit = realTokenToAmount.mul(10 * tokenTo.decimals);
+        const tokenToAmountToBaseUnit = realTokenToAmount.mul(new BigNumber(Math.pow(10, tokenFrom.decimals)));
 
         return tokenToAmountToBaseUnit;
     },
