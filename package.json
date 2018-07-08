@@ -117,6 +117,7 @@
             "src/app/models/*",
             "src/index.ts",
             "src/domain/util/configAmadeus.ts",
+            "src/app/**",
             "test/*"
         ],
         "reporter": [

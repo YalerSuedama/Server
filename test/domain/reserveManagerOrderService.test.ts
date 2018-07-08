@@ -67,6 +67,17 @@ describe("ReserveManagerOrderService", () => {
             returned.should.all.have.property("takerTokenAddress", takerTokenAddress);
         });
     });
+    context("when takerTokenAddress and makerTokenAddress are informed", () => {
+        it("should return orders where takerTokenAddress is always the takerTokenAddress informed and makerTokenAddress is always the makerTokenAddress informed", async () => {
+            const makerTokenSymbol = TOKENS[0];
+            const makerTokenAddress = DEFAULT_ADDRESS + makerTokenSymbol;
+            const takerTokenSymbol = TOKENS[1];
+            const takerTokenAddress = DEFAULT_ADDRESS + takerTokenSymbol;
+            const returned = await iocContainer.get<OrderService>(TYPES.OrderService).listOrders(undefined, undefined, makerTokenAddress, takerTokenAddress);
+            returned.should.all.have.property("takerTokenAddress", takerTokenAddress);
+            returned.should.all.have.property("makerTokenAddress", makerTokenAddress);
+        });
+    });
     context("when maker is informed", () => {
         context("as the Amadeus address", async () => {
             it("should return all orders", async () => {

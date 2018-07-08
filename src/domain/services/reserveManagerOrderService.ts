@@ -81,25 +81,10 @@ export class ReserveManagerOrderService implements OrderService {
         let orders = await Promise.all(pairs.map((pair) => this.createSignedOrderFromTokenPair(pair, currentContractAddress, makerAddress, takerAddress, feeRecipientAddress)));
 
         this.logger.log("Found orders: %o.", orders);
-        if (makerTokenAddress && takerTokenAddress) {
-            orders = orders.sort((first, second) => {
-                return first.price.minus(second.price).toNumber();
-            });
-            this.logger.log("Orders are sorted: %o.", orders);
-        }
 
         orders = await this.paginationService.paginate(orders, page, perPage);
         this.logger.log("Orders are paginated: %o.", orders);
         return orders;
-    }
-
-    private async getComparablePrice(order: SignedOrder): Promise<BigNumber> {
-        const makerToken = await this.tokenService.getTokenByAddress(order.makerTokenAddress);
-        const takerToken = await this.tokenService.getTokenByAddress(order.takerTokenAddress);
-
-        const ticker: Ticker = await this.tickerService.getTicker(makerToken, takerToken);
-
-        return ticker.price;
     }
 
     private async createSignedOrderFromTokenPair(pair: TokenPairTradeInfo, exchangeContractAddress: string, maker: string, taker: string, feeRecipient: string): Promise<SignedOrderPriced> {
