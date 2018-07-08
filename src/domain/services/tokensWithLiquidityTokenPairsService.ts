@@ -65,40 +65,54 @@ export class TokensWithLiquidityTokenPairsService implements TokenPairsService {
         const ticker = await this.tickerService.getTicker(tokenPoolFrom.token, tokenTo);
         if (ticker) {
             if (ticker.price.greaterThan(1)) {
-                const tokenBMaximumAmount = this.liquidityService.getConvertedAmount(tokenPoolFrom.maximumAmount, ticker.price, tokenPoolFrom.token, tokenTo);
-                const tokenBMinimumAmount = this.liquidityService.getConvertedAmount(tokenPoolFrom.minimumAmount, ticker.price, tokenPoolFrom.token, tokenTo);
-                return {
-                    tokenA: {
-                        address: tokenPoolFrom.token.address,
-                        maxAmount: tokenPoolFrom.maximumAmount.toString(),
-                        minAmount: tokenPoolFrom.minimumAmount.toString(),
-                        precision: tokenPoolFrom.precision,
-                    },
-                    tokenB: {
-                        address: tokenTo.address,
-                        maxAmount: Utils.getRoundAmount(tokenBMaximumAmount, tokenTo.decimals).toString(),
-                        minAmount: Utils.getRoundAmount(tokenBMinimumAmount, tokenTo.decimals).toString(),
-                        precision: tokenPoolFrom.precision,
-                    },
-                };
+                return this.getTokenPairsWhenTokenBIsGreaterThanA(tokenPoolFrom, tokenTo, ticker);
             }
-            // TODO: Fernanda - How to change this?
-            if (Utils.getRoundAmount(tokenPoolFrom.minimumAmount.dividedBy(ticker.price), tokenPoolFrom.token.decimals).lessThan(tokenPoolFrom.maximumAmount)) {
-                return {
-                    tokenA: {
-                        address: tokenPoolFrom.token.address,
-                        maxAmount: tokenPoolFrom.maximumAmount.toString(),
-                        minAmount: Utils.getRoundAmount(tokenPoolFrom.minimumAmount.dividedBy(ticker.price), tokenPoolFrom.token.decimals).toString(),
-                        precision: tokenPoolFrom.precision,
-                    },
-                    tokenB: {
-                        address: tokenTo.address,
-                        maxAmount: Utils.getRoundAmount(tokenPoolFrom.maximumAmount.mul(ticker.price), tokenTo.decimals).toString(),
-                        minAmount: tokenPoolFrom.minimumAmount.toString(),
-                        precision: tokenPoolFrom.precision,
-                    },
-                };
-            }
+            return this.getTokenPairsWhenTokenBIsSmallerThanA(tokenPoolFrom, tokenTo, ticker);
+        }
+        return null;
+    }
+
+    private getTokenPairsWhenTokenBIsGreaterThanA(tokenPoolFrom: TokenPool, tokenTo: Token, ticker: Ticker): TokenPairTradeInfo {
+        const tokenBMaximumAmount = this.liquidityService.getConvertedAmount(tokenPoolFrom.maximumAmount, ticker.price, tokenPoolFrom.token, tokenTo);
+        const tokenBMinimumAmount = this.liquidityService.getConvertedAmount(tokenPoolFrom.minimumAmount, ticker.price, tokenPoolFrom.token, tokenTo);
+        return {
+            tokenA: {
+                address: tokenPoolFrom.token.address,
+                maxAmount: tokenPoolFrom.maximumAmount.toString(),
+                minAmount: tokenPoolFrom.minimumAmount.toString(),
+                precision: tokenPoolFrom.precision,
+            },
+            tokenB: {
+                address: tokenTo.address,
+                maxAmount: Utils.getRoundAmount(tokenBMaximumAmount, tokenTo.decimals).toString(),
+                minAmount: Utils.getRoundAmount(tokenBMinimumAmount, tokenTo.decimals).toString(),
+                precision: tokenPoolFrom.precision,
+            },
+        };
+    }
+
+    private getTokenPairsWhenTokenBIsSmallerThanA(tokenPoolFrom: TokenPool, tokenTo: Token, ticker: Ticker): TokenPairTradeInfo {
+        const tokenBMinimumAmount = tokenPoolFrom.minimumAmount;
+        const tokenAMinimumAmount = this.liquidityService.getConvertedAmount(tokenBMinimumAmount, new BigNumber(1).dividedBy(ticker.price), tokenTo, tokenPoolFrom.token);
+
+        const tokenAMaximumAmount = tokenPoolFrom.maximumAmount;
+        const tokenBMaximumAmount = this.liquidityService.getConvertedAmount(tokenAMaximumAmount, ticker.price, tokenPoolFrom.token, tokenTo);
+
+        if (Utils.getRoundAmount(tokenAMinimumAmount, tokenPoolFrom.token.decimals).lessThan(tokenAMaximumAmount)) {
+            return {
+                tokenA: {
+                    address: tokenPoolFrom.token.address,
+                    maxAmount: tokenAMaximumAmount.toString(),
+                    minAmount: Utils.getRoundAmount(tokenAMinimumAmount, tokenPoolFrom.token.decimals).toString(),
+                    precision: tokenPoolFrom.precision,
+                },
+                tokenB: {
+                    address: tokenTo.address,
+                    maxAmount: Utils.getRoundAmount(tokenBMaximumAmount, tokenTo.decimals).toString(),
+                    minAmount: tokenBMinimumAmount.toString(),
+                    precision: tokenPoolFrom.precision,
+                },
+            };
         }
         return null;
     }

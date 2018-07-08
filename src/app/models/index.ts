@@ -5,6 +5,7 @@ export { Order } from "./order";
 export { Price } from "./price";
 export { RequestLimit } from "./requestLimit";
 export { SignedOrder } from "./signedOrder";
+export { SignedOrderPriced } from "./signedOrderPriced";
 export { Ticker } from "./ticker";
 export { Token } from "./token";
 export { TokenPairTradeInfo } from "./tokenPairTradeInfo";

@@ -19,8 +19,8 @@ export class ParameterValidator {
     }
 
     public static async validateAdressParameters(name: string, value: any, type: string, addressParameters: ValidationAddressParam[], validationService: ValidationService, fieldErrors: ValidationErrorModel[]): Promise<boolean> {
+        const addressParameter = addressParameters.find((parameter) => parameter.param === name);
         if (validationService && value !== undefined && value !== null && value !== "") {
-            const addressParameter = addressParameters.find((parameter) => parameter.param === name);
             if (addressParameter) {
                 if (!validationService.isAddress(value)) {
                     fieldErrors.push({
@@ -75,6 +75,15 @@ export class ParameterValidator {
                     default:
                         break;
                 }
+            }
+        } else if (addressParameter && addressParameter.type === ValidationAddressType.WHITELISTED_ADDRESS) {
+            if (!await validationService.isWhitelistedAddress(value)) {
+                fieldErrors.push({
+                    code: ValidationErrorCode.AddressNotSupported,
+                    field: name,
+                    reason: `Invalid ${name} address. Only whitelisted addresses can be used`,
+                });
+                return false;
             }
         }
         return true;

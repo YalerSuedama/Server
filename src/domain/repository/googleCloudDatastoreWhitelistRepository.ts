@@ -17,10 +17,10 @@ export class GoogleCloudDatastoreWhitelistRepository extends GoogleCloudDatastor
         }
 
         const query = this.datastore.createQuery("Whitelist").hasAncestor(this.getConfigurationKey()).filter("active", true);
-        const results = await this.datastore.runQuery(query);
-        if (!results || results.length === 0) {
+        const results: any[] = await this.datastore.runQuery(query);
+        if (!results || (results.length === 0)) {
             return [];
         }
-        return results[0].map((wl) => (wl as any).address);
+        return results[0].map((wl: any) => wl.address);
     }
 }

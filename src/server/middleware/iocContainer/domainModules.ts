@@ -23,7 +23,7 @@ export const domainModules = new ContainerModule((bind: interfaces.Bind) => {
     // Jobs
     bind<JobRunner>(TYPES.JobRunner).to(SetIntervalJobRunner).inSingletonScope();
     bind<JobTask>(TYPES.JobTask).to(FillTickerTask);
-    bind<JobTask>(TYPES.JobTask).to(FillConfigurationTask​​);
+    bind<JobTask>(TYPES.JobTask).to(FillConfigurationTask);
 
     // Services
     bind<AmadeusService>(TYPES.AmadeusService).to(FromConfigAmadeusService);

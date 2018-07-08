@@ -1,9 +1,10 @@
+import { BigNumber } from "bignumber.js";
 import { expect, use } from "chai";
 import { Container } from "inversify";
 import "reflect-metadata";
 import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
-import { TokenPairsService, TYPES } from "../../src/app";
+import { TokenPairsService, TYPES, ValidationService } from "../../src/app";
 import { TokenPairsController } from "../../src/server/controllers/tokenPairsController";
 
 use(sinonChai);
@@ -13,9 +14,23 @@ const tokenPairsServiceStub: TokenPairsService = {
     listPairs: (tokenA?: string, tokenB?: string) => Promise.resolve(null),
 };
 
+const shouldValidateFalse = false;
+
+const validationServiceStub: ValidationService = {
+    isAddress: (address: string) => !shouldValidateFalse,
+    validateMainAddress: (address: string) => !shouldValidateFalse,
+    validateFee: (makerTokenAddress: string, makerFee: BigNumber) => Promise.resolve(!shouldValidateFalse),
+    validatePrice: (makerTokenAddress: string, takerTokenAddress: string, makerTokenAmount: BigNumber, takerTokenAmount: BigNumber) => Promise.resolve(!shouldValidateFalse),
+    validateCurrentContractAddress: (address: string) => Promise.resolve(!shouldValidateFalse),
+    tokenPairIsSupported: (makerTokenAddress: string, takerTokenAddress: string) => Promise.resolve(!shouldValidateFalse),
+    validateTokenSoldAmount: (tokenSoldAddress: string, tokenBoughtAddress: string, tokenSoldAmount: BigNumber)=> Promise.resolve(!shouldValidateFalse),
+    validateTokenBoughtAmount: (tokenBoughtAddress: string, tokenSoldAddress: string, tokenBoughtAmount: BigNumber) => Promise.resolve(!shouldValidateFalse),
+};
+
 const iocContainer = new Container();
 iocContainer.bind<TokenPairsController>(TokenPairsController).toSelf();
 iocContainer.bind<TokenPairsService>(TYPES.TokenPairsService).toConstantValue(tokenPairsServiceStub);
+iocContainer.bind<ValidationService>(TYPES.ValidationService).toConstantValue(validationServiceStub);
 
 describe("TokenPairsController", () => {
     describe(".listPairs", () => {

@@ -319,7 +319,7 @@
 						"description": "Will return all orders where takerAddress is the same address of this parameter.",
 						"in": "query",
 						"name": "taker",
-						"required": true,
+						"required": false,
 						"type": "string"
 					},
 					{

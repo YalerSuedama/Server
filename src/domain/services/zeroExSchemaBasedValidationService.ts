@@ -1,8 +1,7 @@
 import { schemas, SchemaValidator, ValidatorResult } from "@0xproject/json-schemas";
 import { BigNumber } from "bignumber.js";
 import { inject, injectable, named } from "inversify";
-import { WhitelistService } from "src/app/services/whiteListService";
-import { AmadeusService, ExchangeService, FeeService, LiquidityService, TickerService, TokenPairsService, TokenService, TYPES, ValidationService } from "../../app";
+import { AmadeusService, ExchangeService, FeeService, LiquidityService, TickerService, TokenPairsService, TokenService, TYPES, ValidationService, WhitelistService } from "../../app";
 import { TokenPairTradeInfo } from "../../app/models";
 import { ZERO_ADDRESS } from "../util";
 
