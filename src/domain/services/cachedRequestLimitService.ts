@@ -1,10 +1,10 @@
-import * as config from "config";
 import { injectable } from "inversify";
 import * as _ from "lodash";
 import * as moment from "moment";
 import { ExpirationStrategy, MemoryStorage } from "node-ts-cache";
 import { RequestLimit } from "src/app/models";
 import { RequestLimitService } from "../../app";
+import { ConfigAmadeus } from "../util/configAmadeus";
 
 interface RequestCache {
     numberOfCalls: number;
@@ -13,27 +13,11 @@ interface RequestCache {
 
 @injectable()
 export class CachedRequestLimitService implements RequestLimitService {
-    private static DEFAULT_MAXIMUM_ALLOWED_CALLS = 720;
-    private static DEFAULT_EXPIRATION_TIME = moment.duration(1, "h");
 
-    protected maximumAllowedCalls = CachedRequestLimitService.DEFAULT_MAXIMUM_ALLOWED_CALLS;
-    protected expirationTimeWindow = CachedRequestLimitService.DEFAULT_EXPIRATION_TIME;
+    protected maximumAllowedCalls = new ConfigAmadeus().maximumAllowedCalls;
+    protected expirationTimeWindow = new ConfigAmadeus().expirationTimeWindow;
 
     private requestCache = new ExpirationStrategy(new MemoryStorage());
-
-    constructor() {
-        if (config.has("server.requestLimit.maximumAllowedCallsPerWindow")) {
-            this.maximumAllowedCalls = config.get("server.requestLimit.maximumAllowedCallsPerWindow");
-        } else {
-            this.maximumAllowedCalls = CachedRequestLimitService.DEFAULT_MAXIMUM_ALLOWED_CALLS;
-        }
-
-        if (config.has("server.requestLimit.timeWindow.amount") && config.has("server.requestLimit.timeWindow.unit")) {
-            this.expirationTimeWindow = moment.duration(config.get<number>("server.requestLimit.timeWindow.amount"), config.get<moment.unitOfTime.DurationConstructor>("server.requestLimit.timeWindow.unit"));
-        } else {
-            this.expirationTimeWindow = CachedRequestLimitService.DEFAULT_EXPIRATION_TIME;
-        }
-    }
 
     public async getLimit(ip: string): Promise<RequestLimit> {
         let request = await this.requestCache.getItem<RequestCache>(ip);

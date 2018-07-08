@@ -316,13 +316,6 @@
 				"security": [],
 				"parameters": [
 					{
-						"description": "Will return all orders where takerAddress is the same address of this parameter.",
-						"in": "query",
-						"name": "taker",
-						"required": false,
-						"type": "string"
-					},
-					{
 						"description": "Will return all orders created to this contract address.",
 						"in": "query",
 						"name": "exchangeContractAddress",
@@ -354,6 +347,13 @@
 						"description": "Will return all orders where makerAddress is the same address of this parameter.",
 						"in": "query",
 						"name": "maker",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"description": "Will return all orders where takerAddress is the same address of this parameter.",
+						"in": "query",
+						"name": "taker",
 						"required": false,
 						"type": "string"
 					},

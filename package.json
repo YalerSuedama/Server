@@ -116,6 +116,7 @@
             "webpack.*.config.js",
             "src/app/models/*",
             "src/index.ts",
+            "src/domain/util/configAmadeus.ts",
             "test/*"
         ],
         "reporter": [
