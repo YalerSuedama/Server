@@ -1,7 +1,7 @@
 import { BigNumber } from "bignumber.js";
 import * as config from "config";
 import { inject, injectable, named } from "inversify";
-import { LoggerService, PaginationService, TickerService, TokenPairsService, TokenService, TYPES } from "../../app";
+import { AmadeusService, LoggerService, PaginationService, TickerService, TokenPairsService, TokenService, TYPES } from "../../app";
 import { Ticker, Token, TokenPairTradeInfo, TokenPool } from "../../app/models";
 import * as Utils from "../util";
 
@@ -11,6 +11,7 @@ export class TradableTokenPairsService implements TokenPairsService {
         @inject(TYPES.TickerService) @named("Repository") private tickerService: TickerService,
         @inject(TYPES.TokenService) private tokenService: TokenService,
         @inject(TYPES.LoggerService) private loggerService: LoggerService,
+        @inject(TYPES.AmadeusService) private amadeusService: AmadeusService,
         private paginationService: PaginationService,
     ) {
         this.loggerService.setNamespace("tradabletokenpairsservice");
@@ -60,13 +61,13 @@ export class TradableTokenPairsService implements TokenPairsService {
                 address: tokenFrom.address,
                 maxAmount: "999999999999999999999",
                 minAmount: "1",
-                precision: 8,
+                precision: this.amadeusService.getPrecision(),
             },
             tokenB: {
                 address: tokenTo.address,
                 maxAmount:  "999999999999999999999",
                 minAmount:  "1",
-                precision: 8,
+                precision: this.amadeusService.getPrecision(),
             },
         };
     }
