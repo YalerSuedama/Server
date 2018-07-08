@@ -18,13 +18,14 @@ const shouldValidateFalse = false;
 
 const validationServiceStub: ValidationService = {
     isAddress: (address: string) => !shouldValidateFalse,
-    validateMainAddress: (address: string) => !shouldValidateFalse,
-    validateFee: (makerTokenAddress: string, makerFee: BigNumber) => Promise.resolve(!shouldValidateFalse),
-    validatePrice: (makerTokenAddress: string, takerTokenAddress: string, makerTokenAmount: BigNumber, takerTokenAmount: BigNumber) => Promise.resolve(!shouldValidateFalse),
-    validateCurrentContractAddress: (address: string) => Promise.resolve(!shouldValidateFalse),
+    isWhitelistedAddress: (address: string) =>  Promise.resolve(!shouldValidateFalse),
     tokenPairIsSupported: (makerTokenAddress: string, takerTokenAddress: string) => Promise.resolve(!shouldValidateFalse),
-    validateTokenSoldAmount: (tokenSoldAddress: string, tokenBoughtAddress: string, tokenSoldAmount: BigNumber)=> Promise.resolve(!shouldValidateFalse),
+    validateCurrentContractAddress: (address: string) => Promise.resolve(!shouldValidateFalse),
+    validateFee: (makerTokenAddress: string, makerFee: BigNumber) => Promise.resolve(!shouldValidateFalse),
+    validateMainAddress: (address: string) => !shouldValidateFalse,
+    validatePrice: (makerTokenAddress: string, takerTokenAddress: string, makerTokenAmount: BigNumber, takerTokenAmount: BigNumber) => Promise.resolve(!shouldValidateFalse),
     validateTokenBoughtAmount: (tokenBoughtAddress: string, tokenSoldAddress: string, tokenBoughtAmount: BigNumber) => Promise.resolve(!shouldValidateFalse),
+    validateTokenSoldAmount: (tokenSoldAddress: string, tokenBoughtAddress: string, tokenSoldAmount: BigNumber)=> Promise.resolve(!shouldValidateFalse),
 };
 
 const iocContainer = new Container();

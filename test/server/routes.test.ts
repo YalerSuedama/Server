@@ -1,3 +1,4 @@
+import { BigNumber } from "bignumber.js";
 import { expect } from "chai";
 import * as express from "express";
 import { Server } from "http";
@@ -5,6 +6,7 @@ import * as sinon from "sinon";
 import * as sinonChai from "sinon-chai";
 import * as supertest from "supertest";
 import { Controller } from "tsoa";
+import { TYPES, ValidationService } from "../../src/app/index";
 import { SignedOrder, TokenPairTradeInfo } from "../../src/app/models";
 import { OrderController } from "../../src/server/controllers/orderController";
 import { TokenPairsController } from "../../src/server/controllers/tokenPairsController";
@@ -13,11 +15,26 @@ import { RegisterRoutes } from "../../src/server/middleware/routes/routes";
 
 enum RouteMethods { GET, POST, PUT, DELETE }
 
+const shouldValidateFalse = false;
+
+const validationServiceStub: ValidationService = {
+    isAddress: (address: string) => !shouldValidateFalse,
+    isWhitelistedAddress: (address: string) =>  Promise.resolve(!shouldValidateFalse),
+    tokenPairIsSupported: (makerTokenAddress: string, takerTokenAddress: string) => Promise.resolve(!shouldValidateFalse),
+    validateCurrentContractAddress: (address: string) => Promise.resolve(!shouldValidateFalse),
+    validateFee: (makerTokenAddress: string, makerFee: BigNumber) => Promise.resolve(!shouldValidateFalse),
+    validateMainAddress: (address: string) => !shouldValidateFalse,
+    validatePrice: (makerTokenAddress: string, takerTokenAddress: string, makerTokenAmount: BigNumber, takerTokenAmount: BigNumber) => Promise.resolve(!shouldValidateFalse),
+    validateTokenBoughtAmount: (tokenBoughtAddress: string, tokenSoldAddress: string, tokenBoughtAmount: BigNumber) => Promise.resolve(!shouldValidateFalse),
+    validateTokenSoldAmount: (tokenSoldAddress: string, tokenBoughtAddress: string, tokenSoldAmount: BigNumber)=> Promise.resolve(!shouldValidateFalse),
+};
+
 class RouteTest<T extends Controller> {
     constructor(public route: string, public routeMethod: RouteMethods, private controllerType: new (...args: any[]) => T, private controllerStub: T, private controllerMethodName: keyof T) { }
 
     public before(): void {
         iocContainer.rebind(this.controllerType).toConstantValue(this.controllerStub);
+        iocContainer.rebind<ValidationService>(TYPES.ValidationService).toConstantValue(validationServiceStub);
     }
 
     public spyFactory(): sinon.SinonSpy {

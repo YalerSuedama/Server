@@ -9,7 +9,7 @@ const expect = chai.expect;
 describe("ValidationService", () => {
     let validationService: ValidationService;
     beforeEach((done) => {
-        validationService = new ZeroExSchemaBasedValidationService(null, null, null, null, null, null, null);
+        validationService = new ZeroExSchemaBasedValidationService(null, null, null, null, null, null, null, null);
         done();
     });
     it("should return true upon being called with valid addresses", async () => {
