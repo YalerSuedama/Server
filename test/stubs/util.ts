@@ -6,10 +6,10 @@ import { LoggerDebug } from "../../src/domain/index";
 export const DEFAULT_ADDRESS = "0x0000000000000000000000000000000000000";
 export const TOKENS = ["TK1", "TK2", "ZRX"];
 
-export function createToken(symbol: string): Token {
+export function createToken(symbol: string, decimals?: number): Token {
     return {
         address: DEFAULT_ADDRESS + symbol,
-        decimals: 18,
+        decimals: decimals ? decimals : 18,
         symbol,
     };
 }
