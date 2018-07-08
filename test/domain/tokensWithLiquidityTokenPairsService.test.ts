@@ -4,7 +4,7 @@ import { Container, interfaces } from "inversify";
 import "reflect-metadata";
 import { LoggerService, TokenPairsService, TYPES } from "../../src/app";
 import { TokensWithLiquidityTokenPairsService } from "../../src/domain/services/tokensWithLiquidityTokenPairsService";
-import { stubLiquidityService, stubTickerService, stubTokenService } from "../stubs";
+import { liquidityServiceStubFactory, tickerServiceStubFactory, tokenServiceStubFactory } from "../stubs";
 import { createContainer, createToken, DEFAULT_ADDRESS, TOKENS } from "../stubs/util";
 
 const chaiSubsetLoader = () => require("chai-subset");
@@ -15,7 +15,7 @@ const should = chai.should();
 const expect = chai.expect;
 
 describe("TokensWithLiquidityTokenPairsService", () => {
-    const iocContainer = createContainer(true, stubLiquidityService, stubTickerService, stubTokenService, (c: Container) => {
+    const iocContainer = createContainer(true, liquidityServiceStubFactory, tickerServiceStubFactory, tokenServiceStubFactory, (c: Container) => {
         c.bind<TokenPairsService>(TYPES.TokenPairsService).to(TokensWithLiquidityTokenPairsService);
     });
 

@@ -8,6 +8,7 @@
             "maker": 0.001,
             "taker": 0.001
         },
+        "defaultExpirationTime": 300,
         "liquidityPercentage": 0.02,
         "decimalPlaces": 10,
         "minimun": 100000000000,

@@ -4,14 +4,14 @@ import { TickerService, TYPES } from "../../src/app";
 import { Token } from "../../src/app/models";
 import { TOKENS } from "./util";
 
-const stub: TickerService = {
+export const tickerServiceStub: TickerService = {
     getTicker: (tokenFrom: Token, tokenTo: Token) => Promise.resolve({
         from: tokenFrom,
-        to: tokenTo,
         price: new BigNumber(TOKENS.findIndex((token) => token === tokenFrom.symbol) + 1),
+        to: tokenTo,
     }),
 };
 
-export function stubTickerService(iocContainer: Container) {
-    iocContainer.bind<TickerService>(TYPES.TickerService).toConstantValue(stub);
+export function tickerServiceStubFactory(iocContainer: Container) {
+    iocContainer.bind<TickerService>(TYPES.TickerService).toConstantValue(tickerServiceStub);
 }

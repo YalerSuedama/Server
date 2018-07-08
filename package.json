@@ -113,7 +113,10 @@
             "**/*.d.ts",
             "**/dist/**",
             "**/coverage/**",
-            "webpack.*.config.js"
+            "webpack.*.config.js",
+            "src/app/models/*",
+            "src/index.ts",
+            "test/*"
         ],
         "reporter": [
             "text"

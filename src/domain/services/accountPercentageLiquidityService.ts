@@ -21,12 +21,14 @@ export class AccountPercentageLiquidityService implements LiquidityService {
         }
 
         const totalAmount = await this.exchangeService.getBalance(this.amadeusService.getMainAddress(), token);
-        const minimun = new BigNumber(config.get("amadeus.minimun") || "10000000000000");
-        const availableAmount = Utils.getRoundAmount(totalAmount.times(this.getAvailablePercentage()).dividedToIntegerBy(1), token.decimals);
+        const minimun = this.amadeusService.getMinimumAmount();
+        const availablePercentage = this.getAvailablePercentage();
+        let availableAmount = totalAmount.times(availablePercentage).dividedToIntegerBy(1);
+        availableAmount = Utils.getRoundAmount(availableAmount, token.decimals);
         return {
             maximumAmount: availableAmount.greaterThan(minimun) ? availableAmount : new BigNumber(0),
             minimumAmount: availableAmount.greaterThan(minimun) ? minimun : new BigNumber(0),
-            precision: config.get("amadeus.decimalPlaces") || 6,
+            precision: this.amadeusService.getPrecision(),
             token,
         };
     }

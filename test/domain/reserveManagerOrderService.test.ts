@@ -2,9 +2,10 @@ import { BigNumber } from "bignumber.js";
 import * as chai from "chai";
 import { Container, interfaces } from "inversify";
 import "reflect-metadata";
-import { AmadeusService, OrderService, TokenPairsService, TYPES } from "../../src/app";
+import { AmadeusService, OrderService, TokenPairsService, TYPES, ValidationService } from "../../src/app";
+import { ZeroExSchemaBasedValidationService } from "../../src/domain/index";
 import { ReserveManagerOrderService } from "../../src/domain/services/reserveManagerOrderService";
-import { stubAmadeusService, stubCryptographyService, stubExchangeService, stubFeeService, stubLiquidityService, stubSaltService, stubTickerService, stubTimeService, stubTokenPairsService, stubTokenService } from "../stubs";
+import { amadeusServiceStubFactory, cryptographyServiceStubFactory, exchangeServiceStubFactory, feeServiceStubFactory, liquidityServiceStubFactory, saltServiceStubFactory, tickerServiceStubFactory, timeServiceStubFactory, tokenPairsServiceStubFactory, tokenServiceStubFactory } from "../stubs";
 import { createContainer, createToken, DEFAULT_ADDRESS, TOKENS } from "../stubs/util";
 
 const chaiSubsetLoader = () => require("chai-subset");
@@ -15,8 +16,9 @@ const should = chai.should();
 const expect = chai.expect;
 
 describe("ReserveManagerOrderService", () => {
-    const iocContainer = createContainer(true, stubAmadeusService, stubCryptographyService, stubExchangeService, stubFeeService, stubLiquidityService, stubTokenPairsService, stubSaltService, stubTickerService, stubTimeService, stubTokenService, (c: Container) => {
+    const iocContainer = createContainer(true, amadeusServiceStubFactory, cryptographyServiceStubFactory, exchangeServiceStubFactory, feeServiceStubFactory, liquidityServiceStubFactory, saltServiceStubFactory, tickerServiceStubFactory, timeServiceStubFactory, tokenPairsServiceStubFactory, tokenServiceStubFactory, (c: Container) => {
         c.bind<OrderService>(TYPES.OrderService).to(ReserveManagerOrderService);
+        c.bind<ValidationService>(TYPES.ValidationService).to(ZeroExSchemaBasedValidationService);
     });
 
     context("when exchangeContractAddress is informed", () => {

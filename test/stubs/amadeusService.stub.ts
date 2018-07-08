@@ -1,12 +1,15 @@
+import { BigNumber } from "bignumber.js";
 import { Container } from "inversify";
 import { AmadeusService, TYPES } from "../../src/app";
 import { DEFAULT_ADDRESS } from "./util";
 
-const stub: AmadeusService = {
+export const amadeusServiceStub: AmadeusService = {
     getFeeAddress: () => DEFAULT_ADDRESS + "FEE",
     getMainAddress: () => DEFAULT_ADDRESS + "ADD",
+    getMinimumAmount: () => new BigNumber("1000000"),
+    getPrecision: () => 6,
 };
 
-export function stubAmadeusService(iocContainer: Container) {
-    iocContainer.bind<AmadeusService>(TYPES.AmadeusService).toConstantValue(stub);
+export function amadeusServiceStubFactory(iocContainer: Container) {
+    iocContainer.bind<AmadeusService>(TYPES.AmadeusService).toConstantValue(amadeusServiceStub);
 }

@@ -7,7 +7,7 @@ import * as sinonChai from "sinon-chai";
 import { ValidateError } from "tsoa";
 import { OrderService, TYPES, ValidationService } from "../../src/app";
 import { OrderController } from "../../src/server/controllers/orderController";
-import { stubOrderService } from "../stubs";
+import { orderServiceStubFactory } from "../stubs";
 import { createContainer } from "../stubs/util";
 
 use(sinonChai);
@@ -27,7 +27,7 @@ const validationServiceStub: ValidationService = {
 };
 
 describe("OrderController", () => {
-    const iocContainer = createContainer(false, stubOrderService, (c: Container) => {
+    const iocContainer = createContainer(false, orderServiceStubFactory, (c: Container) => {
         c.bind<OrderController>(OrderController).toSelf();
         c.bind<ValidationService>(TYPES.ValidationService).toConstantValue(validationServiceStub);
     });

@@ -3,7 +3,7 @@ import { TokenPairsService, TYPES } from "../../src/app/index";
 import { TokenPairTradeInfo } from "../../src/app/models/index";
 import { createToken, TOKENS } from "./util";
 
-const stub: TokenPairsService = {
+export const tokenPairsServiceStub: TokenPairsService = {
     getPair: (tokenA: string, tokenB: string) => Promise.resolve(null),
     listPairs: (tokenA?: string, tokenB?: string) => {
         const tokens = TOKENS.map((token) => createToken(token));
@@ -40,6 +40,6 @@ const stub: TokenPairsService = {
     },
 };
 
-export function stubTokenPairsService(iocContainer: Container) {
-    iocContainer.bind<TokenPairsService>(TYPES.TokenPairsService).toConstantValue(stub);
+export function tokenPairsServiceStubFactory(iocContainer: Container) {
+    iocContainer.bind<TokenPairsService>(TYPES.TokenPairsService).toConstantValue(tokenPairsServiceStub);
 }

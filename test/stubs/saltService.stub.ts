@@ -1,10 +1,10 @@
 import { Container } from "inversify";
 import { SaltService, TYPES } from "../../src/app";
 
-const stub: SaltService = {
+export const saltServiceStub: SaltService = {
     getSalt: () => Promise.resolve("SALT"),
 };
 
-export function stubSaltService(iocContainer: Container) {
-    iocContainer.bind<SaltService>(TYPES.SaltService).toConstantValue(stub);
+export function saltServiceStubFactory(iocContainer: Container) {
+    iocContainer.bind<SaltService>(TYPES.SaltService).toConstantValue(saltServiceStub);
 }
