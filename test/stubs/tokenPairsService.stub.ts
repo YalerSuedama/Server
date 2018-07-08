@@ -4,7 +4,27 @@ import { TokenPairTradeInfo } from "../../src/app/models/index";
 import { createToken, TOKENS } from "./util";
 
 export const tokenPairsServiceStub: TokenPairsService = {
-    getPair: (tokenA: string, tokenB: string) => Promise.resolve(null),
+    getPair: (tokenA: string, tokenB: string) => {
+        const tokens = TOKENS.map((token) => createToken(token));
+        if (tokens.find((t) => t.address === tokenA) && tokens.find((t) => t.address === tokenB)) {
+            return Promise.resolve({
+                tokenA: {
+                    address: tokenA,
+                    maxAmount: "100000000000000",
+                    minAmount: "10000000000000",
+                    precision: 5,
+                },
+                tokenB: {
+                    address: tokenB,
+                    maxAmount: "200000000000000",
+                    minAmount: "20000000000000",
+                    precision: 5,
+                },
+            });
+        }
+
+        return Promise.resolve(null);
+    },
     listPairs: (tokenA?: string, tokenB?: string) => {
         const tokens = TOKENS.map((token) => createToken(token));
         let pairs: TokenPairTradeInfo[] = [];

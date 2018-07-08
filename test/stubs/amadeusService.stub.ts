@@ -5,7 +5,7 @@ import { DEFAULT_ADDRESS } from "./util";
 
 export const amadeusServiceStub: AmadeusService = {
     getFeeAddress: () => DEFAULT_ADDRESS + "FEE",
-    getMainAddress: () => DEFAULT_ADDRESS + "ADD",
+    getMainAddress: () => DEFAULT_ADDRESS + "MAI",
     getMinimumAmount: () => new BigNumber("1000000"),
     getPrecision: () => 6,
 };

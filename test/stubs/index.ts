@@ -9,4 +9,5 @@ export * from "./tickerService.stub";
 export * from "./timeService.stub";
 export * from "./tokenPairsService.stub";
 export * from "./tokenService.stub";
+export * from "./whitelistService.stub";
 export * from "./util";

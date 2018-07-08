@@ -4,6 +4,8 @@ import { Token } from "../../src/app/models";
 import { LoggerDebug } from "../../src/domain/index";
 
 export const DEFAULT_ADDRESS = "0x0000000000000000000000000000000000000";
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const BLOCKED_ADDRESS = "0x1111111111111111111111111111111111111111";
 export const TOKENS = ["TK1", "TK2", "ZRX"];
 
 export function createToken(symbol: string, decimals?: number): Token {

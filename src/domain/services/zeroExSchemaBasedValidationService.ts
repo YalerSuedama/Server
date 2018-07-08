@@ -30,8 +30,8 @@ export class ZeroExSchemaBasedValidationService implements ValidationService {
         return await this.whitelistService.exists(address);
     }
 
-    public validateMainAddress(address: string): boolean {
-        return address === ZERO_ADDRESS || address === this.amadeusService.getMainAddress();
+    public validateMainAddress(address: string, allowZero: boolean): boolean {
+        return (allowZero && address === ZERO_ADDRESS) || address === this.amadeusService.getMainAddress();
     }
 
     public async validateFee(makerTokenAddress: string, makerFee: BigNumber, makerTokenAmount: BigNumber): Promise<boolean> {
@@ -55,7 +55,7 @@ export class ZeroExSchemaBasedValidationService implements ValidationService {
 
     public async tokenPairIsSupported(tokenBoughtAddress: string, tokenSoldAddress: string): Promise<boolean> {
         const pair: TokenPairTradeInfo = await this.tokenPairsService.getPair(tokenBoughtAddress, tokenSoldAddress);
-        return pair !== undefined;
+        return pair !== undefined && pair !== null;
     }
 
     public async validateTokenBoughtAmount(tokenBoughtAddress: string, tokenSoldAddress: string, tokenBoughtAmount: BigNumber): Promise<boolean> {
