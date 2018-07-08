@@ -21,6 +21,9 @@ export class QuoteProviderOrderService implements PostOrderService {
     }
 
     public async postOrder(order: SignedOrder) {
+        if (!order) {
+            throw new Error("Order must be informed.");
+        }
         this.logger.log("Filling order %o.", order);
         const takerAddress = this.amadeusService.getMainAddress() || order.taker;
         this.logger.log("Filling order with address %s.", takerAddress);

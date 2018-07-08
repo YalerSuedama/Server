@@ -1,5 +1,5 @@
 import { SignedOrder } from "../models";
 
 export interface PostOrderService {
-    postOrder(order: SignedOrder): void;
+    postOrder(order: SignedOrder): Promise<void>;
 }
