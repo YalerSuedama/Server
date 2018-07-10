@@ -11,7 +11,7 @@ import * as Utils from "../util";
 import { fromAmadeusSignedOrders, Web3Factory } from "../util";
 
 @injectable()
-export class ZeroExWrapper implements CryptographyService, ExchangeService, SaltService, TokenService, GasService​​ {
+export class ZeroExWrapper implements CryptographyService, ExchangeService, SaltService, TokenService, GasService {
     private static readonly TRADABLE_TOKENS_KEY = "amadeus.tokens";
     private static readonly DEFAULT_TOKENS = ["WETH", "ZRX", "GNT"];
     private static readonly privateKey = config.get("amadeus.wallet.privateKey") as string;
@@ -142,16 +142,4 @@ export class ZeroExWrapper implements CryptographyService, ExchangeService, Salt
         return ZeroExWrapper.DEFAULT_TOKENS;
     }
 
-    private async isWETHAddress(address: string): Promise<boolean> {
-        return this.zeroEx.etherToken.getContractAddressIfExists() === address;
-    }
-
-    private async wrapETH(amount: string, address: string): Promise<void> {
-        const amountAsBigNumber = new BigNumber(amount);
-        const balance = await this.zeroEx.token.getBalanceAsync(this.zeroEx.etherToken.getContractAddressIfExists(), address);
-        if (balance.lessThan(amountAsBigNumber)) {
-            const tx = await this.zeroEx.etherToken.depositAsync(this.zeroEx.etherToken.getContractAddressIfExists(), amountAsBigNumber.minus(balance), address);
-            await this.zeroEx.awaitTransactionMinedAsync(tx);
-        }
-    }
 }

@@ -10,7 +10,7 @@ import { BLOCKED_ADDRESS, createContainer, createToken, DEFAULT_ADDRESS, TOKENS,
 const should = chai.should();
 const expect = chai.expect;
 
-describe("ValidationService", () => {
+describe("ZeroExSchemaBasedValidationService", () => {
     const iocContainer = createContainer(true, exchangeServiceStubFactory, feeServiceStubFactory, liquidityServiceStubFactory, tickerServiceStubFactory, tokenPairsServiceStubFactory, tokenServiceStubFactory, amadeusServiceStubFactory, whitelistStubFactory, (c: Container) => {
         c.bind<ValidationService>(TYPES.ValidationService).to(ZeroExSchemaBasedValidationService);
     });

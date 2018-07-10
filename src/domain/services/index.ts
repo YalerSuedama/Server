@@ -8,7 +8,6 @@ export * from "./accountPercentageLiquidityService";
 export * from "./cachedRequestLimitService";
 export * from "./fee/constantQuoteFeeService";
 export * from "./fee/constantReserveManagerFeeService";
-export * from "./zeroExFeeService"; // any file that uses 0xConnect (even indirectly), MUST be exported AFTER this line
 export * from "./order/fromRelayerOrderService";
 export * from "./order/managerOrderService";
 export * from "./ticker/fromManagerTickerService";

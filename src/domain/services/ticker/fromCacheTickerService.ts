@@ -4,6 +4,7 @@ import * as moment from "moment";
 import { ExpirationStrategy, MemoryStorage } from "node-ts-cache";
 import { LoggerService, TickerService, TYPES } from "../../../app";
 import { Ticker, Token } from "../../../app/models";
+import { ConfigAmadeus } from "../..//util/configAmadeus";
 
 @injectable()
 export class FromCacheTickerService implements TickerService {
@@ -15,12 +16,7 @@ export class FromCacheTickerService implements TickerService {
 
     constructor( @inject(TYPES.LoggerService) private logger: LoggerService) {
         this.logger.setNamespace("tickercache");
-        if (config.has("amadeus.ticker.cache.ttl")) {
-            const ttlConfig: any = config.get("amadeus.ticker.cache.ttl");
-            this.cacheItemTTL = moment.duration(ttlConfig.value, ttlConfig.unit);
-        } else {
-            this.cacheItemTTL = FromCacheTickerService.DEFAULT_TTL;
-        }
+        this.cacheItemTTL = new ConfigAmadeus().cacheItemTTL;
     }
 
     public async addTicker(ticker: Ticker): Promise<void> {
