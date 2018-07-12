@@ -14,7 +14,7 @@
         "tokens": ["WETH", "ZRX"],
         "wallet": {
             "address": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-            "privateKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            "privateKey": ""
         }
     },
     "analytics": {
