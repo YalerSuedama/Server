@@ -20,6 +20,6 @@ export abstract class GoogleCloudDatastoreBaseRepository {
     }
 
     protected getConfigurationKey(): any {
-        return this.datastore.key(["Configuration", "default"]);
+        return this.datastore.key(["Configuration", config.get("datastore.configurationKey")]);
     }
 }
